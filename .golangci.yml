@@ -1,0 +1,104 @@
+run:
+  # The default concurrency value is the number of available CPU.
+  go: '1.18'
+  concurrency: 4
+  timeout: 5m
+  skip-dirs:
+    - hlf/sdkwrapper
+  tests: false
+linters:
+  enable:
+    - errcheck
+    - gosimple
+    - govet
+    - ineffassign
+    - staticcheck
+    - typecheck
+    - unused
+    - asciicheck
+    - bodyclose
+    - dogsled
+    - dupl
+    - errorlint
+    - exportloopref
+    - misspell
+    - nestif
+    - noctx
+    - nolintlint
+    - prealloc
+    - stylecheck
+    - funlen
+    - gci
+    - gocognit
+    - goconst
+    - gocritic
+    - gocyclo
+    - gofmt
+    - gofumpt
+    - goheader
+    - goimports
+    - gomnd
+    - gomodguard
+    - goprintffuncname
+    - gosec
+    - tparallel
+    - unconvert
+    - unparam
+    - whitespace
+    - revive
+    - usestdlibvars
+    - tenv
+    - promlinter
+    - nosprintfhostport
+    - nilnil
+    - logrlint
+    - grouper
+    - execinquery
+    - errname
+    - decorder
+    - durationcheck
+    - nilerr
+    - forcetypeassert
+    - interfacebloat
+    - contextcheck
+    - loggercheck
+    - reassign
+    - testableexamples
+    - dupword
+    - gocheckcompilerdirectives
+  disable:
+    - godot
+    - wsl
+    - lll
+    - maligned
+    - paralleltest
+    - godox
+    - testpackage
+    - nlreturn
+    - scopelint
+    - golint
+    - interfacer
+    - rowserrcheck
+    - sqlclosecheck
+    - ireturn
+    - wastedassign
+    - deadcode
+    - structcheck
+    - varcheck
+    - depguard
+    - tagliatelle
+    - gosmopolitan
+    - mirror
+    - tagalign
+    - zerologlint
+issues:
+  exclude-rules:
+    - path: _test\.go
+      linters:
+        - funlen
+linters-settings:
+  gosec:
+    excludes:
+      - 'G107'
+      - 'G402'
+      - 'G404'

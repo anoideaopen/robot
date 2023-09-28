@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#375EAB">
+
+  <title>ntesting - Go Documentation Server</title>
+
+<link type="text/css" rel="stylesheet" href="../../../../../../../../lib/godoc/style.css">
+
+<script>window.initFuncs = [];</script>
+<script src="../../../../../../../../lib/godoc/jquery.js" defer></script>
+
+
+
+<script>var goVersion = "go1.19";</script>
+<script src="../../../../../../../../lib/godoc/godocs.js" defer></script>
+</head>
+<body>
+
+<div id='lowframe' style="position: fixed; bottom: 0; left: 0; height: 0; width: 100%; border-top: thin solid grey; background-color: white; overflow: auto;">
+...
+</div><!-- #lowframe -->
+
+<div id="topbar" class="wide"><div class="container">
+<div class="top-heading" id="heading-wide"><a href="http://localhost:6060/pkg/">Go Documentation Server</a></div>
+<div class="top-heading" id="heading-narrow"><a href="http://localhost:6060/pkg/">GoDoc</a></div>
+<a href="index.html#" id="menu-button"><span id="menu-button-arrow">&#9661;</span></a>
+<form method="GET" action="http://localhost:6060/search">
+<div id="menu">
+
+<span class="search-box"><input type="search" id="search" name="q" placeholder="Search" aria-label="Search" required><button type="submit"><span><!-- magnifying glass: --><svg width="24" height="24" viewBox="0 0 24 24"><title>submit search</title><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/><path d="M0 0h24v24H0z" fill="none"/></svg></span></button></span>
+</div>
+</form>
+
+</div></div>
+
+
+
+<div id="page" class="wide">
+<div class="container">
+
+
+  <h1>
+    Package ntesting
+    <span class="text-muted"></span>
+  </h1>
+
+
+
+
+
+
+
+<div id="nav"></div>
+
+
+<!--
+	Copyright 2009 The Go Authors. All rights reserved.
+	Use of this source code is governed by a BSD-style
+	license that can be found in the LICENSE file.
+-->
+<!--
+	Note: Static (i.e., not template-generated) href and id
+	attributes start with "pkg-" to make it impossible for
+	them to conflict with generated attributes (some of which
+	correspond to Go identifiers).
+-->
+
+	<script>
+	document.ANALYSIS_DATA = null;
+	document.CALLGRAPH = null;
+	</script>
+
+	
+		
+		<div id="short-nav">
+			<dl>
+			<dd><code>import "github.com/atomyze-foundation/robot/helpers/ntesting"</code></dd>
+			</dl>
+			<dl>
+			<dd><a href="index.html#pkg-overview" class="overviewLink">Overview</a></dd>
+			<dd><a href="index.html#pkg-index" class="indexLink">Index</a></dd>
+			
+			
+			</dl>
+		</div>
+		<!-- The package's Name is printed as title by the top-level template -->
+		<div id="pkg-overview" class="toggleVisible">
+			<div class="collapsed">
+				<h2 class="toggleButton" title="Click to show Overview section">Overview ▹</h2>
+			</div>
+			<div class="expanded">
+				<h2 class="toggleButton" title="Click to hide Overview section">Overview ▾</h2>
+				
+				
+			</div>
+		</div>
+
+		<div id="pkg-index" class="toggleVisible">
+		<div class="collapsed">
+			<h2 class="toggleButton" title="Click to show Index section">Index ▹</h2>
+		</div>
+		<div class="expanded">
+			<h2 class="toggleButton" title="Click to hide Index section">Index ▾</h2>
+
+		<!-- Table of contents for API; must be named manual-nav to turn off auto nav. -->
+			<div id="manual-nav">
+			<dl>
+			
+			
+			
+				
+				<dd><a href="index.html#CreateTestUser">func CreateTestUser(_ context.Context, ciData CiTestData, userID string) (*wallet.User, error)</a></dd>
+			
+				
+				<dd><a href="index.html#EmitFiat">func EmitFiat(ctx context.Context, fiatOwner, u *wallet.User, amount uint64, ch, cc string) (string, error)</a></dd>
+			
+				
+				<dd><a href="index.html#GetCcOwner">func GetCcOwner(_ context.Context, ciData CiTestData) (*wallet.User, error)</a></dd>
+			
+				
+				<dd><a href="index.html#GetFiatOwner">func GetFiatOwner(_ context.Context, ciData CiTestData) (*wallet.User, error)</a></dd>
+			
+				
+				<dd><a href="index.html#GetIndustrialOwner">func GetIndustrialOwner(_ context.Context, ciData CiTestData) (*wallet.User, error)</a></dd>
+			
+			
+				
+				<dd><a href="index.html#CallHlp">type CallHlp</a></dd>
+				
+				
+					
+					<dd>&nbsp; &nbsp; <a href="index.html#CallHlp.AddErrMap">func (ch *CallHlp) AddErrMap(fn interface{}, errMap map[int]error)</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="index.html#CallHlp.Call">func (ch *CallHlp) Call(fn interface{}) error</a></dd>
+				
+			
+				
+				<dd><a href="index.html#CiTestData">type CiTestData</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="index.html#CI">func CI(t *testing.T) CiTestData</a></dd>
+				
+				
+			
+			
+			</dl>
+			</div><!-- #manual-nav -->
+
+		
+
+		
+			<h3>Package files</h3>
+			<p>
+			<span style="font-size:90%">
+			
+				<a href="http://localhost:6060/src/github.com/atomyze-foundation/robot/helpers/ntesting/callhlp.go">callhlp.go</a>
+			
+				<a href="http://localhost:6060/src/github.com/atomyze-foundation/robot/helpers/ntesting/ci.go">ci.go</a>
+			
+				<a href="http://localhost:6060/src/github.com/atomyze-foundation/robot/helpers/ntesting/hlf.go">hlf.go</a>
+			
+			</span>
+			</p>
+		
+		</div><!-- .expanded -->
+		</div><!-- #pkg-index -->
+
+		
+
+		
+		
+		
+			
+			
+			<h2 id="CreateTestUser">func <a href="http://localhost:6060/src/github.com/atomyze-foundation/robot/helpers/ntesting/hlf.go?s=1227:1321#L47">CreateTestUser</a>
+				<a class="permalink" href="index.html#CreateTestUser">&#xb6;</a>
+				
+				
+			</h2>
+			<pre>func CreateTestUser(_ <a href="http://localhost:6060/pkg/context/">context</a>.<a href="http://localhost:6060/pkg/context/#Context">Context</a>, ciData <a href="index.html#CiTestData">CiTestData</a>, userID <a href="http://localhost:6060/pkg/builtin/#string">string</a>) (*<a href="http://localhost:6060/pkg/github.com/atomyze-foundation/sdkwrapper/wallet/">wallet</a>.<a href="http://localhost:6060/pkg/github.com/atomyze-foundation/sdkwrapper/wallet/#User">User</a>, <a href="http://localhost:6060/pkg/builtin/#error">error</a>)</pre>
+			<p>CreateTestUser creates new user in ACL.
+It takes context, CiTestData and user ID.
+Returns new user and not nil err if user isn&apos;t created.
+
+			
+			
+
+		
+			
+			
+			<h2 id="EmitFiat">func <a href="http://localhost:6060/src/github.com/atomyze-foundation/robot/helpers/ntesting/hlf.go?s=1821:1928#L64">EmitFiat</a>
+				<a class="permalink" href="index.html#EmitFiat">&#xb6;</a>
+				
+				
+			</h2>
+			<pre>func EmitFiat(ctx <a href="http://localhost:6060/pkg/context/">context</a>.<a href="http://localhost:6060/pkg/context/#Context">Context</a>, fiatOwner, u *<a href="http://localhost:6060/pkg/github.com/atomyze-foundation/sdkwrapper/wallet/">wallet</a>.<a href="http://localhost:6060/pkg/github.com/atomyze-foundation/sdkwrapper/wallet/#User">User</a>, amount <a href="http://localhost:6060/pkg/builtin/#uint64">uint64</a>, ch, cc <a href="http://localhost:6060/pkg/builtin/#string">string</a>) (<a href="http://localhost:6060/pkg/builtin/#string">string</a>, <a href="http://localhost:6060/pkg/builtin/#error">error</a>)</pre>
+			<p>EmitFiat emits &apos;amount&apos; fiats to the user &apos;u&apos; using passed &apos;fiatOwner&apos; in channel &quot;ch&quot; and chaincode &quot;cc&quot;.
+Returns tx ID string and err (not nil) if emit operation failed.
+WARN calling this function several times during the formation of one block can lead to conflicts on some stands.
+
+			
+			
+
+		
+			
+			
+			<h2 id="GetCcOwner">func <a href="http://localhost:6060/src/github.com/atomyze-foundation/robot/helpers/ntesting/hlf.go?s=452:527#L16">GetCcOwner</a>
+				<a class="permalink" href="index.html#GetCcOwner">&#xb6;</a>
+				
+				
+			</h2>
+			<pre>func GetCcOwner(_ <a href="http://localhost:6060/pkg/context/">context</a>.<a href="http://localhost:6060/pkg/context/#Context">Context</a>, ciData <a href="index.html#CiTestData">CiTestData</a>) (*<a href="http://localhost:6060/pkg/github.com/atomyze-foundation/sdkwrapper/wallet/">wallet</a>.<a href="http://localhost:6060/pkg/github.com/atomyze-foundation/sdkwrapper/wallet/#User">User</a>, <a href="http://localhost:6060/pkg/builtin/#error">error</a>)</pre>
+			
+			
+			
+
+		
+			
+			
+			<h2 id="GetFiatOwner">func <a href="http://localhost:6060/src/github.com/atomyze-foundation/robot/helpers/ntesting/hlf.go?s=144:221#L2">GetFiatOwner</a>
+				<a class="permalink" href="index.html#GetFiatOwner">&#xb6;</a>
+				
+				
+			</h2>
+			<pre>func GetFiatOwner(_ <a href="http://localhost:6060/pkg/context/">context</a>.<a href="http://localhost:6060/pkg/context/#Context">Context</a>, ciData <a href="index.html#CiTestData">CiTestData</a>) (*<a href="http://localhost:6060/pkg/github.com/atomyze-foundation/sdkwrapper/wallet/">wallet</a>.<a href="http://localhost:6060/pkg/github.com/atomyze-foundation/sdkwrapper/wallet/#User">User</a>, <a href="http://localhost:6060/pkg/builtin/#error">error</a>)</pre>
+			
+			
+			
+
+		
+			
+			
+			<h2 id="GetIndustrialOwner">func <a href="http://localhost:6060/src/github.com/atomyze-foundation/robot/helpers/ntesting/hlf.go?s=754:837#L30">GetIndustrialOwner</a>
+				<a class="permalink" href="index.html#GetIndustrialOwner">&#xb6;</a>
+				
+				
+			</h2>
+			<pre>func GetIndustrialOwner(_ <a href="http://localhost:6060/pkg/context/">context</a>.<a href="http://localhost:6060/pkg/context/#Context">Context</a>, ciData <a href="index.html#CiTestData">CiTestData</a>) (*<a href="http://localhost:6060/pkg/github.com/atomyze-foundation/sdkwrapper/wallet/">wallet</a>.<a href="http://localhost:6060/pkg/github.com/atomyze-foundation/sdkwrapper/wallet/#User">User</a>, <a href="http://localhost:6060/pkg/builtin/#error">error</a>)</pre>
+			
+			
+			
+
+		
+		
+			
+			
+			<h2 id="CallHlp">type <a href="http://localhost:6060/src/github.com/atomyze-foundation/robot/helpers/ntesting/callhlp.go?s=52:137#L1">CallHlp</a>
+				<a class="permalink" href="index.html#CallHlp">&#xb6;</a>
+				
+				
+			</h2>
+			
+			<pre>type CallHlp struct {
+    <span class="comment">// contains filtered or unexported fields</span>
+}
+</pre>
+
+			
+
+			
+
+			
+			
+			
+
+			
+
+			
+				
+				<h3 id="CallHlp.AddErrMap">func (*CallHlp) <a href="http://localhost:6060/src/github.com/atomyze-foundation/robot/helpers/ntesting/callhlp.go?s=139:205#L3">AddErrMap</a>
+					<a class="permalink" href="index.html#CallHlp.AddErrMap">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (ch *<a href="index.html#CallHlp">CallHlp</a>) AddErrMap(fn interface{}, errMap map[<a href="http://localhost:6060/pkg/builtin/#int">int</a>]<a href="http://localhost:6060/pkg/builtin/#error">error</a>)</pre>
+				
+				
+				
+				
+			
+				
+				<h3 id="CallHlp.Call">func (*CallHlp) <a href="http://localhost:6060/src/github.com/atomyze-foundation/robot/helpers/ntesting/callhlp.go?s=407:452#L14">Call</a>
+					<a class="permalink" href="index.html#CallHlp.Call">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (ch *<a href="index.html#CallHlp">CallHlp</a>) Call(fn interface{}) <a href="http://localhost:6060/pkg/builtin/#error">error</a></pre>
+				
+				
+				
+				
+			
+		
+			
+			
+			<h2 id="CiTestData">type <a href="http://localhost:6060/src/github.com/atomyze-foundation/robot/helpers/ntesting/ci.go?s=447:1043#L18">CiTestData</a>
+				<a class="permalink" href="index.html#CiTestData">&#xb6;</a>
+				
+				
+			</h2>
+			
+			<pre>type CiTestData struct {
+<span id="CiTestData.RedisAddr"></span>    RedisAddr             <a href="http://localhost:6060/pkg/builtin/#string">string</a>
+<span id="CiTestData.RedisPass"></span>    RedisPass             <a href="http://localhost:6060/pkg/builtin/#string">string</a>
+<span id="CiTestData.HlfProfilePath"></span>    HlfProfilePath        <a href="http://localhost:6060/pkg/builtin/#string">string</a>
+<span id="CiTestData.HlfFiatChannel"></span>    HlfFiatChannel        <a href="http://localhost:6060/pkg/builtin/#string">string</a>
+<span id="CiTestData.HlfCcChannel"></span>    HlfCcChannel          <a href="http://localhost:6060/pkg/builtin/#string">string</a>
+<span id="CiTestData.HlfIndustrialChannel"></span>    HlfIndustrialChannel  <a href="http://localhost:6060/pkg/builtin/#string">string</a>
+<span id="CiTestData.HlfNoCcChannel"></span>    HlfNoCcChannel        <a href="http://localhost:6060/pkg/builtin/#string">string</a>
+<span id="CiTestData.HlfUserName"></span>    HlfUserName           <a href="http://localhost:6060/pkg/builtin/#string">string</a>
+<span id="CiTestData.HlfCert"></span>    HlfCert               <a href="http://localhost:6060/pkg/builtin/#string">string</a>
+<span id="CiTestData.HlfFiatOwnerKey"></span>    HlfFiatOwnerKey       <a href="http://localhost:6060/pkg/builtin/#string">string</a>
+<span id="CiTestData.HlfCcOwnerKey"></span>    HlfCcOwnerKey         <a href="http://localhost:6060/pkg/builtin/#string">string</a>
+<span id="CiTestData.HlfIndustrialOwnerKey"></span>    HlfIndustrialOwnerKey <a href="http://localhost:6060/pkg/builtin/#string">string</a>
+<span id="CiTestData.HlfUseSmartBFT"></span>    HlfUseSmartBFT        <a href="http://localhost:6060/pkg/builtin/#bool">bool</a>
+<span id="CiTestData.HlfSk"></span>    HlfSk                 <a href="http://localhost:6060/pkg/builtin/#string">string</a>
+<span id="CiTestData.HlfIndustrialGroup1"></span>    HlfIndustrialGroup1   <a href="http://localhost:6060/pkg/builtin/#string">string</a>
+<span id="CiTestData.HlfIndustrialGroup2"></span>    HlfIndustrialGroup2   <a href="http://localhost:6060/pkg/builtin/#string">string</a>
+<span id="CiTestData.HlfDoSwapTests"></span>    HlfDoSwapTests        <a href="http://localhost:6060/pkg/builtin/#bool">bool</a>
+<span id="CiTestData.HlfDoMultiSwapTests"></span>    HlfDoMultiSwapTests   <a href="http://localhost:6060/pkg/builtin/#bool">bool</a>
+
+<span id="CiTestData.HlfProfile"></span>    HlfProfile *<a href="../../hlf/hlfprofile/index.html">hlfprofile</a>.<a href="../../hlf/hlfprofile/index.html#HlfProfile">HlfProfile</a>
+}
+</pre>
+
+			
+
+			
+
+			
+			
+			
+
+			
+				
+				<h3 id="CI">func <a href="http://localhost:6060/src/github.com/atomyze-foundation/robot/helpers/ntesting/ci.go?s=288:320#L8">CI</a>
+					<a class="permalink" href="index.html#CI">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func CI(t *<a href="http://localhost:6060/pkg/testing/">testing</a>.<a href="http://localhost:6060/pkg/testing/#T">T</a>) <a href="index.html#CiTestData">CiTestData</a></pre>
+				<p>CI returns data for integration test
+
+				
+				
+			
+
+			
+		
+	
+
+	
+
+
+
+
+
+
+
+<div id="footer">
+Build version go1.19.<br>
+Except as <a href="https://developers.google.com/site-policies#restrictions">noted</a>,
+the content of this page is licensed under the
+Creative Commons Attribution 3.0 License,
+and code is licensed under a <a href="http://localhost:6060/LICENSE">BSD license</a>.<br>
+<a href="https://golang.org/doc/tos.html">Terms of Service</a> |
+<a href="https://www.google.com/intl/en/policies/privacy/">Privacy Policy</a>
+</div>
+
+</div><!-- .container -->
+</div><!-- #page -->
+</body>
+</html>

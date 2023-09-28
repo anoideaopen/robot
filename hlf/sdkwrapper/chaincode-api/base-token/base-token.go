@@ -1,0 +1,300 @@
+package base_token
+
+import (
+	"crypto/ed25519"
+	"fmt"
+	"strings"
+
+	"github.com/atomyze-foundation/foundation/core/types/big"
+	"github.com/atomyze-foundation/robot/hlf/sdkwrapper/service"
+	"github.com/hyperledger/fabric-sdk-go/pkg/client/channel"
+)
+
+type dealType string
+
+// KeyPair struct store key pair for user
+type KeyPair struct {
+	// UserID - user id
+	UserID string
+	// PrivateKey - private key for user
+	PrivateKey ed25519.PrivateKey
+	// PublicKey - public key for user
+	PublicKey ed25519.PublicKey
+}
+
+// doc https://atomyze-itservices.atlassian.net/wiki/spaces/ATMCORE/pages/13665143/Base+Token+-+
+
+// BaseTokenInterface - interface for base token
+type BaseTokenInterface interface {
+	// SetRate - set rate for deal type and currency
+	SetRate(dealType dealType, currency string, rate uint64) (*channel.Response, error)
+	// DeleteRate - delete rate for deal type and currency
+	DeleteRate(dealType dealType, currency string, rate uint64) (*channel.Response, error)
+	// Metadata - get metadata for token
+	Metadata() (*channel.Response, error)
+	// BalanceOf - get balance for address
+	BalanceOf(address string) (*channel.Response, error)
+	// AllowedBalanceOf - get allowed balance for address
+	AllowedBalanceOf(address string, token string) (*channel.Response, error)
+	// Transfer - transfer token to address
+	Transfer(keyPair *KeyPair, toAddress string, amount *big.Int, ref string) (*channel.Response, error)
+	// SwapBegin - begin swap process
+	SwapBegin(keyPair *KeyPair, token string, contractTo string, amount uint64, hash string) (*channel.Response, error)
+	// SwapCancel - cancel swap process
+	SwapCancel(keyPair *KeyPair, swapTransactionId string) (*channel.Response, error)
+	// SwapDone - done swap process
+	SwapDone(swapTransactionId string, swapKey string) (*channel.Response, error)
+	// SwapGet - get swap info
+	SwapGet(swapTransactionId string) (*channel.Response, error)
+	// GetChannelName - get channel name
+	GetChannelName() string
+	// GetChaincodeName - get chaincode name
+	GetChaincodeName() string
+	// GetHlfClient - get hlf client
+	GetHlfClient() *service.HLFClient
+}
+
+// BaseTokenAPI - base token api struct
+type BaseTokenAPI struct {
+	// ChaincodeAPI - chaincode api
+	*ChaincodeAPI
+	// OwnerKeyPair - key pair for owner
+	OwnerKeyPair *KeyPair
+}
+
+// GetChannelName - get channel name
+func (b *BaseTokenAPI) GetChannelName() string {
+	return b.ChannelName
+}
+
+// GetChaincodeName - get chaincode name
+func (b *BaseTokenAPI) GetChaincodeName() string {
+	return b.ChaincodeName
+}
+
+// GetHlfClient - get hlf client
+func (b *BaseTokenAPI) GetHlfClient() *service.HLFClient {
+	return b.hlfClient
+}
+
+// NewBaseTokenAPI - create new base token api
+func NewBaseTokenAPI(channelName string, chaincodeName string, hlfClient *service.HLFClient, ownerKeyPair *KeyPair) *BaseTokenAPI {
+	return &BaseTokenAPI{
+		ChaincodeAPI: NewChaincodeAPI(channelName, chaincodeName, hlfClient),
+		OwnerKeyPair: ownerKeyPair,
+	}
+}
+
+// SetRate - set rate for deal type and currency
+// Subscribed by the issuer
+// dealType - deal type
+// currency - currency type
+// rate - value
+func (b *BaseTokenAPI) SetRate(dealType dealType, currency string, rate uint64) (*channel.Response, error) {
+	err := b.Validate()
+	if err != nil {
+		return nil, err
+	}
+	methodArgs := []string{
+		string(dealType),
+		currency,
+		fmt.Sprintf("%d", rate),
+	}
+	methodName := "setRate"
+	peers := ""
+
+	return b.GetHlfClient().InvokeWithPublicAndPrivateKey(b.OwnerKeyPair.PrivateKey, b.OwnerKeyPair.PublicKey, b.ChannelName, b.ChaincodeName, methodName, methodArgs, true, peers)
+}
+
+// DeleteRate - delete rate for deal type and currency
+// Signed by the issuer
+// dealType - type of transaction
+// currency - currency type
+// rate - value
+func (b *BaseTokenAPI) DeleteRate(dealType dealType, currency string, rate uint64) (*channel.Response, error) {
+	err := b.Validate()
+	if err != nil {
+		return nil, err
+	}
+	methodArgs := []string{
+		string(dealType),
+		currency,
+		fmt.Sprintf("%d", rate),
+	}
+	methodName := "deleteRate"
+	peers := ""
+
+	return b.GetHlfClient().InvokeWithPublicAndPrivateKey(b.OwnerKeyPair.PrivateKey, b.OwnerKeyPair.PublicKey, b.ChannelName, b.ChaincodeName, methodName, methodArgs, true, peers)
+}
+
+// Method signature: TxBuyToken(sender types.Sender, amount *big.Int, currency string) error// Signed by the user. If signed by the issuer, an error is returned. The method checks flights and limits, so they must be set in advance.
+// Example from the test:
+// issuer.SignedInvoke("vt", "setRate", "buyToken", "usd", "100000000")
+// issuer.SignedInvoke("vt", "setLimits", "buyToken", "usd", "1", "10")
+
+// BuyBack - buyback of the token.
+//
+// Method signature: TxBuyBack(sender types.Sender, amount *big.Int, currency string) error
+// Signed by the user. If signed by the issuer, an error is returned. Similarly to the previous method, raits and limits are checked.
+// Example from the test:
+// issuer.SignedInvoke("vt", "setRate", "buyBack", "usd", "100000000")
+// issuer.SignedInvoke("vt", "setLimits", "buyBack", "usd", "1", "10")
+
+// Metadata - token metadata query
+// Method signature: QueryMetadata() (metadata, error)
+// No additional conditions are required.
+func (b *BaseTokenAPI) Metadata() (*channel.Response, error) {
+	err := b.Validate()
+	if err != nil {
+		return nil, err
+	}
+	var methodArgs []string
+	methodName := "metadata"
+	return b.hlfClient.Query(b.ChannelName, b.ChaincodeName, methodName, methodArgs)
+}
+
+// BalanceOf - balance query.
+// Method signature: QueryBalanceOf(address types.Address) (*big.Int, error)
+// No additional conditions are required.
+func (b *BaseTokenAPI) BalanceOf(address string) (*channel.Response, error) {
+	err := b.Validate()
+	if err != nil {
+		return nil, err
+	}
+	methodArgs := []string{
+		address,
+	}
+	methodName := "balanceOf"
+	return b.hlfClient.Query(b.ChannelName, b.ChaincodeName, methodName, methodArgs)
+}
+
+// AllowedBalanceOf - request for allowed balance.
+// Method signature: QueryAllowedBalanceOf(address types.Address, token string)
+// No additional conditions are required.
+func (b *BaseTokenAPI) AllowedBalanceOf(address string, token string) (*channel.Response, error) {
+	err := b.Validate()
+	if err != nil {
+		return nil, err
+	}
+	methodArgs := []string{
+		address,
+		strings.ToUpper(token),
+	}
+	methodName := "allowedBalanceOf"
+	return b.hlfClient.Query(b.ChannelName, b.ChaincodeName, methodName, methodArgs)
+}
+
+// Method signature: QueryDocumentsList() ([]core.Doc, error)
+// No additional conditions are required.
+
+// AddDocs - adding documents to the token.
+// Signed by the issuer.
+//
+// Method signature: TxAddDocs(sender types.Sender, rawDocs string) error
+
+// Method signature: TxDeleteDoc(sender types.Sender, docID string) error
+// Signed by the issuer.
+
+// SetLimits - set limit.
+// Method signature: TxSetLimits(sender types.Sender, dealType string, currency string, min *big.Int, max *big.Int) error
+// Signed by the issuer.
+
+// Transfer - transfer tokens to the specified address.
+// Method signature: TxTransfer(sender types.Sender, to types.Address, amount *big.Int, ref string) error
+// The number of tokens to be transferred must not be zero, tokens cannot be transferred to oneself, if a commission is set and the commission currency is not empty, the sender will be charged a commission.
+func (b *BaseTokenAPI) Transfer(keyPair *KeyPair, toAddress string, amount *big.Int, ref string) (*channel.Response, error) {
+	err := b.Validate()
+	if err != nil {
+		return nil, err
+	}
+	methodArgs := []string{
+		toAddress,
+		fmt.Sprintf("%d", amount),
+		ref,
+	}
+	methodName := "transfer"
+	peers := ""
+
+	return b.hlfClient.InvokeWithPublicAndPrivateKey(keyPair.PrivateKey, keyPair.PublicKey, b.ChannelName, b.ChaincodeName, methodName, methodArgs, false, peers)
+}
+
+// toAddress - address, usually base58check from the public key when creating a user
+
+// Method signature: QueryPredictFee(amount *big.Int) (predict, error)
+// No additional conditions are required.
+
+// SetFee - setting the fee.
+// Method signature: TxSetFee(sender types.Sender, currency string, fee *big.Int, floor *big.Int, cap *big.Int) error
+// Signed by FeeSetter.
+// Check for the value of commission - it should be not more than 100%, also check for the values of floor and cap limits.
+
+// SetFeeAddress - setting the commission address.
+// Method signature: TxSetFeeAddress(sender types.Sender, address types.Address) error
+// Signed by FeeAddressSetter.
+
+// SwapBegin - the beginning of the atomic swap process.
+// Method signature: TxSwapBegin(sender types.Sender, token string, contractTo string, amount *big.Int, hash types.Hex) (string, error)
+// No additional conditions are required.
+func (b *BaseTokenAPI) SwapBegin(keyPair *KeyPair, token string, contractTo string, amount uint64, hash string) (*channel.Response, error) {
+	err := b.Validate()
+	if err != nil {
+		return nil, err
+	}
+	methodArgs := []string{
+		strings.ToUpper(token),
+		strings.ToUpper(contractTo),
+		fmt.Sprintf("%d", amount),
+		hash,
+	}
+	methodName := "swapBegin"
+	peers := ""
+
+	return b.hlfClient.InvokeWithPublicAndPrivateKey(keyPair.PrivateKey, keyPair.PublicKey, b.ChannelName, b.ChaincodeName, methodName, methodArgs, false, peers)
+}
+
+// SwapCancel - cancel the atomic swap process.
+func (b *BaseTokenAPI) SwapCancel(keyPair *KeyPair, swapTransactionId string) (*channel.Response, error) {
+	err := b.Validate()
+	if err != nil {
+		return nil, err
+	}
+	methodArgs := []string{
+		swapTransactionId,
+	}
+	methodName := "swapCancel"
+	peers := ""
+
+	return b.hlfClient.InvokeWithPublicAndPrivateKey(keyPair.PrivateKey, keyPair.PublicKey, b.ChannelName, b.ChaincodeName, methodName, methodArgs, false, peers)
+}
+
+// SwapDone - start of the atomic swap process.
+// No additional conditions are required.
+func (b *BaseTokenAPI) SwapDone(swapTransactionId string, swapKey string) (*channel.Response, error) {
+	err := b.Validate()
+	if err != nil {
+		return nil, err
+	}
+	methodArgs := []string{
+		swapTransactionId,
+		swapKey,
+	}
+	methodName := "swapDone"
+	peers := ""
+
+	return b.hlfClient.Invoke(b.ChannelName, b.ChaincodeName, methodName, methodArgs, true, peers)
+}
+
+// SwapGet - swap information.
+// Method signature: QuerySwapGet(swapID string) (*proto.Swap, error)
+// No additional conditions are required.
+func (b *BaseTokenAPI) SwapGet(swapTransactionId string) (*channel.Response, error) {
+	err := b.Validate()
+	if err != nil {
+		return nil, err
+	}
+	methodArgs := []string{
+		swapTransactionId,
+	}
+	methodName := "swapGet"
+	return b.hlfClient.Query(b.ChannelName, b.ChaincodeName, methodName, methodArgs)
+}

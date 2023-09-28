@@ -1,0 +1,107 @@
+---
+name: basic-network
+version: 1.0.0
+client:
+  organization: Atomyze
+
+  logging:
+    level: info
+
+  tlsCerts:
+    client:
+      key:
+        path: dev-data/hlf-test-stage-04/crypto/backend@atomyze.atmz-test-04.ledger.n-t.io/tls/cert.key
+      cert:
+        path: dev-data/hlf-test-stage-04/crypto/backend@atomyze.atmz-test-04.ledger.n-t.io/tls/cert.pem
+    cryptoconfig:
+      path: dev-data/hlf-test-stage-04/crypto/backend@atomyze.atmz-test-04.ledger.n-t.io
+  timeout:
+    connection: 60s
+    response: 180s
+  credentialStore:
+    path: dev-data/hlf-test-stage-04/crypto/backend@atomyze.atmz-test-04.ledger.n-t.io/msp/signcerts
+
+    cryptoStore:
+      path:
+        dev-data/hlf-test-stage-04/crypto/backend@atomyze.atmz-test-04.ledger.n-t.io/msp
+
+# This can be section for description channels, but worked magic!
+channels:
+  acl:
+    peers:
+      peer0.atomyze.atmz-test-04.ledger.n-t.io:
+      peer1.atomyze.atmz-test-04.ledger.n-t.io:
+      peer0.trafigura.atmz-test-04.ledger.n-t.io:
+
+  fiat:
+    peers:
+      peer0.atomyze.atmz-test-04.ledger.n-t.io:
+      peer1.atomyze.atmz-test-04.ledger.n-t.io:
+      peer0.trafigura.atmz-test-04.ledger.n-t.io:
+
+  cc:
+    peers:
+      peer0.atomyze.atmz-test-04.ledger.n-t.io:
+      peer1.atomyze.atmz-test-04.ledger.n-t.io:
+      peer0.trafigura.atmz-test-04.ledger.n-t.io:
+
+  gf78iln049:
+    peers:
+      peer0.atomyze.atmz-test-04.ledger.n-t.io:
+      peer1.atomyze.atmz-test-04.ledger.n-t.io:
+      peer0.trafigura.atmz-test-04.ledger.n-t.io:
+
+
+organizations:
+  Atomyze:
+    mspid: atomyzeMSP
+    cryptoPath: dev-data/hlf-test-stage-04/crypto/backend@atomyze.atmz-test-04.ledger.n-t.io/msp/
+    peers:
+      - peer0.atomyze.atmz-test-04.ledger.n-t.io
+      - peer1.atomyze.atmz-test-04.ledger.n-t.io
+  Trafigura:
+    mspid: trafiguraMSP
+    cryptoPath: dev-data/hlf-test-stage-04/crypto/backend@atomyze.atmz-test-04.ledger.n-t.io/msp/
+    peers:
+      - peer0.trafigura.atmz-test-04.ledger.n-t.io
+  Traxys:
+    mspid: traxysMSP
+    cryptoPath: dev-data/hlf-test-stage-04/crypto/backend@atomyze.atmz-test-04.ledger.n-t.io/msp/
+    peers:
+      - peer0.traxys.atmz-test-04.ledger.n-t.io
+  Umicore:
+    mspid: umicoreMSP
+    cryptoPath: dev-data/hlf-test-stage-04/crypto/backend@atomyze.atmz-test-04.ledger.n-t.io/msp/
+    peers:
+      - peer0.umicore.atmz-test-04.ledger.n-t.io
+
+orderers:
+  orderer0.atomyze.atmz-test-04.ledger.n-t.io:
+    url: grpcs://orderer0.atomyze.atmz-test-04.ledger.n-t.io:7050
+    tlsCACerts:
+      path: dev-data/hlf-test-stage-04/crypto/backend@atomyze.atmz-test-04.ledger.n-t.io/tlscacerts/tlsca.atomyze.atmz-test-04.ledger.n-t.io-cert.pem
+  orderer4.atomyze.atmz-test-04.ledger.n-t.io:
+    url: grpcs://orderer4.atomyze.atmz-test-04.ledger.n-t.io:7120
+    tlsCACerts:
+      path: dev-data/hlf-test-stage-04/crypto/backend@atomyze.atmz-test-04.ledger.n-t.io/tlscacerts/tlsca.atomyze.atmz-test-04.ledger.n-t.io-cert.pem
+peers:
+  peer0.atomyze.atmz-test-04.ledger.n-t.io:
+    url: grpcs://peer0.atomyze.atmz-test-04.ledger.n-t.io:7051
+    tlsCACerts:
+      path: dev-data/hlf-test-stage-04/crypto/backend@atomyze.atmz-test-04.ledger.n-t.io/tlscacerts/tlsca.atomyze.atmz-test-04.ledger.n-t.io-cert.pem
+  peer1.atomyze.atmz-test-04.ledger.n-t.io:
+    url: grpcs://peer1.atomyze.atmz-test-04.ledger.n-t.io:7061
+    tlsCACerts:
+      path: dev-data/hlf-test-stage-04/crypto/backend@atomyze.atmz-test-04.ledger.n-t.io/tlscacerts/tlsca.atomyze.atmz-test-04.ledger.n-t.io-cert.pem
+  peer0.trafigura.atmz-test-04.ledger.n-t.io:
+    url: grpcs://peer0.trafigura.atmz-test-04.ledger.n-t.io:7071
+    tlsCACerts:
+      path: dev-data/hlf-test-stage-04/crypto/backend@atomyze.atmz-test-04.ledger.n-t.io/tlscacerts/tlsca.trafigura.atmz-test-04.ledger.n-t.io-cert.pem
+  peer0.traxys.atmz-test-04.ledger.n-t.io:
+    url: grpcs://peer0.traxys.atmz-test-04.ledger.n-t.io:7081
+    tlsCACerts:
+      path: dev-data/hlf-test-stage-04/crypto/backend@atomyze.atmz-test-04.ledger.n-t.io/tlscacerts/tlsca.traxys.atmz-test-04.ledger.n-t.io-cert.pem
+  peer0.umicore.atmz-test-04.ledger.n-t.io:
+    url: grpcs://peer0.umicore.atmz-test-04.ledger.n-t.io:7091
+    tlsCACerts:
+      path: dev-data/hlf-test-stage-04/crypto/backend@atomyze.atmz-test-04.ledger.n-t.io/tlscacerts/tlsca.umicore.atmz-test-04.ledger.n-t.io-cert.pem
