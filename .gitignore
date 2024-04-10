@@ -1,0 +1,13 @@
+.idea
+vendor
+
+# test data
+/secret-data/
+**/crypto/
+
+/.run/
+/dev*.env
+/dev*.yaml
+/dev-data/bh-dev
+/dev-data/robot-stage/
+/stage-config.yaml

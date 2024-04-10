@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#375EAB">
+
+  <title>prometheus - Go Documentation Server</title>
+
+<link type="text/css" rel="stylesheet" href="../../../../../../../../lib/godoc/style.css">
+
+<script>window.initFuncs = [];</script>
+<script src="../../../../../../../../lib/godoc/jquery.js" defer></script>
+
+
+
+<script>var goVersion = "go1.19";</script>
+<script src="../../../../../../../../lib/godoc/godocs.js" defer></script>
+</head>
+<body>
+
+<div id='lowframe' style="position: fixed; bottom: 0; left: 0; height: 0; width: 100%; border-top: thin solid grey; background-color: white; overflow: auto;">
+...
+</div><!-- #lowframe -->
+
+<div id="topbar" class="wide"><div class="container">
+<div class="top-heading" id="heading-wide"><a href="http://localhost:6060/pkg/">Go Documentation Server</a></div>
+<div class="top-heading" id="heading-narrow"><a href="http://localhost:6060/pkg/">GoDoc</a></div>
+<a href="index.html#" id="menu-button"><span id="menu-button-arrow">&#9661;</span></a>
+<form method="GET" action="http://localhost:6060/search">
+<div id="menu">
+
+<span class="search-box"><input type="search" id="search" name="q" placeholder="Search" aria-label="Search" required><button type="submit"><span><!-- magnifying glass: --><svg width="24" height="24" viewBox="0 0 24 24"><title>submit search</title><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/><path d="M0 0h24v24H0z" fill="none"/></svg></span></button></span>
+</div>
+</form>
+
+</div></div>
+
+
+
+<div id="page" class="wide">
+<div class="container">
+
+
+  <h1>
+    Package prometheus
+    <span class="text-muted"></span>
+  </h1>
+
+
+
+
+
+
+
+<div id="nav"></div>
+
+
+<!--
+	Copyright 2009 The Go Authors. All rights reserved.
+	Use of this source code is governed by a BSD-style
+	license that can be found in the LICENSE file.
+-->
+<!--
+	Note: Static (i.e., not template-generated) href and id
+	attributes start with "pkg-" to make it impossible for
+	them to conflict with generated attributes (some of which
+	correspond to Go identifiers).
+-->
+
+	<script>
+	document.ANALYSIS_DATA = null;
+	document.CALLGRAPH = null;
+	</script>
+
+	
+		
+		<div id="short-nav">
+			<dl>
+			<dd><code>import "github.com/anoideaopen/robot/metrics/prometheus"</code></dd>
+			</dl>
+			<dl>
+			<dd><a href="index.html#pkg-overview" class="overviewLink">Overview</a></dd>
+			<dd><a href="index.html#pkg-index" class="indexLink">Index</a></dd>
+			
+			
+			</dl>
+		</div>
+		<!-- The package's Name is printed as title by the top-level template -->
+		<div id="pkg-overview" class="toggleVisible">
+			<div class="collapsed">
+				<h2 class="toggleButton" title="Click to show Overview section">Overview ▹</h2>
+			</div>
+			<div class="expanded">
+				<h2 class="toggleButton" title="Click to hide Overview section">Overview ▾</h2>
+				
+				
+			</div>
+		</div>
+
+		<div id="pkg-index" class="toggleVisible">
+		<div class="collapsed">
+			<h2 class="toggleButton" title="Click to show Index section">Index ▹</h2>
+		</div>
+		<div class="expanded">
+			<h2 class="toggleButton" title="Click to hide Index section">Index ▾</h2>
+
+		<!-- Table of contents for API; must be named manual-nav to turn off auto nav. -->
+			<div id="manual-nav">
+			<dl>
+			
+			
+			
+			
+				
+				<dd><a href="index.html#MetricsBus">type MetricsBus</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="index.html#NewMetrics">func NewMetrics(ctx context.Context, mPrefix string) (*MetricsBus, error)</a></dd>
+				
+				
+					
+					<dd>&nbsp; &nbsp; <a href="index.html#MetricsBus.AppInfo">func (m *MetricsBus) AppInfo() basemetrics.Counter</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="index.html#MetricsBus.AppInitDuration">func (m *MetricsBus) AppInitDuration() basemetrics.Gauge</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="index.html#MetricsBus.BatchCollectTime">func (m *MetricsBus) BatchCollectTime() basemetrics.Histogram</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="index.html#MetricsBus.BatchExecuteInvokeTime">func (m *MetricsBus) BatchExecuteInvokeTime() basemetrics.Histogram</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="index.html#MetricsBus.BatchItemsCount">func (m *MetricsBus) BatchItemsCount() basemetrics.Histogram</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="index.html#MetricsBus.BatchSize">func (m *MetricsBus) BatchSize() basemetrics.Histogram</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="index.html#MetricsBus.BatchSizeEstimatedDiff">func (m *MetricsBus) BatchSizeEstimatedDiff() basemetrics.Histogram</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="index.html#MetricsBus.BlockTxCount">func (m *MetricsBus) BlockTxCount() basemetrics.Histogram</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="index.html#MetricsBus.CollectorProcessBlockNum">func (m *MetricsBus) CollectorProcessBlockNum() basemetrics.Gauge</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="index.html#MetricsBus.CreateChild">func (m *MetricsBus) CreateChild(labels ...basemetrics.Label) metrics.Metrics</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="index.html#MetricsBus.HeightLedgerBlocks">func (m *MetricsBus) HeightLedgerBlocks() basemetrics.Gauge</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="index.html#MetricsBus.TotalBatchExecuted">func (m *MetricsBus) TotalBatchExecuted() basemetrics.Counter</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="index.html#MetricsBus.TotalBatchSize">func (m *MetricsBus) TotalBatchSize() basemetrics.Counter</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="index.html#MetricsBus.TotalExecutedTx">func (m *MetricsBus) TotalExecutedTx() basemetrics.Counter</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="index.html#MetricsBus.TotalOrderingReqSizeExceeded">func (m *MetricsBus) TotalOrderingReqSizeExceeded() basemetrics.Counter</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="index.html#MetricsBus.TotalRobotStarted">func (m *MetricsBus) TotalRobotStarted() basemetrics.Counter</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="index.html#MetricsBus.TotalRobotStopped">func (m *MetricsBus) TotalRobotStopped() basemetrics.Counter</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="index.html#MetricsBus.TxWaitingCount">func (m *MetricsBus) TxWaitingCount() basemetrics.Gauge</a></dd>
+				
+			
+			
+			</dl>
+			</div><!-- #manual-nav -->
+
+		
+
+		
+			<h3>Package files</h3>
+			<p>
+			<span style="font-size:90%">
+			
+				<a href="http://localhost:6060/src/github.com/anoideaopen/robot/metrics/prometheus/bus.go">bus.go</a>
+			
+			</span>
+			</p>
+		
+		</div><!-- .expanded -->
+		</div><!-- #pkg-index -->
+
+		
+
+		
+		
+		
+		
+			
+			
+			<h2 id="MetricsBus">type <a href="http://localhost:6060/src/github.com/anoideaopen/robot/metrics/prometheus/bus.go?s=317:1279#L3">MetricsBus</a>
+				<a class="permalink" href="index.html#MetricsBus">&#xb6;</a>
+				
+				
+			</h2>
+			
+			<pre>type MetricsBus struct {
+    <span class="comment">// contains filtered or unexported fields</span>
+}
+</pre>
+
+			
+
+			
+
+			
+			
+			
+
+			
+				
+				<h3 id="NewMetrics">func <a href="http://localhost:6060/src/github.com/anoideaopen/robot/metrics/prometheus/bus.go?s=1297:1370#L30">NewMetrics</a>
+					<a class="permalink" href="index.html#NewMetrics">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func NewMetrics(ctx <a href="http://localhost:6060/pkg/context/">context</a>.<a href="http://localhost:6060/pkg/context/#Context">Context</a>, mPrefix <a href="http://localhost:6060/pkg/builtin/#string">string</a>) (*<a href="index.html#MetricsBus">MetricsBus</a>, <a href="http://localhost:6060/pkg/builtin/#error">error</a>)</pre>
+				
+				
+				
+			
+
+			
+				
+				<h3 id="MetricsBus.AppInfo">func (*MetricsBus) <a href="http://localhost:6060/src/github.com/anoideaopen/robot/metrics/prometheus/bus.go?s=7579:7629#L225">AppInfo</a>
+					<a class="permalink" href="index.html#MetricsBus.AppInfo">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (m *<a href="index.html#MetricsBus">MetricsBus</a>) AppInfo() <a href="http://localhost:6060/pkg/github.com/anoideaopen/common-component/basemetrics/">basemetrics</a>.<a href="http://localhost:6060/pkg/github.com/anoideaopen/common-component/basemetrics/#Counter">Counter</a></pre>
+				
+				
+				
+				
+			
+				
+				<h3 id="MetricsBus.AppInitDuration">func (*MetricsBus) <a href="http://localhost:6060/src/github.com/anoideaopen/robot/metrics/prometheus/bus.go?s=8654:8710#L240">AppInitDuration</a>
+					<a class="permalink" href="index.html#MetricsBus.AppInitDuration">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (m *<a href="index.html#MetricsBus">MetricsBus</a>) AppInitDuration() <a href="http://localhost:6060/pkg/github.com/anoideaopen/common-component/basemetrics/">basemetrics</a>.<a href="http://localhost:6060/pkg/github.com/anoideaopen/common-component/basemetrics/#Gauge">Gauge</a></pre>
+				
+				
+				
+				
+			
+				
+				<h3 id="MetricsBus.BatchCollectTime">func (*MetricsBus) <a href="http://localhost:6060/src/github.com/anoideaopen/robot/metrics/prometheus/bus.go?s=8354:8415#L236">BatchCollectTime</a>
+					<a class="permalink" href="index.html#MetricsBus.BatchCollectTime">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (m *<a href="index.html#MetricsBus">MetricsBus</a>) BatchCollectTime() <a href="http://localhost:6060/pkg/github.com/anoideaopen/common-component/basemetrics/">basemetrics</a>.<a href="http://localhost:6060/pkg/github.com/anoideaopen/common-component/basemetrics/#Histogram">Histogram</a></pre>
+				
+				
+				
+				
+			
+				
+				<h3 id="MetricsBus.BatchExecuteInvokeTime">func (*MetricsBus) <a href="http://localhost:6060/src/github.com/anoideaopen/robot/metrics/prometheus/bus.go?s=8059:8126#L233">BatchExecuteInvokeTime</a>
+					<a class="permalink" href="index.html#MetricsBus.BatchExecuteInvokeTime">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (m *<a href="index.html#MetricsBus">MetricsBus</a>) BatchExecuteInvokeTime() <a href="http://localhost:6060/pkg/github.com/anoideaopen/common-component/basemetrics/">basemetrics</a>.<a href="http://localhost:6060/pkg/github.com/anoideaopen/common-component/basemetrics/#Histogram">Histogram</a></pre>
+				
+				
+				
+				
+			
+				
+				<h3 id="MetricsBus.BatchItemsCount">func (*MetricsBus) <a href="http://localhost:6060/src/github.com/anoideaopen/robot/metrics/prometheus/bus.go?s=8256:8316#L235">BatchItemsCount</a>
+					<a class="permalink" href="index.html#MetricsBus.BatchItemsCount">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (m *<a href="index.html#MetricsBus">MetricsBus</a>) BatchItemsCount() <a href="http://localhost:6060/pkg/github.com/anoideaopen/common-component/basemetrics/">basemetrics</a>.<a href="http://localhost:6060/pkg/github.com/anoideaopen/common-component/basemetrics/#Histogram">Histogram</a></pre>
+				
+				
+				
+				
+			
+				
+				<h3 id="MetricsBus.BatchSize">func (*MetricsBus) <a href="http://localhost:6060/src/github.com/anoideaopen/robot/metrics/prometheus/bus.go?s=8164:8218#L234">BatchSize</a>
+					<a class="permalink" href="index.html#MetricsBus.BatchSize">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (m *<a href="index.html#MetricsBus">MetricsBus</a>) BatchSize() <a href="http://localhost:6060/pkg/github.com/anoideaopen/common-component/basemetrics/">basemetrics</a>.<a href="http://localhost:6060/pkg/github.com/anoideaopen/common-component/basemetrics/#Histogram">Histogram</a></pre>
+				
+				
+				
+				
+			
+				
+				<h3 id="MetricsBus.BatchSizeEstimatedDiff">func (*MetricsBus) <a href="http://localhost:6060/src/github.com/anoideaopen/robot/metrics/prometheus/bus.go?s=8453:8520#L237">BatchSizeEstimatedDiff</a>
+					<a class="permalink" href="index.html#MetricsBus.BatchSizeEstimatedDiff">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (m *<a href="index.html#MetricsBus">MetricsBus</a>) BatchSizeEstimatedDiff() <a href="http://localhost:6060/pkg/github.com/anoideaopen/common-component/basemetrics/">basemetrics</a>.<a href="http://localhost:6060/pkg/github.com/anoideaopen/common-component/basemetrics/#Histogram">Histogram</a></pre>
+				
+				
+				
+				
+			
+				
+				<h3 id="MetricsBus.BlockTxCount">func (*MetricsBus) <a href="http://localhost:6060/src/github.com/anoideaopen/robot/metrics/prometheus/bus.go?s=8558:8615#L238">BlockTxCount</a>
+					<a class="permalink" href="index.html#MetricsBus.BlockTxCount">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (m *<a href="index.html#MetricsBus">MetricsBus</a>) BlockTxCount() <a href="http://localhost:6060/pkg/github.com/anoideaopen/common-component/basemetrics/">basemetrics</a>.<a href="http://localhost:6060/pkg/github.com/anoideaopen/common-component/basemetrics/#Histogram">Histogram</a></pre>
+				
+				
+				
+				
+			
+				
+				<h3 id="MetricsBus.CollectorProcessBlockNum">func (*MetricsBus) <a href="http://localhost:6060/src/github.com/anoideaopen/robot/metrics/prometheus/bus.go?s=8944:9009#L243">CollectorProcessBlockNum</a>
+					<a class="permalink" href="index.html#MetricsBus.CollectorProcessBlockNum">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (m *<a href="index.html#MetricsBus">MetricsBus</a>) CollectorProcessBlockNum() <a href="http://localhost:6060/pkg/github.com/anoideaopen/common-component/basemetrics/">basemetrics</a>.<a href="http://localhost:6060/pkg/github.com/anoideaopen/common-component/basemetrics/#Gauge">Gauge</a></pre>
+				
+				
+				
+				
+			
+				
+				<h3 id="MetricsBus.CreateChild">func (*MetricsBus) <a href="http://localhost:6060/src/github.com/anoideaopen/robot/metrics/prometheus/bus.go?s=7076:7153#L210">CreateChild</a>
+					<a class="permalink" href="index.html#MetricsBus.CreateChild">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (m *<a href="index.html#MetricsBus">MetricsBus</a>) CreateChild(labels ...<a href="http://localhost:6060/pkg/github.com/anoideaopen/common-component/basemetrics/">basemetrics</a>.<a href="http://localhost:6060/pkg/github.com/anoideaopen/common-component/basemetrics/#Label">Label</a>) <a href="../index.html">metrics</a>.<a href="../index.html#Metrics">Metrics</a></pre>
+				
+				
+				
+				
+			
+				
+				<h3 id="MetricsBus.HeightLedgerBlocks">func (*MetricsBus) <a href="http://localhost:6060/src/github.com/anoideaopen/robot/metrics/prometheus/bus.go?s=8845:8904#L242">HeightLedgerBlocks</a>
+					<a class="permalink" href="index.html#MetricsBus.HeightLedgerBlocks">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (m *<a href="index.html#MetricsBus">MetricsBus</a>) HeightLedgerBlocks() <a href="http://localhost:6060/pkg/github.com/anoideaopen/common-component/basemetrics/">basemetrics</a>.<a href="http://localhost:6060/pkg/github.com/anoideaopen/common-component/basemetrics/#Gauge">Gauge</a></pre>
+				
+				
+				
+				
+			
+				
+				<h3 id="MetricsBus.TotalBatchExecuted">func (*MetricsBus) <a href="http://localhost:6060/src/github.com/anoideaopen/robot/metrics/prometheus/bus.go?s=7392:7453#L223">TotalBatchExecuted</a>
+					<a class="permalink" href="index.html#MetricsBus.TotalBatchExecuted">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (m *<a href="index.html#MetricsBus">MetricsBus</a>) TotalBatchExecuted() <a href="http://localhost:6060/pkg/github.com/anoideaopen/common-component/basemetrics/">basemetrics</a>.<a href="http://localhost:6060/pkg/github.com/anoideaopen/common-component/basemetrics/#Counter">Counter</a></pre>
+				
+				
+				
+				
+			
+				
+				<h3 id="MetricsBus.TotalBatchSize">func (*MetricsBus) <a href="http://localhost:6060/src/github.com/anoideaopen/robot/metrics/prometheus/bus.go?s=7851:7908#L228">TotalBatchSize</a>
+					<a class="permalink" href="index.html#MetricsBus.TotalBatchSize">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (m *<a href="index.html#MetricsBus">MetricsBus</a>) TotalBatchSize() <a href="http://localhost:6060/pkg/github.com/anoideaopen/common-component/basemetrics/">basemetrics</a>.<a href="http://localhost:6060/pkg/github.com/anoideaopen/common-component/basemetrics/#Counter">Counter</a></pre>
+				
+				
+				
+				
+			
+				
+				<h3 id="MetricsBus.TotalExecutedTx">func (*MetricsBus) <a href="http://localhost:6060/src/github.com/anoideaopen/robot/metrics/prometheus/bus.go?s=7487:7545#L224">TotalExecutedTx</a>
+					<a class="permalink" href="index.html#MetricsBus.TotalExecutedTx">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (m *<a href="index.html#MetricsBus">MetricsBus</a>) TotalExecutedTx() <a href="http://localhost:6060/pkg/github.com/anoideaopen/common-component/basemetrics/">basemetrics</a>.<a href="http://localhost:6060/pkg/github.com/anoideaopen/common-component/basemetrics/#Counter">Counter</a></pre>
+				
+				
+				
+				
+			
+				
+				<h3 id="MetricsBus.TotalOrderingReqSizeExceeded">func (*MetricsBus) <a href="http://localhost:6060/src/github.com/anoideaopen/robot/metrics/prometheus/bus.go?s=7942:8013#L229">TotalOrderingReqSizeExceeded</a>
+					<a class="permalink" href="index.html#MetricsBus.TotalOrderingReqSizeExceeded">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (m *<a href="index.html#MetricsBus">MetricsBus</a>) TotalOrderingReqSizeExceeded() <a href="http://localhost:6060/pkg/github.com/anoideaopen/common-component/basemetrics/">basemetrics</a>.<a href="http://localhost:6060/pkg/github.com/anoideaopen/common-component/basemetrics/#Counter">Counter</a></pre>
+				
+				
+				
+				
+			
+				
+				<h3 id="MetricsBus.TotalRobotStarted">func (*MetricsBus) <a href="http://localhost:6060/src/github.com/anoideaopen/robot/metrics/prometheus/bus.go?s=7663:7723#L226">TotalRobotStarted</a>
+					<a class="permalink" href="index.html#MetricsBus.TotalRobotStarted">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (m *<a href="index.html#MetricsBus">MetricsBus</a>) TotalRobotStarted() <a href="http://localhost:6060/pkg/github.com/anoideaopen/common-component/basemetrics/">basemetrics</a>.<a href="http://localhost:6060/pkg/github.com/anoideaopen/common-component/basemetrics/#Counter">Counter</a></pre>
+				
+				
+				
+				
+			
+				
+				<h3 id="MetricsBus.TotalRobotStopped">func (*MetricsBus) <a href="http://localhost:6060/src/github.com/anoideaopen/robot/metrics/prometheus/bus.go?s=7757:7817#L227">TotalRobotStopped</a>
+					<a class="permalink" href="index.html#MetricsBus.TotalRobotStopped">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (m *<a href="index.html#MetricsBus">MetricsBus</a>) TotalRobotStopped() <a href="http://localhost:6060/pkg/github.com/anoideaopen/common-component/basemetrics/">basemetrics</a>.<a href="http://localhost:6060/pkg/github.com/anoideaopen/common-component/basemetrics/#Counter">Counter</a></pre>
+				
+				
+				
+				
+			
+				
+				<h3 id="MetricsBus.TxWaitingCount">func (*MetricsBus) <a href="http://localhost:6060/src/github.com/anoideaopen/robot/metrics/prometheus/bus.go?s=8750:8805#L241">TxWaitingCount</a>
+					<a class="permalink" href="index.html#MetricsBus.TxWaitingCount">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (m *<a href="index.html#MetricsBus">MetricsBus</a>) TxWaitingCount() <a href="http://localhost:6060/pkg/github.com/anoideaopen/common-component/basemetrics/">basemetrics</a>.<a href="http://localhost:6060/pkg/github.com/anoideaopen/common-component/basemetrics/#Gauge">Gauge</a></pre>
+				
+				
+				
+				
+			
+		
+	
+
+	
+
+
+
+
+
+
+
+<div id="footer">
+Build version go1.19.<br>
+Except as <a href="https://developers.google.com/site-policies#restrictions">noted</a>,
+the content of this page is licensed under the
+Creative Commons Attribution 3.0 License,
+and code is licensed under a <a href="http://localhost:6060/LICENSE">BSD license</a>.<br>
+<a href="https://golang.org/doc/tos.html">Terms of Service</a> |
+<a href="https://www.google.com/intl/en/policies/privacy/">Privacy Policy</a>
+</div>
+
+</div><!-- .container -->
+</div><!-- #page -->
+</body>
+</html>

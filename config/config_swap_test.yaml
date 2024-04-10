@@ -1,0 +1,38 @@
+logLevel: info
+logType: std
+serverPort: 9090
+profilePath: "profilePath"
+userName: "userName"
+
+defaultBatchLimits:
+  batchBlocksCountLimit: 10
+  batchLenLimit: 1000
+  batchSizeLimit: 100000
+  batchTimeoutLimit: 300ms
+
+defaultRobotExecOpts:
+  executeTimeout: 0
+
+robots:
+  - chName: ch1
+    collectorsBufSize: 1
+    src:
+      - chName: ch1
+        initBlockNum: 0
+      - chName: ch2
+        initBlockNum: 0
+
+txSwapPrefix: swaps
+txMultiSwapPrefix: multi_swap
+txPreimagePrefix: batchTransactions
+
+cryptoSrc: local
+
+redisStor:
+  dbPrefix: robot
+  addr:
+    - 127.0.0.1:6379
+    - 127.0.0.1:6380
+  password: 12345
+  withTLS: false
+  rootCAs:

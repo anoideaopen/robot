@@ -1,0 +1,107 @@
+---
+name: basic-network
+version: 1.0.0
+client:
+  organization: Testnet
+
+  logging:
+    level: info
+
+  tlsCerts:
+    client:
+      key:
+        path: dev-data/hlf-test-stage-04/crypto/backend@testnet.anoideaopen-04.scientificideas.org/tls/cert.key
+      cert:
+        path: dev-data/hlf-test-stage-04/crypto/backend@testnet.anoideaopen-04.scientificideas.org/tls/cert.pem
+    cryptoconfig:
+      path: dev-data/hlf-test-stage-04/crypto/backend@testnet.anoideaopen-04.scientificideas.org
+  timeout:
+    connection: 60s
+    response: 180s
+  credentialStore:
+    path: dev-data/hlf-test-stage-04/crypto/backend@testnet.anoideaopen-04.scientificideas.org/msp/signcerts
+
+    cryptoStore:
+      path:
+        dev-data/hlf-test-stage-04/crypto/backend@testnet.anoideaopen-04.scientificideas.org/msp
+
+# This can be section for description channels, but worked magic!
+channels:
+  acl:
+    peers:
+      peer0.testnet.anoideaopen-04.scientificideas.org:
+      peer1.testnet.anoideaopen-04.scientificideas.org:
+      peer0.trafigura.testnet.anoideaopen.scientificideas.org:
+
+  fiat:
+    peers:
+      peer0.testnet.anoideaopen-04.scientificideas.org:
+      peer1.testnet.anoideaopen-04.scientificideas.org:
+      peer0.trafigura.testnet.anoideaopen.scientificideas.org:
+
+  cc:
+    peers:
+      peer0.testnet.anoideaopen-04.scientificideas.org:
+      peer1.testnet.anoideaopen-04.scientificideas.org:
+      peer0.trafigura.testnet.anoideaopen.scientificideas.org:
+
+  gf78iln049:
+    peers:
+      peer0.testnet.anoideaopen-04.scientificideas.org:
+      peer1.testnet.anoideaopen-04.scientificideas.org:
+      peer0.trafigura.testnet.anoideaopen.scientificideas.org:
+
+
+organizations:
+  Testnet:
+    mspid: TestnetMSP
+    cryptoPath: dev-data/hlf-test-stage-04/crypto/backend@testnet.anoideaopen-04.scientificideas.org/msp/
+    peers:
+      - peer0.testnet.anoideaopen-04.scientificideas.org
+      - peer1.testnet.anoideaopen-04.scientificideas.org
+  Trafigura:
+    mspid: trafiguraMSP
+    cryptoPath: dev-data/hlf-test-stage-04/crypto/backend@testnet.anoideaopen-04.scientificideas.org/msp/
+    peers:
+      - peer0.trafigura.testnet.anoideaopen.scientificideas.org
+  Traxys:
+    mspid: traxysMSP
+    cryptoPath: dev-data/hlf-test-stage-04/crypto/backend@testnet.anoideaopen-04.scientificideas.org/msp/
+    peers:
+      - peer0.traxys.testnet.anoideaopen.scientificideas.org
+  Umicore:
+    mspid: umicoreMSP
+    cryptoPath: dev-data/hlf-test-stage-04/crypto/backend@testnet.anoideaopen-04.scientificideas.org/msp/
+    peers:
+      - peer0.umicore.testnet.anoideaopen.scientificideas.org
+
+orderers:
+  orderer0.testnet.anoideaopen-04.scientificideas.org:
+    url: grpcs://orderer0.testnet.anoideaopen-04.scientificideas.org:7050
+    tlsCACerts:
+      path: dev-data/hlf-test-stage-04/crypto/backend@testnet.anoideaopen-04.scientificideas.org/tlscacerts/tlsca.testnet.anoideaopen-04.scientificideas.org-cert.pem
+  orderer4.testnet.anoideaopen-04.scientificideas.org:
+    url: grpcs://orderer4.testnet.anoideaopen-04.scientificideas.org:7120
+    tlsCACerts:
+      path: dev-data/hlf-test-stage-04/crypto/backend@testnet.anoideaopen-04.scientificideas.org/tlscacerts/tlsca.testnet.anoideaopen-04.scientificideas.org-cert.pem
+peers:
+  peer0.testnet.anoideaopen-04.scientificideas.org:
+    url: grpcs://peer0.testnet.anoideaopen-04.scientificideas.org:7051
+    tlsCACerts:
+      path: dev-data/hlf-test-stage-04/crypto/backend@testnet.anoideaopen-04.scientificideas.org/tlscacerts/tlsca.testnet.anoideaopen-04.scientificideas.org-cert.pem
+  peer1.testnet.anoideaopen-04.scientificideas.org:
+    url: grpcs://peer1.testnet.anoideaopen-04.scientificideas.org:7061
+    tlsCACerts:
+      path: dev-data/hlf-test-stage-04/crypto/backend@testnet.anoideaopen-04.scientificideas.org/tlscacerts/tlsca.testnet.anoideaopen-04.scientificideas.org-cert.pem
+  peer0.trafigura.testnet.anoideaopen.scientificideas.org:
+    url: grpcs://peer0.trafigura.testnet.anoideaopen.scientificideas.org:7071
+    tlsCACerts:
+      path: dev-data/hlf-test-stage-04/crypto/backend@testnet.anoideaopen-04.scientificideas.org/tlscacerts/tlsca.trafigura.testnet.anoideaopen.scientificideas.org-cert.pem
+  peer0.traxys.testnet.anoideaopen.scientificideas.org:
+    url: grpcs://peer0.traxys.testnet.anoideaopen.scientificideas.org:7081
+    tlsCACerts:
+      path: dev-data/hlf-test-stage-04/crypto/backend@testnet.anoideaopen-04.scientificideas.org/tlscacerts/tlsca.traxys.testnet.anoideaopen.scientificideas.org-cert.pem
+  peer0.umicore.testnet.anoideaopen.scientificideas.org:
+    url: grpcs://peer0.umicore.testnet.anoideaopen.scientificideas.org:7091
+    tlsCACerts:
+      path: dev-data/hlf-test-stage-04/crypto/backend@testnet.anoideaopen-04.scientificideas.org/tlscacerts/tlsca.umicore.testnet.anoideaopen.scientificideas.org-cert.pem
