@@ -4,8 +4,8 @@ import (
 	"context"
 	"math"
 
+	"github.com/anoideaopen/glog"
 	"github.com/anoideaopen/robot/dto/executordto"
-	"github.com/newity/glog"
 )
 
 type execWithSplitHlp struct {

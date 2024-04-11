@@ -6,13 +6,13 @@ import (
 
 	"github.com/anoideaopen/common-component/errorshlp"
 	"github.com/anoideaopen/foundation/proto"
+	"github.com/anoideaopen/glog"
 	"github.com/anoideaopen/robot/dto/collectordto"
 	"github.com/anoideaopen/robot/dto/parserdto"
 	"github.com/anoideaopen/robot/helpers/nerrors"
 	"github.com/anoideaopen/robot/logger"
 	protoSer "github.com/golang/protobuf/proto" //nolint:staticcheck
 	"github.com/hyperledger/fabric-protos-go/common"
-	"github.com/newity/glog"
 	"github.com/pkg/errors"
 )
 

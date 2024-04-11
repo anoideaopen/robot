@@ -5,12 +5,12 @@ import (
 	"time"
 
 	"github.com/anoideaopen/common-component/errorshlp"
+	"github.com/anoideaopen/glog"
 	"github.com/anoideaopen/robot/dto/collectordto"
 	"github.com/anoideaopen/robot/dto/executordto"
 	"github.com/anoideaopen/robot/helpers/nerrors"
 	"github.com/anoideaopen/robot/logger"
 	"github.com/anoideaopen/robot/metrics"
-	"github.com/newity/glog"
 	"github.com/pkg/errors"
 )
 

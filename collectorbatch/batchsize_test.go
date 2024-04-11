@@ -12,6 +12,7 @@ import (
 
 	"github.com/anoideaopen/common-component/testshlp"
 	"github.com/anoideaopen/foundation/proto"
+	"github.com/anoideaopen/glog"
 	"github.com/anoideaopen/robot/dto/collectordto"
 	"github.com/anoideaopen/robot/dto/executordto"
 	"github.com/anoideaopen/robot/dto/parserdto"
@@ -19,7 +20,6 @@ import (
 	"github.com/anoideaopen/robot/hlf/parser"
 	gproto "github.com/golang/protobuf/proto"
 	cb "github.com/hyperledger/fabric-protos-go/common"
-	"github.com/newity/glog"
 	"github.com/stretchr/testify/require"
 	pb "google.golang.org/protobuf/proto"
 )

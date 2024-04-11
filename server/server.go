@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/newity/glog"
+	"github.com/anoideaopen/glog"
 )
 
 const (

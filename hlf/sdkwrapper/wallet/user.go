@@ -352,7 +352,7 @@ func (u *User) Query(ch, cc, fn string, args ...string) ([]byte, error) {
 		return nil, err
 	}
 	t, err := n.GetContract(cc).CreateTransaction(fn)
-	// ToDo временно, пока переходим на foundation v3.1.0
+	// ToDo temporarily
 	/*
 		gateway.WithEvaluateRequestOptions(
 			channel.WithRetry(evaluateRetryOpts),

@@ -3,10 +3,10 @@ module github.com/anoideaopen/robot
 go 1.18
 
 require (
-	github.com/anoideaopen/cartridge v0.0.0-20240409104141-ec8a3420ba1c
-	github.com/anoideaopen/common-component v0.0.0-20240409121923-133f3214ef0a
-	github.com/anoideaopen/foundation v0.0.0-20240408064907-19c346547189
-	github.com/anoideaopen/glog v0.1.2-0.20240409112413-6981aa2cf5f3
+	github.com/anoideaopen/cartridge v0.0.1
+	github.com/anoideaopen/common-component v0.0.2
+	github.com/anoideaopen/foundation v0.0.0-20240411134539-0427a3ad0bd3
+	github.com/anoideaopen/glog v0.0.1
 	github.com/avast/retry-go/v4 v4.0.5
 	github.com/btcsuite/btcutil v1.0.2
 	github.com/go-playground/validator/v10 v10.10.1
@@ -15,7 +15,6 @@ require (
 	github.com/google/uuid v1.4.0
 	github.com/hyperledger/fabric-protos-go v0.3.2
 	github.com/hyperledger/fabric-sdk-go v1.0.0
-	github.com/newity/glog v1.0.0
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v1.13.1
 	github.com/spf13/viper v1.12.0

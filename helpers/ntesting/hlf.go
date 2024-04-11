@@ -5,8 +5,8 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/anoideaopen/glog"
 	"github.com/anoideaopen/robot/hlf/sdkwrapper/wallet"
-	"github.com/newity/glog"
 	"github.com/pkg/errors"
 )
 

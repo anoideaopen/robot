@@ -58,11 +58,10 @@ func NewBaseTokenAPI(channelName string, chaincodeName string, hlfClient *servic
 	}
 }
 
-// SetRate - установка рейта
-// - Подписывается эмитентом
-// dealType - тип сделки
-// currency - тип валюты
-// rate - значение
+// SetRate - Signed by the issuer
+// dealType - type of deal
+// currency - currency type
+// rate - value
 func (b *BaseTokenAPI) SetRate(dealType dealType, currency string, rate uint64) (*channel.Response, error) {
 	err := b.Validate()
 	if err != nil {
@@ -79,11 +78,10 @@ func (b *BaseTokenAPI) SetRate(dealType dealType, currency string, rate uint64) 
 	return b.GetHlfClient().InvokeWithPublicAndPrivateKey(b.OwnerKeyPair.PrivateKey, b.OwnerKeyPair.PublicKey, b.ChannelName, b.ChaincodeName, methodName, methodArgs, true, peers)
 }
 
-// DeleteRate - установка рейта
-// - Подписывается эмитентом
-// dealType - тип сделки
-// currency - тип валюты
-// rate - значение
+// DeleteRate - Signed by the issuer
+// dealType - type of deal
+// currency - currency type
+// rate - value
 func (b *BaseTokenAPI) DeleteRate(dealType dealType, currency string, rate uint64) (*channel.Response, error) {
 	err := b.Validate()
 	if err != nil {
@@ -100,23 +98,25 @@ func (b *BaseTokenAPI) DeleteRate(dealType dealType, currency string, rate uint6
 	return b.GetHlfClient().InvokeWithPublicAndPrivateKey(b.OwnerKeyPair.PrivateKey, b.OwnerKeyPair.PublicKey, b.ChannelName, b.ChaincodeName, methodName, methodArgs, true, peers)
 }
 
-// Сигнатура метода: TxBuyToken(sender types.Sender, amount *big.Int, currency string) error
-// Подписывается пользователем. При подписи эмитентом возвращается ошибка. В рамках работы метода проверяются рейсы и лимиты, поэтому они должны быть заданы заранее.
-// Пример из теста:
+// Method signature: TxBuyToken(sender types.Sender, amount *big.Int, currency string) error
+// Signed by the user. If signed by the issuer, an error is returned.
+// The method checks flights and limits, so they must be set in advance.
+// Example from the test:
 // issuer.SignedInvoke("vt", "setRate", "buyToken", "usd", "100000000")
 // issuer.SignedInvoke("vt", "setLimits", "buyToken", "usd", "1", "10")
 
-// BuyBack - обратный выкуп токена.
+// BuyBack - buyback of the token.
 //
-// Сигнатура метода: TxBuyBack(sender types.Sender, amount *big.Int, currency string) error
-// Подписывается пользователем. При подписи эмитентом возвращается ошибка. Аналогично предыдущему методу, производится проверка рейтов и лимитов.
-// Пример из теста:
+// Method signature: TxBuyBack(sender types.Sender, amount *big.Int, currency string) error
+// Signed by the user. If signed by the issuer, an error is returned. Similarly to the previous method,
+// raits and limits are checked.
+// Example from the test:
 // issuer.SignedInvoke("vt", "setRate", "buyBack", "usd", "100000000")
-// issuer.SignedInvoke("vt", "setLimits", "buyBack", "usd", "1", «10")
+// issuer.SignedInvoke("vt", "setLimits", "buyBack", "usd", "1", "10")
 
-// Metadata - запрос метадаты токена.
-// Сигнатура метода: QueryMetadata() (metadata, error)
-// Дополнительные условий не требуется.
+// Metadata - request the metadata of the token.
+// Method signature: QueryMetadata() (metadata, error)
+// No additional conditions are required.
 func (b *BaseTokenAPI) Metadata() (*channel.Response, error) {
 	err := b.Validate()
 	if err != nil {
@@ -127,9 +127,9 @@ func (b *BaseTokenAPI) Metadata() (*channel.Response, error) {
 	return b.hlfClient.Query(b.ChannelName, b.ChaincodeName, methodName, methodArgs)
 }
 
-// BalanceOf - запрос баланса.
-// Сигнатура метода: QueryBalanceOf(address types.Address) (*big.Int, error)
-// Дополнительных условий не требуется.
+// BalanceOf - balance query.
+// Method signature: QueryBalanceOf(address types.Address) (*big.Int, error)
+// No additional conditions are required.
 func (b *BaseTokenAPI) BalanceOf(address string) (*channel.Response, error) {
 	err := b.Validate()
 	if err != nil {
@@ -142,9 +142,9 @@ func (b *BaseTokenAPI) BalanceOf(address string) (*channel.Response, error) {
 	return b.hlfClient.Query(b.ChannelName, b.ChaincodeName, methodName, methodArgs)
 }
 
-// AllowedBalanceOf - запрос allowed баланса.
-// Сигнатура метода: QueryAllowedBalanceOf(address types.Address, token string)
-// Дополнительных условий не требуется.
+// AllowedBalanceOf - request for allowed balance.
+// Method signature: QueryAllowedBalanceOf(address types.Address, token string)
+// No additional conditions are required.
 func (b *BaseTokenAPI) AllowedBalanceOf(address string, token string) (*channel.Response, error) {
 	err := b.Validate()
 	if err != nil {
@@ -158,24 +158,25 @@ func (b *BaseTokenAPI) AllowedBalanceOf(address string, token string) (*channel.
 	return b.hlfClient.Query(b.ChannelName, b.ChaincodeName, methodName, methodArgs)
 }
 
-// Сигнатура метода: QueryDocumentsList() ([]core.Doc, error)
-// Дополнительных условий не требуется.
+// Method signature: QueryDocumentsList() ([]core.Doc, error)
+// No additional conditions are required.
 
-// AddDocs - добавление документов к токену.
-// Подписывается эмитентом.
+// AddDocs - adding documents to the token.
+// Signed by the issuer.
 //
-// Сигнатура метода: TxAddDocs(sender types.Sender, rawDocs string) error
+// Method signature: TxAddDocs(sender types.Sender, rawDocs string) error
 
-// Сигнатура метода: TxDeleteDoc(sender types.Sender, docID string) error
-// Подписывается эмитентом.
+// Method signature: TxDeleteDoc(sender types.Sender, docID string) error
+// Signed by the issuer.
 
-// SetLimits - установка лимита.
-// Сигнатура метода: TxSetLimits(sender types.Sender, dealType string, currency string, min *big.Int, max *big.Int) error
-// Подписывается эмитентом.
+// SetLimits - set limit.
+// Method signature: TxSetLimits(sender types.Sender, dealType string, currency string, min *big.Int, max *big.Int) error
+// Signed by the issuer.
 
-// Transfer - передача токенов на указанный адрес.
-// Сигнатура метода: TxTransfer(sender types.Sender, to types.Address, amount *big.Int, ref string) error
-// Количество передаваемых токенов не должно быть нулевым, токены нельзя переслать самому себе, если установлена комиссия и комиссионная валюта не пустая, то с отправителя будет списана комиссия.
+// Transfer - transfer tokens to the specified address.
+// Method signature: TxTransfer(sender types.Sender, to types.Address, amount *big.Int, ref string) error
+// The number of tokens to be transferred must not be zero, tokens cannot be transferred to oneself,
+// if a commission is set and the commission currency is not empty, the sender will be charged a commission.
 func (b *BaseTokenAPI) Transfer(keyPair *KeyPair, toAddress string, amount *big.Int, ref string) (*channel.Response, error) {
 	err := b.Validate()
 	if err != nil {
@@ -192,23 +193,24 @@ func (b *BaseTokenAPI) Transfer(keyPair *KeyPair, toAddress string, amount *big.
 	return b.hlfClient.InvokeWithPublicAndPrivateKey(keyPair.PrivateKey, keyPair.PublicKey, b.ChannelName, b.ChaincodeName, methodName, methodArgs, false, peers)
 }
 
-// toAddress - адрес, обычно base58check от публичного ключа при создании пользователя
+// toAddress - address, usually base58check from the public key when creating a user
 
-// Сигнатура метода: QueryPredictFee(amount *big.Int) (predict, error)
-// Дополнительных условий не требуется.
+// Method signature: QueryPredictFee(amount *big.Int) (predict, error)
+// No additional conditions are required.
 
-// SetFee - установка комиссии.
-// Сигнатура метода: TxSetFee(sender types.Sender, currency string, fee *big.Int, floor *big.Int, cap *big.Int) error
-// Подписывается FeeSetter’ом.
-// Производится проверка на значение комиссии - она должна быть не более 100%, также производится проверка на значения лимитов floor и cap.
+// SetFee - setting the fee.
+// Method signature: TxSetFee(sender types.Sender, currency string, fee *big.Int, floor *big.Int, cap *big.Int) error
+// Signed by FeeSetter.
+// Check for the value of commission - it should be not more than 100%,
+// also check for the values of floor and cap limits.
 
-// SetFeeAddress - установка комиссионного адреса.
-// Сигнатура метода: TxSetFeeAddress(sender types.Sender, address types.Address) error
-// Подписывется FeeAddressSetter’ом.
+// SetFeeAddress - setting the commission address.
+// Method signature: TxSetFeeAddress(sender types.Sender, address types.Address) error
+// Signed by FeeAddressSetter.
 
-// SwapBegin - начало процесса атомарного свопа.
-// Сигнатура метода: TxSwapBegin(sender types.Sender, token string, contractTo string, amount *big.Int, hash types.Hex) (string, error)
-// Дополнительных условий не требуется.
+// SwapBegin - the beginning of the atomic swap process.
+// Method signature: TxSwapBegin(sender types.Sender, token string, contractTo string, amount *big.Int, hash types.Hex) (string, error)
+// No additional conditions are required.
 func (b *BaseTokenAPI) SwapBegin(keyPair *KeyPair, token string, contractTo string, amount uint64, hash string) (*channel.Response, error) {
 	err := b.Validate()
 	if err != nil {
@@ -226,9 +228,9 @@ func (b *BaseTokenAPI) SwapBegin(keyPair *KeyPair, token string, contractTo stri
 	return b.hlfClient.InvokeWithPublicAndPrivateKey(keyPair.PrivateKey, keyPair.PublicKey, b.ChannelName, b.ChaincodeName, methodName, methodArgs, false, peers)
 }
 
-// SwapCancel - сброс свопа.
-// Сигнатура метода: TxSwapCancel(sender types.Sender, swapID string) error
-// Дополнительных условий не требуется.
+// SwapCancel - swap reset.
+// Method signature: TxSwapCancel(sender types.Sender, swapID string) error
+// No additional conditions are required.
 func (b *BaseTokenAPI) SwapCancel(keyPair *KeyPair, swapTransactionId string) (*channel.Response, error) {
 	err := b.Validate()
 	if err != nil {
@@ -240,11 +242,20 @@ func (b *BaseTokenAPI) SwapCancel(keyPair *KeyPair, swapTransactionId string) (*
 	methodName := "swapCancel"
 	peers := ""
 
-	return b.hlfClient.InvokeWithPublicAndPrivateKey(keyPair.PrivateKey, keyPair.PublicKey, b.ChannelName, b.ChaincodeName, methodName, methodArgs, false, peers)
+	return b.hlfClient.InvokeWithPublicAndPrivateKey(
+		keyPair.PrivateKey,
+		keyPair.PublicKey,
+		b.ChannelName,
+		b.ChaincodeName,
+		methodName,
+		methodArgs,
+		false,
+		peers,
+	)
 }
 
-// SwapDone - начало процесса атомарного свопа.
-// Дополнительных условий не требуется.
+// SwapDone - start of the atomic swap process.
+// No additional conditions are required.
 func (b *BaseTokenAPI) SwapDone(swapTransactionId string, swapKey string) (*channel.Response, error) {
 	err := b.Validate()
 	if err != nil {
@@ -260,9 +271,9 @@ func (b *BaseTokenAPI) SwapDone(swapTransactionId string, swapKey string) (*chan
 	return b.hlfClient.Invoke(b.ChannelName, b.ChaincodeName, methodName, methodArgs, true, peers)
 }
 
-// SwapGet - информация по свопу.
-// Сигнатура метода: QuerySwapGet(swapID string) (*proto.Swap, error)
-// Дополнительных условий не требуется.
+// SwapGet - swap information.
+// Method signature: QuerySwapGet(swapID string) (*proto.Swap, error)
+// No additional conditions are required.
 func (b *BaseTokenAPI) SwapGet(swapTransactionId string) (*channel.Response, error) {
 	err := b.Validate()
 	if err != nil {

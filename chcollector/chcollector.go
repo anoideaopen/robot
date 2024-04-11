@@ -5,12 +5,12 @@ import (
 	"sync"
 
 	"github.com/anoideaopen/common-component/errorshlp"
+	"github.com/anoideaopen/glog"
 	"github.com/anoideaopen/robot/dto/collectordto"
 	"github.com/anoideaopen/robot/helpers/nerrors"
 	"github.com/anoideaopen/robot/metrics"
 	"github.com/hyperledger/fabric-protos-go/common"
 	"github.com/hyperledger/fabric-sdk-go/pkg/common/providers/fab"
-	"github.com/newity/glog"
 	"github.com/pkg/errors"
 )
 

@@ -65,7 +65,7 @@ func TestProxyLoopCreate(t *testing.T) {
 	require.EqualValues(t, 3, *eventsSrcCreator.closedCount)
 }
 
-// stubRealCollector читает из proxyEvents и пишет в blockData
+// stubRealCollector reads from proxyEvents and writes to blockData
 type stubRealCollector struct {
 	proxyEvents <-chan *fab.BlockEvent
 	blockData   chan *collectordto.BlockData
