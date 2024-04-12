@@ -76,7 +76,7 @@ func startServer(ctx context.Context, serverPort uint,
 		log.Info("server ListenAndServe finished")
 	}()
 
-	return func() {
+	return func() { //nolint:contextcheck
 		shutdownCtx, cancel := context.WithTimeout(context.Background(), serverShutdownTimeout)
 		defer cancel()
 

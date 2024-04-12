@@ -9,7 +9,6 @@ on:
 
 env:
   GO_VER: 1.21.8
-  GO_VER_OLD: 1.18.7
   GINKGO_VER: 2.13.2
 
 jobs:
@@ -61,23 +60,15 @@ jobs:
           args: --out-format=colored-line-number
           skip-cache: true
 
-  go-test-unit:
+  go-unit-test:
     needs:
       - golangci-lint
-    strategy:
-      fail-fast: false
-      matrix:
-        go-version:
-          - '1.21.8'
-          - '1.18.7'
     runs-on: 'ubuntu-20.04'
     steps:
       - uses: actions/checkout@v4
-
-      - name: Setup Go ${{ matrix.go-version }}
-        uses: actions/setup-go@v5
+      - uses: actions/setup-go@v5
         with:
-          go-version: ${{ matrix.go-version }}
+          go-version: ${{ env.GO_VER }}
 
       - name: unit test
         run: |

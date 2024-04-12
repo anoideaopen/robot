@@ -212,15 +212,12 @@ func createConfig(_ *testing.T, ciData ntesting.CiTestData) (*config.Config, err
 	}
 
 	executeTimeout := time.Duration(0)
-	waitCommitAttempts := uint(1)
-	waitCommitAttemptTimeout := time.Duration(0)
 
 	return &config.Config{
 		LogLevel:               "debug",
 		LogType:                "std",
 		ProfilePath:            ciData.HlfProfilePath,
 		UserName:               ciData.HlfUserName,
-		UseSmartBFT:            ciData.HlfUseSmartBFT,
 		TxSwapPrefix:           "swaps",
 		TxMultiSwapPrefix:      "multi_swap",
 		TxPreimagePrefix:       "batchTransactions",
@@ -241,9 +238,7 @@ func createConfig(_ *testing.T, ciData ntesting.CiTestData) (*config.Config, err
 		CryptoSrc:   config.LocalCryptoSrc,
 		Robots:      robots,
 		DefaultRobotExecOpts: config.ExecuteOptions{
-			ExecuteTimeout:           &executeTimeout,
-			WaitCommitAttempts:       &waitCommitAttempts,
-			WaitCommitAttemptTimeout: &waitCommitAttemptTimeout,
+			ExecuteTimeout: &executeTimeout,
 		},
 	}, nil
 }

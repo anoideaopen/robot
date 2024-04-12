@@ -1,6 +1,3 @@
-//go:build !integration
-// +build !integration
-
 package hlfprofile
 
 import (
@@ -15,7 +12,7 @@ func TestParseProfile(t *testing.T) {
 	require.NotNil(t, hlfProfile)
 
 	require.EqualValues(t, "Testnet", hlfProfile.OrgName)
-	require.EqualValues(t, "Testnet", hlfProfile.MspID)
+	require.EqualValues(t, "TestnetMSP", hlfProfile.MspID)
 	require.EqualValues(t, "dev-data/hlf-test-stage-04/crypto/backend@testnet.anoideaopen-04.scientificideas.org/msp/signcerts", hlfProfile.CredentialStorePath)
 	require.EqualValues(t, "dev-data/hlf-test-stage-04/crypto/backend@testnet.anoideaopen-04.scientificideas.org/msp", hlfProfile.CryptoStorePath)
 }

@@ -1,6 +1,3 @@
-//go:build !integration
-// +build !integration
-
 //nolint:all
 package main
 
