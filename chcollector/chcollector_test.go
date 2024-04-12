@@ -1,6 +1,3 @@
-//go:build !integration
-// +build !integration
-
 package chcollector
 
 import (
@@ -84,24 +81,24 @@ func TestCollectingTheSameBlock(t *testing.T) {
 	bltx := getBlock(t, "../hlf/parser/test-data/blocks/block_with_preimages.block")
 
 	const totalCountBlocks = 2
-	// добавляем в канал событий, два одинаковых блока с транзакциями
+	// add two identical blocks with transactions to the event channel
 	events := make(chan *fab.BlockEvent, totalCountBlocks)
 	for i := 0; i < totalCountBlocks; i++ {
 		events <- &fab.BlockEvent{Block: bltx}
 	}
 
-	// создаем коллектор и передаем туда канал с событиями
+	// create a collector and pass an event channel to it
 	dc, err := NewCollector(ctx, prs, dataReady, events, 1)
 	require.NoError(t, err)
 	countBlocks := 0
 
-	// массив с распаршенными блоками
+	// unmarshaled array
 	var bd []*collectordto.BlockData
 loop:
 	for {
 		select {
 		case d, ok := <-dc.GetData():
-			// добавляем блоки в слайс
+			// add blocks to the slice
 			bd = append(bd, d)
 			require.True(t, ok)
 			require.NotNil(t, d)
@@ -115,7 +112,7 @@ loop:
 		}
 	}
 
-	// проверяем что они одинаковые
+	// make sure they're the same.
 	require.True(t, reflect.DeepEqual(bd[0], bd[1]))
 	dc.Close()
 	_, ok := <-dc.GetData()
@@ -135,24 +132,24 @@ func TestCollectingTheSameBlockMultiswaps(t *testing.T) {
 	bltx := getBlock(t, "../hlf/parser/test-data/blocks/block_with_multiswaps.block")
 
 	const totalCountBlocks = 2
-	// добавляем в канал событий, два одинаковых блока с транзакциями
+	// add two identical blocks with transactions to the event channel
 	events := make(chan *fab.BlockEvent, totalCountBlocks)
 	for i := 0; i < totalCountBlocks; i++ {
 		events <- &fab.BlockEvent{Block: bltx}
 	}
 
-	// создаем коллектор и передаем туда канал с событиями
+	// create a collector and pass an event channel to it
 	dc, err := NewCollector(ctx, prs, dataReady, events, 1)
 	require.NoError(t, err)
 	countBlocks := 0
 
-	// массив с распаршенными блоками
+	// unmarshaled array
 	var bd []*collectordto.BlockData
 loop:
 	for {
 		select {
 		case d, ok := <-dc.GetData():
-			// добавляем блоки в слайс
+			// add blocks to the slice
 			bd = append(bd, d)
 			require.True(t, ok)
 			require.NotNil(t, d)
@@ -166,7 +163,7 @@ loop:
 		}
 	}
 
-	// проверяем что они одинаковые
+	// make sure they're the same.
 	require.True(t, reflect.DeepEqual(bd[0], bd[1]))
 	dc.Close()
 	_, ok := <-dc.GetData()
@@ -186,24 +183,24 @@ func TestCollectingTheSameBlockKeys(t *testing.T) {
 	bltx := getBlock(t, "../hlf/parser/test-data/blocks/block_with_keys.block")
 
 	const totalCountBlocks = 2
-	// добавляем в канал событий, два одинаковых блока с транзакциями
+	// add two identical blocks with transactions to the event channel
 	events := make(chan *fab.BlockEvent, totalCountBlocks)
 	for i := 0; i < totalCountBlocks; i++ {
 		events <- &fab.BlockEvent{Block: bltx}
 	}
 
-	// создаем коллектор и передаем туда канал с событиями
+	// create a collector and pass an event channel to it
 	dc, err := NewCollector(ctx, prs, dataReady, events, 1)
 	require.NoError(t, err)
 	countBlocks := 0
 
-	// массив с распаршенными блоками
+	// unmarshaled array
 	var bd []*collectordto.BlockData
 loop:
 	for {
 		select {
 		case d, ok := <-dc.GetData():
-			// добавляем блоки в слайс
+			// add blocks to the slice
 			bd = append(bd, d)
 			require.True(t, ok)
 			require.NotNil(t, d)
@@ -217,7 +214,7 @@ loop:
 		}
 	}
 
-	// проверяем что они одинаковые
+	// make sure they're the same.
 	require.True(t, reflect.DeepEqual(bd[0], bd[1]))
 	dc.Close()
 	_, ok := <-dc.GetData()
@@ -237,24 +234,24 @@ func TestCollectingTheSameBlockMultikeys(t *testing.T) {
 	bltx := getBlock(t, "../hlf/parser/test-data/blocks/block_with_multikeys.block")
 
 	const totalCountBlocks = 2
-	// добавляем в канал событий, два одинаковых блока с транзакциями
+	// add two identical blocks with transactions to the event channel
 	events := make(chan *fab.BlockEvent, totalCountBlocks)
 	for i := 0; i < totalCountBlocks; i++ {
 		events <- &fab.BlockEvent{Block: bltx}
 	}
 
-	// создаем коллектор и передаем туда канал с событиями
+	// create a collector and pass an event channel to it
 	dc, err := NewCollector(ctx, prs, dataReady, events, 1)
 	require.NoError(t, err)
 	countBlocks := 0
 
-	// массив с распаршенными блоками
+	// unmarshaled array
 	var bd []*collectordto.BlockData
 loop:
 	for {
 		select {
 		case d, ok := <-dc.GetData():
-			// добавляем блоки в слайс
+			// add blocks to the slice
 			bd = append(bd, d)
 			require.True(t, ok)
 			require.NotNil(t, d)
@@ -268,7 +265,7 @@ loop:
 		}
 	}
 
-	// проверяем что они одинаковые
+	// make sure they're the same.
 	require.True(t, reflect.DeepEqual(bd[0], bd[1]))
 	dc.Close()
 	_, ok := <-dc.GetData()
@@ -288,24 +285,24 @@ func TestCollectingTheSameBlockSwaps(t *testing.T) {
 	bltx := getBlock(t, "../hlf/parser/test-data/blocks/block_with_swaps.block")
 
 	const totalCountBlocks = 2
-	// добавляем в канал событий, два одинаковых блока с транзакциями
+	// add two identical blocks with transactions to the event channel
 	events := make(chan *fab.BlockEvent, totalCountBlocks)
 	for i := 0; i < totalCountBlocks; i++ {
 		events <- &fab.BlockEvent{Block: bltx}
 	}
 
-	// создаем коллектор и передаем туда канал с событиями
+	// create a collector and pass an event channel to it
 	dc, err := NewCollector(ctx, prs, dataReady, events, 1)
 	require.NoError(t, err)
 	countBlocks := 0
 
-	// массив с распаршенными блоками
+	// unmarshaled array
 	var bd []*collectordto.BlockData
 loop:
 	for {
 		select {
 		case d, ok := <-dc.GetData():
-			// добавляем блоки в слайс
+			// add blocks to the slice
 			bd = append(bd, d)
 			require.True(t, ok)
 			require.NotNil(t, d)
@@ -319,7 +316,7 @@ loop:
 		}
 	}
 
-	// проверяем что они одинаковые
+	// make sure they're the same.
 	require.True(t, reflect.DeepEqual(bd[0], bd[1]))
 	dc.Close()
 	_, ok := <-dc.GetData()

@@ -8,6 +8,7 @@ import (
 
 	"github.com/anoideaopen/cartridge/manager"
 	"github.com/anoideaopen/common-component/errorshlp"
+	"github.com/anoideaopen/glog"
 	"github.com/anoideaopen/robot/chcollector"
 	"github.com/anoideaopen/robot/dto/collectordto"
 	"github.com/anoideaopen/robot/dto/parserdto"
@@ -23,7 +24,6 @@ import (
 	"github.com/hyperledger/fabric-sdk-go/pkg/core/config"
 	"github.com/hyperledger/fabric-sdk-go/pkg/fab/events/client"
 	"github.com/hyperledger/fabric-sdk-go/pkg/fab/events/deliverclient/seek"
-	"github.com/newity/glog"
 	"github.com/pkg/errors"
 )
 

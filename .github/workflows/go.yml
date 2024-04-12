@@ -1,53 +1,96 @@
-name: Go
+name: "Go Verify Build"
 
 on:
   push:
-    branches:
-      - main
-    tags:
-      - 'v*.*.*'
+    branches: ["**"]
   pull_request:
-    branches:
-      - main
-  release:
-    types:
-      - created
+    branches: ["**"]
+  workflow_dispatch:
+
+env:
+  GO_VER: 1.21.8
+  GINKGO_VER: 2.13.2
 
 jobs:
-  validate:
-    uses: anoideaopen/workflows/.github/workflows/validate--v1.yml@main
+  check-cyrillic-comments:
+    runs-on: 'ubuntu-20.04'
+    steps:
+      - uses: actions/checkout@v4
+      - name: check cyrillic comments
+        run: |
+          grep --exclude-dir=".github" -I -r --color -n -E "[А-Яа-яЁё]+" . && exit 1 || exit 0
 
-  go-qa-l0:
+  validate-go:
     needs:
-      - validate
-    uses: anoideaopen/workflows/.github/workflows/go-validate--v1.yml@main
-    secrets: inherit
+      - check-cyrillic-comments
+    runs-on: 'ubuntu-20.04'
+    steps:
+      - uses: actions/checkout@v4
 
-  docker-lint:
-    needs:
-      - validate
-    uses: anoideaopen/workflows/.github/workflows/docker-lint--v1.yml@main
+      - name: setup go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VER }}
 
-  go-qa-l1:
-    needs:
-      - go-qa-l0
-      - docker-lint
-    uses: anoideaopen/workflows/.github/workflows/go-lint--v1.yml@main
+      - name: check go.mod
+        run: |
+          go mod tidy
+          git diff --exit-code go.mod
 
-  go-qa-l2:
-    needs:
-      - go-qa-l1
-    uses: anoideaopen/workflows/.github/workflows/go-test--v1.yml@main
-    secrets: inherit
+      - name: go fmt
+        run: |
+          go fmt ./...
+          git diff --exit-code
 
-  go-qa-l3:
+  golangci-lint:
     needs:
-      - go-qa-l2
-    uses: anoideaopen/workflows/.github/workflows/go-static--v1.yml@main
-    secrets: inherit
+      - validate-go
+    runs-on: 'ubuntu-20.04'
+    steps:
+      - uses: actions/checkout@v4
+      - name: setup go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VER }}
+          cache: false
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v4
+        with:
+          version: v1.57
+          args: --out-format=colored-line-number
+          skip-cache: true
 
-  docker-build-and-push:
-    uses: anoideaopen/workflows/.github/workflows/docker-build-and-push--v1.yml@main
+  go-unit-test:
     needs:
-      - go-qa-l3
-    secrets: inherit
+      - golangci-lint
+    runs-on: 'ubuntu-20.04'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VER }}
+
+      - name: unit test
+        run: |
+          go test -count 1 ./...
+
+  go-test-coverage:
+    needs:
+      - golangci-lint
+    runs-on: 'ubuntu-20.04'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VER }}
+
+      - name: generate test coverage
+        run: |
+          go test ./... -coverprofile=./coverage.out
+
+      # https://github.com/vladopajic/go-test-coverage
+      - uses: vladopajic/go-test-coverage@v2.10.0
+        with:
+          config: ./.testcoverage.yml
+          profile: coverage.out
+          local-prefix: github.com/${{ github.repository }}

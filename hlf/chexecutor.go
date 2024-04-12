@@ -10,6 +10,7 @@ import (
 	"github.com/anoideaopen/cartridge/manager"
 	"github.com/anoideaopen/common-component/errorshlp"
 	pb "github.com/anoideaopen/foundation/proto"
+	"github.com/anoideaopen/glog"
 	"github.com/anoideaopen/robot/dto/executordto"
 	"github.com/anoideaopen/robot/helpers/nerrors"
 	"github.com/anoideaopen/robot/logger"
@@ -18,7 +19,6 @@ import (
 	"github.com/golang/protobuf/proto" //nolint:staticcheck
 	"github.com/hyperledger/fabric-sdk-go/pkg/client/channel"
 	"github.com/hyperledger/fabric-sdk-go/pkg/core/config"
-	"github.com/newity/glog"
 	"github.com/pkg/errors"
 )
 

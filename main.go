@@ -17,6 +17,7 @@ import (
 	"github.com/anoideaopen/common-component/basemetrics/baseprometheus"
 	"github.com/anoideaopen/common-component/errorshlp"
 	"github.com/anoideaopen/common-component/loggerhlp"
+	"github.com/anoideaopen/glog"
 	"github.com/anoideaopen/robot/chrobot"
 	"github.com/anoideaopen/robot/collectorbatch"
 	"github.com/anoideaopen/robot/config"
@@ -29,7 +30,6 @@ import (
 	"github.com/anoideaopen/robot/metrics/prometheus"
 	"github.com/anoideaopen/robot/server"
 	"github.com/anoideaopen/robot/storage/redis"
-	"github.com/newity/glog"
 	"github.com/pkg/errors"
 )
 
@@ -61,7 +61,7 @@ func main() {
 
 	cryptoMng, err := createCryptoManager(ctx, cfg, hlfProfile)
 	if err != nil {
-		l.Panicf("%+v", err)
+		panic(err)
 	}
 
 	// metrics
@@ -69,7 +69,7 @@ func main() {
 	if cfg.PromMetrics != nil {
 		m, err := prometheus.NewMetrics(ctx, cfg.PromMetrics.PrefixForMetrics)
 		if err != nil {
-			l.Panicf("%+v", err)
+			panic(err)
 		}
 		m.AppInfo().Inc(
 			metrics.Labels().AppVer.Create(AppInfoVer),
@@ -91,7 +91,7 @@ func main() {
 		VerSdkFabric: getFabricSdkVersion(l),
 	}, robotsNames, metricsH)
 	if err != nil {
-		l.Panicf("%+v", err)
+		panic(err)
 	}
 	defer shutdownServer()
 
@@ -99,7 +99,7 @@ func main() {
 
 	robots, err := createRobots(ctx, cfg, hlfProfile, cryptoMng)
 	if err != nil {
-		l.Panicf("%+v", err)
+		panic(err)
 	}
 
 	go func() {

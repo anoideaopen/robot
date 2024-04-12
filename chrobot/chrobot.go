@@ -5,13 +5,13 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/anoideaopen/glog"
 	"github.com/anoideaopen/robot/collectorbatch"
 	"github.com/anoideaopen/robot/dto/collectordto"
 	"github.com/anoideaopen/robot/dto/executordto"
 	"github.com/anoideaopen/robot/dto/stordto"
 	"github.com/anoideaopen/robot/logger"
 	"github.com/anoideaopen/robot/metrics"
-	"github.com/newity/glog"
 	"github.com/pkg/errors"
 )
 

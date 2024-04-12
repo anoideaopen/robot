@@ -1,6 +1,3 @@
-//go:build !integration
-// +build !integration
-
 package hlf
 
 import (
@@ -30,7 +27,7 @@ func TestSplitBatchForExec(t *testing.T) {
 		require.Equal(t, len(expectedTxs), len(b.Txs))
 
 		lb1 := getBlockForTx(b.Txs[len(b.Txs)-1])
-		lb2 := b.TxIndToBlocks[uint(b.Txs[len(b.Txs)-1][0])] // ToDo проверить, верно ли это?
+		lb2 := b.TxIndToBlocks[uint(b.Txs[len(b.Txs)-1][0])] // ToDo to see if that's right?
 		require.Equal(t, lb1, lb2)
 
 		for i, txContent := range expectedTxs {
@@ -42,28 +39,28 @@ func TestSplitBatchForExec(t *testing.T) {
 		executedTxCount, lastSuccessCount, lastErrorCount int
 		expected                                          []int
 	}{
-		// 0 отправлено, получаем половину
+		// 0 sent, we're getting half
 		{
 			0, 0, 0,
 			[]int{0, 1, 2, 3, 4},
 		},
-		// невозможная ситуация, но все же
-		// 2 уже отправлены; !5 успешно отправлено в прошлом батче, получаем следующие 5
+		// an impossible situation, but still
+		// 2 already sent; !5 successfully sent in the last batch, get the next 5
 		{
 			2, 5, 0,
 			[]int{2, 3, 4, 5, 6},
 		},
-		// 5 не пролезло; делим те что не пролезли еще, получаем 2
+		// 5 didn't fit; divide the ones that haven't fit yet, we get 2.
 		{
 			0, 0, 5,
 			[]int{0, 1},
 		},
-		// 5 отправлены, 5 не пролезло; делим оставшийся батч еще, получаем 3; 3 < 5 - оставляем 3
+		// 5 sent, 5 didn't get through; divide the remaining batch more, get 3; 3 < 5 - leave 3
 		{
 			5, 0, 5,
 			[]int{5, 6, 7},
 		},
-		// 9 отправлено, 2 не пролезло; делим те что не пролезли еще, получаем 1
+		// 9 sent, 2 didn't go through; divide those that haven't gone through yet, get 1.
 		{
 			9, 0, 2,
 			[]int{9},
@@ -80,19 +77,21 @@ func TestSplitBatchForExec(t *testing.T) {
 	}
 }
 
-// TestExecWithSplitHlpNormal - проверка на то что транзакции влезли в батч и выполнились без ошибок
+// TestExecWithSplitHlpNormal - check that the transactions fit into the batches and were executed without errors
 func TestExecWithSplitHlpNormal(t *testing.T) {
 	_, l := testshlp.CreateCtxLogger(t)
 
-	// устанавливаем безлимит для батча
+	// set unlimited for the batch
 	exs := &executorStub{
 		maxBatchSize: 0,
 	}
 
-	// передаем тестовую функцию executeBatch которая в дальнейшем будет высчитывать результат выполнения батча и сетить результаты выполнения в тестовую мапу
+	// pass the test function executeBatch, which will further calculate
+	// the result of the execution of the batches and network
+	// the results of the execution into the test dump.
 	ewsHlp := newExecWithSplitHlp(l, exs.executeBatch, nil)
 
-	// берем заранее созданный батч
+	// take a pre-created batch
 	origBatch := generateOrigBatch()
 	_, err := ewsHlp.execute(context.Background(), origBatch)
 	require.NoError(t, err)
@@ -104,32 +103,35 @@ func TestExecWithSplitHlpNormal(t *testing.T) {
 	}})
 }
 
-// TestExecWithSplitHlpExceededError - в тесте создается батч с 11 транзакциями и максимальным размером батча 3
-// при попытке выполнения получаем ошибку isSizeExceededError и сплитим батч до 5 транзакций, после попытки выполнения
-// снова получаем ошибку isSizeExceededError и сплитим батч до 2 транзакций, далее без ошибок выполняем все executeBatch
+// TestExecWithSplitHlpExceededError - in the test we create a battle with 11 transactions and
+// the maximum size of the battle is 3. when trying to execute, we get an isSizeExceededError and
+// split the batch to 5 transactions, after trying to execute again we get an isSizeExceededError and
+// split the batch to 2 transactions, then execute all executeBatch without errors
 func TestExecWithSplitHlpExceededError(t *testing.T) {
 	_, l := testshlp.CreateCtxLogger(t)
 
-	// устанавливаем лимит 3 транзакции для батча
+	// set the limit of 3 transactions for the batch
 	exs := &executorStub{
 		maxBatchSize: 3,
 	}
 
-	// передаем тестовую функцию executeBatch которая в дальнейшем будет высчитывать результат выполнения батча и сетить результаты выполнения в тестовую мапу
+	// pass the test function executeBatch, which will further calculate
+	// the result of the execution of the batches and network
+	// the results of the execution into the test dump.
 	ewsHlp := newExecWithSplitHlp(l, exs.executeBatch, nil)
 
-	// берем заранее созданный батч
+	// take a pre-created batch
 	origBatch := generateOrigBatch()
-	// вызываем тестируемую функцию execute
+	// call the function under test execute
 	_, err := ewsHlp.execute(context.Background(), origBatch)
 	require.NoError(t, err)
 
 	checkExecAttempts(t, exs, []execAttempt{
-		// проверяем что при 11 транзакциях происходит сплит
+		// check that 11 transactions result in a split.
 		{batchSize: len(origBatch.Txs), isError: true, isSizeExceededError: true},
-		// проверяем что при 5 транзакциях происходит сплит
+		// check that at 5 transactions the split occurs
 		{batchSize: 5, isError: true, isSizeExceededError: true},
-		// далее проверяем что транзакции идут без ошибок по 2 в батче
+		// then we check that transactions are running without errors, 2 in batches.
 		{batchSize: 2, isError: false, isSizeExceededError: false},
 		{batchSize: 2, isError: false, isSizeExceededError: false},
 		{batchSize: 2, isError: false, isSizeExceededError: false},
@@ -139,28 +141,31 @@ func TestExecWithSplitHlpExceededError(t *testing.T) {
 	})
 }
 
-// TestExecWithSplitHlpError - в тесте создается батч с 11 транзакциями и максимальным размером батча 3
-// при попытке выполнения получаем ошибку isSizeExceededError и сплитим батч до 5 транзакций, после попытки выполнения
-// снова получаем ошибку isSizeExceededError и сплитим батч до 2 транзакций, далее без ошибок идем до 6го вызова executeBatch
-// где получаем ошибку отличную от isSizeExceededError после чего робот падает с ошибкой
+// TestExecWithSplitHlpError - in the test, we create a battle with 11 transactions and
+// the maximum size of the battle is 3 when trying to execute we get isSizeExceededError and
+// split the batch to 5 transactions, after trying to execute again we get isSizeExceededError and
+// split the batch to 2 transactions, then without errors we go to
+// the 6th call of executeBatch where we get an error different from isSizeExceededError after which
+// the robot crashes with an error.
 func TestExecWithSplitHlpError(t *testing.T) {
 	_, l := testshlp.CreateCtxLogger(t)
 
-	// задан максимальный размер батча 3
+	// maximum batch size is set 3
 	exs := &executorStub{
 		maxBatchSize: 3,
 	}
 
-	// добавляем кастомную ошибку в возврат executeBatch при 6 выполнении
+	// add a custom error to executeBatch return on execution 6
 	testErr := errors.New("test error")
 	exs.callHlp.AddErrMap(exs.executeBatch, map[int]error{5: testErr})
 
-	// передаем тестовую функцию executeBatch которая в дальнейшем будет высчитывать результат выполнения батча и сетить результаты выполнения в тестовую мапу
+	// pass the test function executeBatch, which will further calculate the result of
+	// the execution of the batches and network the results of the execution into the test dump.
 	ewsHlp := newExecWithSplitHlp(l, exs.executeBatch, nil)
 
-	// берем заранее созданный батч
+	// take a pre-created batch
 	origBatch := generateOrigBatch()
-	// вызываем тестируемую функцию execute
+	// call the function under test execute
 	_, err := ewsHlp.execute(context.Background(), origBatch)
 	require.Error(t, err)
 	require.ErrorIs(t, err, testErr)
@@ -171,30 +176,33 @@ func TestExecWithSplitHlpError(t *testing.T) {
 		{batchSize: 2, isError: false, isSizeExceededError: false},
 		{batchSize: 2, isError: false, isSizeExceededError: false},
 		{batchSize: 2, isError: false, isSizeExceededError: false},
-		// проверяем что при 6 вызове executeBatch получаем ожидаемую ошибку
+		// check that at the 6th call of executeBatch we get the expected error
 		{batchSize: 2, isError: true, isSizeExceededError: false},
 	})
 }
 
-// TestExecBatcReqSizeErrorAfterSplit - проверка что после деления батча до 1 тразакции мы получаем ошибку если ее размер не проходит в батч
+// TestExecBatcReqSizeErrorAfterSplit - check that after dividing the batches
+// up to 1 transaction we get an error if the size of the transaction does not pass into the batches.
 func TestExecBatcReqSizeErrorAfterSplit(t *testing.T) {
 	_, l := testshlp.CreateCtxLogger(t)
 
-	// задан максимальный размер батча 3
+	// the maximum batch size is set to 3
 	exs := &executorStub{
 		maxBatchSize: 3,
 	}
 
-	// добавляем ошибку размера в возврат executeBatch при 8 выполнении
+	// add size error to executeBatch return at 8 execution
 	testErr := errors.New(errReqSizeMarker)
 	exs.callHlp.AddErrMap(exs.executeBatch, map[int]error{7: testErr})
 
-	// передаем тестовую функцию executeBatch которая в дальнейшем будет высчитывать результат выполнения батча и сетить результаты выполнения в тестовую мапу
+	// pass the test function executeBatch, which will further calculate
+	// the result of the execution of the batches and network the results
+	// of the execution into the test dump.
 	ewsHlp := newExecWithSplitHlp(l, exs.executeBatch, nil)
 
-	// берем заранее созданный батч
+	// take a pre-created batch
 	origBatch := generateOrigBatch()
-	// вызываем тестируемую функцию execute
+	// call the function under test execute
 	_, err := ewsHlp.execute(context.Background(), origBatch)
 	require.Error(t, err)
 	require.ErrorIs(t, err, testErr)
@@ -207,137 +215,145 @@ func TestExecBatcReqSizeErrorAfterSplit(t *testing.T) {
 		{batchSize: 2, isError: false, isSizeExceededError: false},
 		{batchSize: 2, isError: false, isSizeExceededError: false},
 		{batchSize: 2, isError: false, isSizeExceededError: false},
-		// проверяем что при 8 вызове executeBatch получаем ожидаемую ошибку
+		// check that at 8 calls of executeBatch we get the expected error
 		{batchSize: 1, isError: true, isSizeExceededError: true},
 	})
 }
 
-// TestExecBatchWithNoReqSizeError - проверка на то что если не все транзакции попадают в батч, при ошибке отличной от errReqSizeMarker робот сразу падает и не сплитит транзакции
+// TestExecBatchWithNoReqSizeError - check that if not all transactions get into
+// the batches, in case of an error other than errReqSizeMarker the robot crashes immediately
+// and does not split transactions
 func TestExecBatchWithNoReqSizeError(t *testing.T) {
 	_, l := testshlp.CreateCtxLogger(t)
 
-	// задан максимальный размер батча 3
+	// the maximum batch size is set to 3
 	exs := &executorStub{
 		maxBatchSize: 3,
 	}
 
-	// добавляем кастомную ошибку в возврат executeBatch при 1 выполнении
+	// add custom error to executeBatch return at 1 execution
 	testErr := errors.New("test error")
 	exs.callHlp.AddErrMap(exs.executeBatch, map[int]error{0: testErr})
 
-	// передаем тестовую функцию executeBatch которая в дальнейшем будет высчитывать результат выполнения батча и сетить результаты выполнения в тестовую мапу
+	// pass the test function executeBatch, which will further calculate the result of
+	// the execution of the batches and network the results of the execution into the test dump.
 	ewsHlp := newExecWithSplitHlp(l, exs.executeBatch, nil)
 
-	// берем заранее созданный батч
+	// take a pre-created batch
 	origBatch := generateOrigBatch()
-	// вызываем тестируемую функцию execute
+	// call the function under test execute
 	_, err := ewsHlp.execute(context.Background(), origBatch)
 	require.Error(t, err)
 	require.ErrorIs(t, err, testErr)
 
 	checkExecAttempts(t, exs, []execAttempt{
-		// проверяем что при 1 вызове executeBatch получили кастомную ошибку
+		// check that at 1 call of executeBatch we got a custom error
 		{batchSize: len(origBatch.Txs), isError: true, isSizeExceededError: false},
 	})
 }
 
-// TestExecBatchWithNoReqSizeErrorOneTransaction - проверка на то что если все транзакции попадают в батч, при ошибке отличной от errReqSizeMarker робот сразу падает
+// TestExecBatchWithNoReqSizeErrorOneTransaction - check that if all transactions are in the batch,
+// the robot crashes immediately if an error other than errReqSizeMarker occurs.
 func TestExecBatchWithNoReqSizeErrorOneTransaction(t *testing.T) {
 	_, l := testshlp.CreateCtxLogger(t)
 
-	// задаем безлимитный батч
+	// unlimited batch
 	exs := &executorStub{
 		maxBatchSize: 0,
 	}
-	// добавляем ошибку в возврат executeBatch при 1 выполнении
+	// add an error to the return of executeBatch at 1 execution
 	testErr := errors.New("test error")
 	exs.callHlp.AddErrMap(exs.executeBatch, map[int]error{0: testErr})
 
-	// передаем тестовую функцию executeBatch которая в дальнейшем будет высчитывать результат выполнения батча и сетить результаты выполнения в тестовую мапу
+	// pass the test function executeBatch, which will further calculate the result of
+	// the execution of the batches and network the results of the execution into the test dump.
 	ewsHlp := newExecWithSplitHlp(l, exs.executeBatch, nil)
 
-	// берем заранее созданный батч
+	// take a pre-created batch
 	origBatch := generateOrigBatch()
-	// вызываем тестируемую функцию execute
+	// call the function under test execute
 	_, err := ewsHlp.execute(context.Background(), origBatch)
 	require.Error(t, err)
 	require.ErrorIs(t, err, testErr)
 
 	checkExecAttempts(t, exs, []execAttempt{
-		// проверяем что при 1 вызове executeBatch получили кастомную ошибку
+		// check that at 1 call of executeBatch we got a custom error
 		{batchSize: len(origBatch.Txs), isError: true, isSizeExceededError: false},
 	})
 }
 
-// TestExecWithSplitHlpExceededErrorThenExecuteSwaps - в тесте создается батч с 11 транзакциями и 2 свопами и максимальным размером батча 3
-// при попытке выполнения получаем ошибку isSizeExceededError и сплитим батч до 5 транзакций, после попытки выполнения
-// снова получаем ошибку isSizeExceededError и сплитим батч до 2 транзакций, далее без ошибок выполняем все executeBatch
-// далее проверяем
+// TestExecWithSplitHlpExceededErrorThenExecuteSwaps - in the test, we create a batches with 11 transactions
+// and 2 swaps and the maximum size of the batches is 3 when trying to execute we get
+// an isSizeExceededError error and split the batch to 5 transactions, after trying to execute again
+// we get an isSizeExceededError error and split the batch to 2 transactions,
+// then without errors execute all executeBatch and then check
 func TestExecWithSplitHlpExceededErrorThenExecuteSwaps(t *testing.T) {
 	_, l := testshlp.CreateCtxLogger(t)
 
-	// устанавливаем лимит 3 транзакции для батча
+	// set the limit of 3 transactions for the batch
 	exs := &executorStub{
 		maxBatchSize: 3,
 	}
 
-	// передаем тестовую функцию executeBatch которая в дальнейшем будет высчитывать результат выполнения батча и сетить результаты выполнения в тестовую мапу
+	// pass the test function executeBatch, which will further calculate the result of
+	// the execution of the batches and network the results of the execution into the test dump.
 	ewsHlp := newExecWithSplitHlp(l, exs.executeBatch, nil)
 
-	// берем заранее созданный батч с 11 транзакциями и 2 свопами
+	// we take a pre-created batches with 11 transactions and 2 swaps
 	origBatch := generateBatchWithTxsAndSwaps()
-	// вызываем тестируемую функцию execute
+	// call the function under test execute
 	_, err := ewsHlp.execute(context.Background(), origBatch)
 	require.NoError(t, err)
 
 	checkExecAttempts(t, exs, []execAttempt{
-		// проверяем что при 11 транзакциях происходит сплит
+		// check that 11 transactions result in a split.
 		{batchSize: len(origBatch.Txs), isError: true, isSizeExceededError: true},
-		// проверяем что при 5 транзакциях происходит сплит
+		// check that at 5 transactions the split occurs
 		{batchSize: 5, isError: true, isSizeExceededError: true},
-		// далее проверяем что транзакции идут без ошибок по 2 в батче
+		// then we check that transactions are running without errors, 2 in batches.
 		{batchSize: 2, isError: false, isSizeExceededError: false},
 		{batchSize: 2, isError: false, isSizeExceededError: false},
 		{batchSize: 2, isError: false, isSizeExceededError: false},
 		{batchSize: 2, isError: false, isSizeExceededError: false},
 		{batchSize: 2, isError: false, isSizeExceededError: false},
 		{batchSize: 1, isError: false, isSizeExceededError: false},
-		// проверяем что свопы выполнились
+		// check that the swaps have been executed
 		{batchSize: 0, isError: false, isSizeExceededError: false},
 	})
 }
 
-// TestExecWithSwaps - тест на выполнение батча только со свопами
+// TestExecWithSwaps - test for executing a swap-only batch
 func TestExecWithSwaps(t *testing.T) {
 	_, l := testshlp.CreateCtxLogger(t)
 
-	// устанавливаем лимит 3 транзакции для батча
+	// set the limit of 3 transactions for the batch
 	exs := &executorStub{
 		maxBatchSize: 3,
 	}
 
-	// передаем тестовую функцию executeBatch которая в дальнейшем будет высчитывать результат выполнения батча и сетить результаты выполнения в тестовую мапу
+	// pass the test function executeBatch, which will further calculate
+	// the result of the execution of the batches and network the results of the execution into the test dump.
 	ewsHlp := newExecWithSplitHlp(l, exs.executeBatch, nil)
 
-	// берем заранее созданный батч с 2 свопами
+	// we take a pre-created batch with 2 swaps
 	origBatch := generateBatchWithTxsAndSwaps()
-	// вызываем тестируемую функцию execute
+	// call the function under test execute
 	_, err := ewsHlp.execute(context.Background(), origBatch)
 	require.NoError(t, err)
 
 	checkExecAttempts(t, exs, []execAttempt{
-		// проверяем что при 11 транзакциях происходит сплит
+		// check that 11 transactions result in a split.
 		{batchSize: len(origBatch.Txs), isError: true, isSizeExceededError: true},
-		// проверяем что при 5 транзакциях происходит сплит
+		// check that at 5 transactions the split occurs
 		{batchSize: 5, isError: true, isSizeExceededError: true},
-		// далее проверяем что транзакции идут без ошибок по 2 в батче
+		// then we check that transactions are running without errors, 2 in batches.
 		{batchSize: 2, isError: false, isSizeExceededError: false},
 		{batchSize: 2, isError: false, isSizeExceededError: false},
 		{batchSize: 2, isError: false, isSizeExceededError: false},
 		{batchSize: 2, isError: false, isSizeExceededError: false},
 		{batchSize: 2, isError: false, isSizeExceededError: false},
 		{batchSize: 1, isError: false, isSizeExceededError: false},
-		// проверяем что свопы выполнились
+		// check that the swaps have been executed
 		{batchSize: 0, isError: false, isSizeExceededError: false},
 	})
 }
@@ -363,24 +379,27 @@ func checkExecAttempts(t *testing.T, ex *executorStub, expectedAttempts []execAt
 }
 
 func (ex *executorStub) executeBatch(_ context.Context, b *executordto.Batch) (uint64, error) {
-	// вызываем executeBatch через call helper который по номеру вызова executeBatch смотрит в errorsMap и определяет какие значения нужно вернуть
-	// если мы не внесли ошибку в мапу пример: exs.callHlp.AddErrMap(exs.executeBatch, map[int]error{0: testErr}) то он вернет nil
+	// call executeBatch through the call helper, which looks into errorsMap by the number of
+	// the executeBatch call and determines what values should be returned.
+	// if we did not put an error into the map example:
+	// exs.callHlp.AddErrMap(exs.executeBatch, map[int]error{0: testErr}) it will return nil.
 	err := ex.callHlp.Call(ex.executeBatch)
 	if err != nil {
-		// если из executeBatch пришла ошибка, проверяем на ошибку reqSizeExceededErr
+		// if an error came from executeBatch, check for error reqSizeExceededErr
 		ex.attempts = append(ex.attempts, execAttempt{batchSize: len(b.Txs), isError: true, isSizeExceededError: isOrderingReqSizeExceededErr(err)})
 		return 0, err
-		// если другая ошибка просто выставляем error true
+		// If another error occurs, just set error true
 	}
-	// если ошибки нет но длина батча больше макимальной сетим ошибку reqSizeExceededErr
+	// if there is no error, but the length of the batches is greater
+	// than the maximum, we net the error reqSizeExceededErr.
 	if ex.maxBatchSize > 0 && len(b.Txs) > int(ex.maxBatchSize) {
 		ex.attempts = append(ex.attempts, execAttempt{batchSize: len(b.Txs), isError: true, isSizeExceededError: true})
 		return 0, errors.New(errReqSizeMarker)
 	}
 
-	// добавляем попытку в массив с попытками
+	// add the attempt to the array with attempts
 	ex.attempts = append(ex.attempts, execAttempt{batchSize: len(b.Txs)})
-	return b.TxIndToBlocks[uint(len(b.Txs))-1] + 1, nil // ToDo перепроверить, верно ли это?
+	return b.TxIndToBlocks[uint(len(b.Txs))-1] + 1, nil // ToDo double-check to see if that's right?
 }
 
 func generateOrigBatch() *executordto.Batch {

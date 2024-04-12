@@ -4,6 +4,7 @@ import (
 	"crypto/ed25519"
 	"encoding/hex"
 	"fmt"
+	"github.com/anoideaopen/foundation/core/multiswap"
 	"strconv"
 	"strings"
 	"sync"
@@ -11,7 +12,6 @@ import (
 
 	"github.com/anoideaopen/cartridge"
 	"github.com/anoideaopen/cartridge/manager"
-	"github.com/anoideaopen/foundation/core"
 	"github.com/anoideaopen/foundation/proto"
 	"github.com/anoideaopen/robot/hlf/sdkwrapper/logger"
 	pb "github.com/golang/protobuf/proto"
@@ -475,7 +475,7 @@ func waitBatchAndPrintContents(notifier <-chan *fab.CCEvent) {
 			}
 		}
 
-		if ccEvent.EventName == KeyEvent || ccEvent.EventName == core.MultiSwapKeyEvent {
+		if ccEvent.EventName == KeyEvent || ccEvent.EventName == multiswap.MultiSwapKeyEvent {
 			logger.Debug("received key event [%s]", zap.ByteString("ccEvent.Payload", ccEvent.Payload))
 			args := strings.Split(string(ccEvent.Payload), "\t")
 			if len(args) < 3 {

@@ -1,6 +1,3 @@
-//go:build !integration
-// +build !integration
-
 //nolint:all
 package main
 
@@ -10,10 +7,10 @@ import (
 	"time"
 
 	"github.com/anoideaopen/common-component/testshlp"
+	"github.com/anoideaopen/glog"
 	"github.com/anoideaopen/robot/dto/parserdto"
 	"github.com/anoideaopen/robot/helpers/ntesting"
 	"github.com/anoideaopen/robot/hlf"
-	"github.com/newity/glog"
 	"github.com/stretchr/testify/require"
 )
 

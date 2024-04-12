@@ -171,7 +171,7 @@ func GeneratePrivateKey() (string, error) {
 
 func SignACL(signerInfoArray []SignerInfo, methodName string, address string, reason string, reasonId string, newPkey string) ([]string, string, error) {
 	nonce := GetNonce()
-	// 1. проапдейтить для изменения любых транзакций
+	// 1. update to change any transactions
 	// 2.
 	result := []string{methodName, address, reason, reasonId, newPkey, nonce}
 	for _, signerInfo := range signerInfoArray {

@@ -9,9 +9,9 @@ import (
 	"strings"
 
 	"github.com/anoideaopen/cartridge/manager"
+	"github.com/anoideaopen/glog"
 	"github.com/anoideaopen/robot/config"
 	"github.com/anoideaopen/robot/hlf/hlfprofile"
-	"github.com/newity/glog"
 	"github.com/pkg/errors"
 )
 

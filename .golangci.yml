@@ -3,8 +3,6 @@ run:
   go: '1.18'
   concurrency: 4
   timeout: 5m
-  skip-dirs:
-    - hlf/sdkwrapper
   tests: false
 linters:
   enable:
@@ -18,7 +16,6 @@ linters:
     - asciicheck
     - bodyclose
     - dogsled
-    - dupl
     - errorlint
     - exportloopref
     - misspell
@@ -27,7 +24,6 @@ linters:
     - nolintlint
     - prealloc
     - stylecheck
-    - funlen
     - gci
     - gocognit
     - goconst
@@ -37,7 +33,6 @@ linters:
     - gofumpt
     - goheader
     - goimports
-    - gomnd
     - gomodguard
     - goprintffuncname
     - gosec
@@ -91,11 +86,16 @@ linters:
     - mirror
     - tagalign
     - zerologlint
+    - dupl
+    - funlen
+    - gomnd
 issues:
   exclude-rules:
     - path: _test\.go
       linters:
         - funlen
+  exclude-dirs:
+    - hlf/sdkwrapper
 linters-settings:
   gosec:
     excludes:

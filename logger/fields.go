@@ -1,6 +1,6 @@
 package logger
 
-import "github.com/newity/glog"
+import "github.com/anoideaopen/glog"
 
 type Labels struct {
 	Version   string

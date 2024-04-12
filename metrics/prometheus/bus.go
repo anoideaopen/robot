@@ -5,8 +5,8 @@ import (
 
 	"github.com/anoideaopen/common-component/basemetrics"
 	"github.com/anoideaopen/common-component/basemetrics/baseprometheus"
+	"github.com/anoideaopen/glog"
 	"github.com/anoideaopen/robot/metrics"
-	"github.com/newity/glog"
 	"github.com/prometheus/client_golang/prometheus"
 )
 

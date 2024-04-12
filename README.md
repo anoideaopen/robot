@@ -88,7 +88,7 @@ go build -ldflags="-X 'main.AppInfoVer={Version}'"
 ```
 ### Docker
 To build docker image you need to provide a `REGISTRY_NETRC` build-arg (to fetch go modules from private registry).
-You need to replace in the command below `GITLAB_USERNAME` with your github.com username and `GITLAB_API_KEY` with
+You need to replace in the command below `GITHUB_USERNAME` with your github.com username and `GITHUB_API_KEY` with
 your gitlab access token, generated on [personal access tokens page](https://github.com/-/profile/personal_access_tokens)
 (token should have the `read_repository` permission).
 ```shell
@@ -453,19 +453,15 @@ These metrics are available after a batch was created and successfully sent to H
 
 ## Metrics Detailed Description
 
-Дашборд  и алертинг для мониторинга функционирования сервиса Robot
-реализованы на базе систем Prometeus и Grafana.
+Dashboard and alerting for monitoring of Robot service operation are implemented on the basis of Prometeus and Grafana systems.
 
-Сервис Robot формирует в ходе своего функционирования данные метрик.
+The Robot service generates metrics data in the course of its operation.
 
-Данные метрик Robot поступают в  Prometeus, где они фиксируются в базе
-данных. При этом Prometeus также производит обработку данных метрик по
-правилам, заданным для Robot. В случае наступления определенных
-правилами ситуаций производится оповещение (алерт) о соответствующем
-правилу событии.
+Robot metrics data are received by Prometeus, where they are recorded in the database.
+Prometeus also processes metrics data according to the rules defined for Robot.
+In case of occurrence of situations defined by the rules, an alert about the event corresponding to the rule is made.
 
-Система Grafana использует данные базы Prometeus для формирования
-показателей и графиков дашборда во временной ретроспективе.
+The Grafana system uses the Prometeus database data to generate metrics and dashboard graphs in the time retrospective.
 
 ### Alerts
 
@@ -474,227 +470,210 @@ These metrics are available after a batch was created and successfully sent to H
 
 -1- **app\_init\_duration\_seconds**
 
-Тип: датчик
+Type: sensor
 
-Показатель: продолжительность инициализации приложения, время в секундах, потребовавшееся для старта приложения
+Indicator: duration of application initialization, the time in seconds it took to start the application
 
 -2- **app\_info**
 
-Тип: счетчик; информация о приложении
+Type: counter; application information
 
-Показатели:
--   ver - версия приложения (или фиксация хэша)
--   ver\_sdk\_fabric - версия sdk fabric (или хэш-коммит)
--   build\_date - дата сборки
+Indicators:
+- ver - application version (or hash commit)
+- ver\_sdk\_fabric - sdk fabric version (or hash commit)
+- build\_date - build date
 
 -3-  **batches\_executed\_total**
 
-Тип: счетчик; количество обработанных пакетов в разрезе по каналам
-назначения и выполнению с ошибками/без ошибок.
+Type: counter; number of packets processed broken down by destination channel and execution with/without errors.
 
-Показатели:
+Indicators:
 
--   robot - канал назначения робота
--   iserr – выполнено с ошибкой - true, false
+- robot - robot destination channel
+- iserr - executed with error - true, false
 
-Описание:
+Description:
 
--   При проведении операций на площадке значение счетчика должно увеличиваться хотя бы для некоторых каналов назначения.
+- The counter value should increase for at least some of the destination channels during site operations.
 
 -4- **tx\_executed\_total**
 
-Тип: счетчик; количество исполненных транзакций (также свопов,
-мультисвопов, ключей свопов и мультисвопов) во всех обработанных пакетах
-в разрезе по каналам назначения и типам транзакций.
+Type: counter; the number of executed transactions (also swaps, multiswaps, swap keys and multiswaps) in all processed packets broken down by destination channel and transaction type.
 
-Показатели:
+Indicators:
 
--   robot - канал назначения робота
--   txtype - тип транзакции
+- robot - robot destination channel
+- txtype - transaction type
 
-Описание:
+Description:
 
--   При проведении операций на площадке значение счетчика должно увеличиваться хотя бы для некоторых каналов назначения и типов транзакций.
+- The counter value should increase for at least some destination channels and transaction types when transactions are performed on the site.
 
 -5- **batch\_execute\_duration\_seconds**
 
-Тип: гистограмма; время, затраченное на отправку-выполнение пакета в HLF
-(в разбивке по каналам)
+Type: histogram; time taken to send-execute a packet in HLF (broken down by channel)
 
-Показатели:
+Indicators:
 
--   robot - канал назначения робота
+- robot - robot destination channel
 
 -6- **batch\_size\_estimated\_diff**
 
-Тип: гистограмма; относительная разница между реальным и предполагаемым
-размерами пакета
+Type: histogram; relative difference between actual and estimated packet size
 
-Показатели:
+Indicators:
 
--   robot - канал робота
+- robot - robot channel
 
-Описание:
+Description:
 
--   При сериализации пакета в protobuff его размер его увеличивается. Предварительную оценку увеличения можно провести двумя способами. В первом случае при каждом добавлении транзакции (свопа и пр.) в пакет проводится сериализация и определяется размер после     сериализации. Но этот способ достаточно затратен. Второй, более экономный способ заключается в использовании для оценки специального метода в protobuff, позволяющего определить размер всего пакета сразу после сериализации. Метрика показывает разницу      между результатами двух методов.
+- When a packet is serialized into a protobuf, its size is increased. Preliminary estimation of the increase can be done in two ways. In the first case, each time a transaction (swap, etc.) is added to the packet, serialization is performed and the size after serialization is determined. But this method is rather costly. The second, more economical way is to use a special method in protobuf to estimate the size of the whole package immediately after serialization. The metric shows the difference between the results of the two methods.
 
 -7- **batch\_size\_bytes**
 
-Тип: гистограмма; размер пакета в байтах в разрезе по каналам
-назначения.
+Type: histogram; packet size in bytes by destination channel.
 
-Показатели:
+Indicators:
 
--   robot - канал назначения робота
+- robot - robot destination channel
 
 -8- **batch\_size\_bytes\_total**
 
-Тип: счетчик; общий объем обработанных пакетов на текущий момент времени
-в разрезе по каналам назначения (текущая сумма значений
-**batch\_size\_bytes**).
+Type: counter; total volume of processed packets at the current moment of time by destination channel (current sum of **batch\_size\_bytes** values).
 
-Показатели:
+Indicators:
 
--   robot - канал назначения робота
+- robot - robot destination channel
 
 -9- **ord\_reqsize\_exceeded\_total**
 
-Тип: счетчик; число превышений размера запроса во время выполнения
-пакета (batch)
+Type: counter; number of request size exceedances during batch execution (batch)
 
-Показатели:
+Indicators:
 
--   robot - канал назначения робота
--   is\_first\_attempt - является ли это первой попыткой или нет - true, false
+- robot - the destination channel of the robot
+- is\_first\_attempt - whether this is the first attempt or not - true, false
 
-Описание:
+Description:
 
--   Робот набирает транзакции в пакеты (batch). Пакет формируется либо по таймауту, либо по максимальному размеру, либо по максимальному количеству транзакциий, свапов.
--   Пакет отправляется ордерерам, которые возвращают rw-set, размер которого заранее неизвестен. Если размер rw-set превышает максимально допускаемый fabric размер (параметр fabric), то в ответе от fabric sdk приходит ошибка. В этом случае пакет делится пополам и полученные части выполняются по отдельности.
--   При каждом таком дроблении значение счетчика увеличивается на единицу. Возможна ситуация, когда для обработки пакета понадобится несколько дроблений. Для каждого из них счетчик инкрементируется.
--   Счетчик обнуляется при рестарте робота. "Флуктуирующее" значение счетчика (рост на единицу за продолжительное время) является нормальным. Внимание должен вызывать заметный монотонный рост значения за небольшой промежуток времени.
+- The robot types transactions into packets (batch). A batch is formed either by timeout, maximum size or maximum number of transactions, swaps.
+- The batch is sent to the orderers, which return an rw-set, the size of which is not known in advance. If the size of the rw-set exceeds the maximum size allowed by fabric (fabric parameter), an error is received in the response from the fabric sdk. In this case, the package is split in half and the resulting parts are executed separately.
+- At each such split the counter value is increased by one. There may be a situation when several splits are needed to process a packet. For each of them the counter is incremented.
+- The counter is reset when the robot is restarted. "Fluctuating" counter value (increasing by one over a long period of time) is normal. A noticeable monotonic increase in the value over a short period of time should cause attention.
 
 -10-  **src\_channel\_errors\_total**
 
-Тип: счетчик; количество ошибок при создании источника событий HLF
+Type: counter; number of errors when creating the HLF event source
 
-Показатели:
+Indicators:
 
--   robot - канал назначения робота
--   channel - исходный канал робота
--   is\_first\_attempt - является ли это первой попыткой или нет - true, false
--   is\_src\_ch\_closed - был ли исходный канал закрыт или нет - true, false
--   is\_timeout - был ли достигнут тайм-аут - true, false
+- robot - robot destination channel
+- channel - the source channel of the robot
+- is\_first\_attempt - whether this is the first attempt or not - true, false
+- is\_src\_ch\_closed - whether the source channel was closed or not - true, false
+- is\_timeout - whether timeout was reached or not - true, false
 
-Описание:
+Description:
 
--   Компоненты «коллектор», входящие в состав службы робота, подписываются на предназначенные им каналы для анализа событий в каналах, что обеспечивает затем формирование пакетов (batch). При создании подписки возможны коллизии (fabric недоступен или неверно сконфигурирован, несогласованность в криптографии, сбои сети и пр.), из-за которых коллектору не удается подписаться на события обслуживаемого им канала.
--   Каждая неудачная попытка подписки увеличивает значение счетчика метрики. При этом для каждого коллектора ведется свой счетчик.
--   Фиксируется, была ли попытка подписки соответствующего коллектора первой или нет.
--   Счетчики обнуляются при рестарте робота. "Флуктуирующее" значение счетчика (рост на единицу за продолжительное время) является нормальным. Внимание должен вызывать заметный монотонный рост значения за небольшой промежуток времени.
+- The "collector" components of the robot service subscribe to their designated channels to analyze channel events, which then provides for batch (batch) generation. During subscription creation, there may be collisions (fabric unavailable or misconfigured, cryptographic inconsistencies, network failures, etc.) that cause the collector to fail to subscribe to the events of the channel it serves.
+- Each unsuccessful subscription attempt increases the value of the metric counter. A different counter is kept for each collector.
+- It is recorded whether the subscription attempt of the corresponding collector was the first or not.
+- The counters are reset when the robot is restarted. "Fluctuating" counter values (increasing by one over an extended period of time) are normal. A noticeable monotonic increase in the value over a short period of time should cause attention.
 
 -11- **batch\_tx\_count**
 
-Тип: гистограмма; суммарное количество транзакций, свопов,
-мульти-свопов, ключей свопов и ключей мультисвопов для каждого пакета в
-разрезе по каналам назначения.
+Type: histogram; total number of transactions, swaps, multi-swaps, swap keys and multi-swap keys for each packet by destination channel.
 
-Показатели:
+Indicators:
 
--   robot - канал робота
+- robot - robot channel
 
 -12- **batch\_collect\_duration\_seconds**
 
-Тип: гистограмма; время, затраченное на формирование пакета. Вычисляется
-для каждого пакета.
+Type: histogram; time taken to form a packet. Calculated for each packet.
 
-Показатели:
+Indicators:
 
--   robot - канал назначения робота
+- robot - robot destination channel
 
-Описание:
+Description:
 
--   Завершение формирования пакета производится либо по наступлению таймаута, либо по достижению максимального объема пакета, либо по достижению максимального количества транзакций для пакета. Фиксируется время, затраченное на формирование пакета.
+- Completion of packet formation is done either when a timeout occurs, when the maximum packet size is reached, or when the maximum number of transactions for a packet is reached. The time taken to form the packet is recorded.
 
 -13- **tx\_waiting\_process\_count**
 
-Тип: датчик; количество транзакций (учитываются транзакции, свопы,
-мульти-свопы, ключи свопов и ключи мультисвопов), ожидающих выполнения
+Type: sensor; number of transactions (transactions, swaps, multi-swaps, swap keys, and multi-swap keys are counted) waiting to be executed
 
-Показатели:
--   robot - канал назначения робота
--   channel - исходный канал робота
+Indicators:
+- robot - robot destination channel
+- channel - robot source channel
 
-Описание:
+Description:
 
--   Сформированный пакет передается на выполнение не сразу по завершении формирования, а после окончания обработки предыдущего пакета. Число транзакций, ожидающих выполнения, фиксируется в метрике. Рост очереди ожидающих выполнения транзакций может свидетельствовать о проблемах.
+- A generated packet is not sent for execution immediately upon completion of formation, but after the previous packet has finished processing. The number of transactions waiting for execution is recorded in the metric. A growing queue of pending transactions may indicate problems.
 
 -14- **height\_ledger\_blocks**
 
-Тип: датчик; номер блока реестра, в котором был зафиксирован пакет, в
-разрезе каналов назначения. Формируется после каждого **executeBatch**
+Type: sensor; number of the register block where the batch was committed, by destination channel. Formed after each **executeBatch**
 
-Показатели:
--   robot - канал назначения робота
-  
-Описание:
+Indicators:
+- robot - robot destination channel
 
--   Номер блока в ledger, возвращаемый SDK после отправки пакета на исполнение. Значений номеров блоков должны только возрастать.
+Description:
+
+- The block number in ledger returned by the SDK after the packet is sent for execution. Block number values should only be incremental.
 
 -15- **collector\_process\_block\_num**
 
-Тип: датчик; текущий номер блока, обрабатываемый коллектором в ходе
-формирования пакета
+Type: sensor; the current block number processed by the collector during packet generation
 
-Показатели:
+Indicators:
 
--   robot - канал назначения робота
--   channel - исходный канал робота
+- robot - robot destination channel
+- channel - robot source channel
 
 -16- **block\_tx\_count**
 
-Тип: гистограмма; количество транзакций в блоке
+Type: histogram; number of transactions per block
 
-Показатели:
+Indicators:
 
--   robot - канал назначения робота
--   channel - исходный канал робота
+- robot - robot destination channel
+- channel - robot source channel
 
-Описание:
+Description:
 
-- Количество транзакций в текущем блоке, обрабатываемом коллектором.  Аналитический показатель, позволяющий на основе сравнения со значениями **batch\_tx\_count**  установить, формируется ли несколько пакетов из одного блока, или, напротив, один пакет из нескольких блоков.
+- The number of transactions in the current block processed by the collector.  Analytical indicator that allows to determine whether several packets are formed from one block or, on the contrary, one packet is formed from several blocks based on comparison with **batch\_tx\_count** values.
 
 -17- **started\_total**
 
-Тип: счетчик; количество запусков робота (основной цикл) в разрезе по
-каналам назначения.
+Type: counter; number of robot starts (main cycle) by destination channel.
 
-Показатели:
+Indicators:
 
--   robot - канал назначения робота
+- robot - robot destination channel
 
-Описание:
+Description:
 
--   Рост числа запусков робота в каком-либо канале (каналах) может свидетельствовать о проблемах.
+- An increase in the number of robot starts in any channel(s) may indicate problems.
 
 -18- **stopped\_total**
 
-Тип: счетчик; количество остановок робота (основной цикл)
+Type: counter; number of robot stops (basic cycle)
 
-Показатели:
+Indicators:
 
--   robot - канал назначения робота
--   iserr - выполняется с ошибкой - true, false
--   err\_type - тип ошибки при взаимодействии с внешней системой (HLF, Redis и т.д.)
--   component - компонент службы робота (executor, collector, storage, etc.)
+- robot - robot destination channel
+- iserr - executed with error - true, false
+- err\_type - type of error when interacting with an external system (HLF, Redis, etc.)
+- component - component of the robot service (executor, collector, storage, etc.).
 
-Описание:
+Description:
 
--   Показатели позволяют проанализировать причины остановок службы.
+- Metrics allow you to analyze the causes of service outages.
 
-Большинство метрик доступно при запуске службы робота, но некоторые
-метрики могут быть измерены только во время работы службы робота. Эти
-метрики доступны после создания пакета и успешной отправки в HLF:
+Most metrics are available when the robot service is started, but some metrics can only be measured while the robot service is running.
+These metrics are available after a package has been created and successfully sent to the HLF:
 
 -   batch\_execute\_duration\_seconds
 -   batch\_size\_estimated\_diff
@@ -705,240 +684,203 @@ These metrics are available after a batch was created and successfully sent to H
 
 ### GRAFANA dashboard
 
-Вход в систему Grafana, отображающую дашборд, производится по адресу
+The Grafana system displaying the dashboard is logged in at
 
 
-<img src="grafana1.png" style="width:4.84306in;height:4.27917in" />После
-входа необходимо выбрать в меню Dashboards (рис. 1) папку Default, а в
-ней - дашборд NewRobot.
+<img src="grafana1.png" style="width:4.84306in;height:4.27917in" />After logging in, select the Default folder in the Dashboards menu (Fig. 1), and in it - the NewRobot dashboard. and in it - NewRobot dashboard.
 
-Рис. 1. Меню Dashboards. Выбор дашборда NewRobot.
+Fig. 1. Dashboards menu. Select the NewRobot dashboard
 
-После выбора дашборда NewRobot происходит переход в окно дашборда (рис.
-2)
+After selecting the NewRobot dashboard, you are passed to the dashboard window (Fig. 2)
 
 <img src="grafana2.png" style="width:10.3875in;height:4.82014in" alt="grafana2" />
 
-Рис. 2. Общий вид дашборда NewRobot
+Fig. 2. General view of the NewRobot dashboard
 
-В верхнем правом углу дашборда находится управляющий блок (рис. 3),
-обеспечивающий обновление содержания дашборда (две кольцевые стрелки), а
-также задание (два выпадающих меню) интервала обновления дашборда
-(правое меню) и периода отображения данных (левое меню).
+In the upper right corner of the dashboard there is a control block (Fig. 3), which provides updating of the dashboard content (two circular arrows), as well as setting (two drop-down menus) of the dashboard update interval (right menu) and data display period (left menu).
 
 <img src="grafana3.png" style="width:5.76181in;height:3.20486in" alt="grafana3" />
 
-Рис. 3. Блок управления режимом отображения данных
+Fig. 3: Data display mode control unit
 
 ### Dashboard Sections
 
 <img src="grafana4.png" style="width:10.1125in;height:4.29306in" alt="grafana4" />
 
-Рис. 4. Разделы дашборда, фрагмент 1
+Figure 4. Dashboard sections, fragment 1
 
-Разделы дашборда описаны в соответствии с их расположением (рис. 3) в
-рядах слева направо, с переходом по рядам сверху вниз. Общий вид дашборд
-на рисунке 3 разбит на три увеличенных фрагмента на рис. 4 - 6. В
-описании каждого раздела указан рисунок, на котором отражен раздел, и
-номер, соответствующей метрики в параграфе «Метрики Robot»
+Dashboard sections are described according to their arrangement (Fig. 3) in rows from left to right, with the transition through the rows from top to bottom. The overall view of the dashboard in Figure 3 is broken down into three enlarged fragments in Figs. 4 - 6. The description of each section indicates the figure that reflects the section and the number corresponding to the metric in the Robot Metrics paragraph
 
 **App Init Duration Seconds**
 
-Рисунок: 4
+Figure: 4
 
-№ метрики: 1
+Metric No.: 1
 
-Описание: продолжительность инициализации Robot в секундах
+Description: duration of Robot initialization in seconds
 
 **App Info**
 
-Рисунок: 4
+Figure: 4
 
-№ метрики: 2
+Metric No.: 2
 
-Описание: данные о службе Robot, в числе которых ver - версия службы
-Robot, ver\_sdk\_fabrik - версия SDK Fabric
+Description: data about the Robot service, including ver is the version of the Robot service, ver\_sdk\_fabrik is the version of the Fabric SDK
 
 **Height Ledger Blocks**
 
-Рисунок: 4
+Figure: 4
 
-№ метрики: 14
+Metric No.: 14
 
-Описание: для каналов, обрабатываемых службой Robot - номер блока
-блокчейна, в котором был успешно обработан последний пакет (на рис. 4
-пары: ct - 0, dc - 0, dcdac - 106282, dcgmk - 0, dcrsb - 0, fiat - 0,
-hermitage - 640,...)
+Description: for channels processed by the Robot service, the number of the blockchain block in which the last packet was successfully processed (in Fig. 4 pairs: ct - 0, dc - 0, dcdac - 106282, dcgmk - 0, dcrsb - 0, fiat - 0, hermitage - 640,...)
 
 **Started**
 
-Рисунок: 4
+Figure: 4
 
-№ метрики: 17
+Metric No.: 17
 
-Описание: количество запусков подсистем Robot для каналов,
-обрабатываемых службой (на рис. 4 пары: ct - 1, dc - 1, dcdac - 2, dcgmk
-- 1, dcrsb - 1, fiat - 1, hermitage - 1,...)
+Description: number of Robot subsystem runs for channels handled by the service (in Fig. 4 pairs: ct - 1, dc - 1, dcdac - 2, dcgmk - 1, dcrsb - 1, fiat - 1, hermitage - 1,...)
 
 **Stopped without errors**
 
-Рисунок: 4
+Figure: 4
 
-№ метрики: 18
+Metric No.: 18
 
-Описание: количество остановок подсистем Robot без ошибки (iserr=false)
-для каналов, обрабатываемых службой (на рис. 4 пары: ct - 0, dc - 0,
-dcdac - 0,...)
+Description: number of stops of Robot subsystems without error (iserr=false) for channels handled by the service (in Figure 4 pairs: ct - 0, dc - 0, dcdac - 0,...)
 
 **Stopped with errors**
 
-Рисунок: 4
+Figure: 4
 
-№ метрики: 18
+Metric No.: 18
 
-Описание: количество остановок подсистем Robot с ошибкой (iserr=true)
-для каналов, обрабатываемых службой (на рис. 4 пары: ct - 0, dc - 0,
-dcdac - 0,...)
+Description: number of Robot subsystems stops with an error (iserr=true) for channels handled by the service (in Figure 4 pairs: ct - 0, dc - 0, dcdac - 0,...)
 
 **Amount of executed transactions (in all executed batches)**
 
-Рисунок: 4
+Figure: 4
 
-№ метрики: 4
+Metric No.: 4
 
-Описание: среднее количество выполненных транзакций за временной
-интервал (во всех выполненных пакетах)
+Description: average number of executed transactions per time interval (in all executed packets)
 
 **Collector process block num**
 
-Рисунок: 4
+Figure: 4
 
-№ метрики: 15
+Metric No.: 15
 
-Описание: среднее количество обработанных коллектором блоков за
-временной интервал (во всех выполненных пакетах)
+Description: average number of blocks processed by the collector per time interval (in all executed packets)
 
 <img src="grafana5.png" style="width:9.84861in;height:4.95903in" alt="grafana5" />
 
-Рис. 5. Разделы дашборда, фрагмент 2
+Figure 5. Dashboard sections, fragment 2
 
-Описанные ниже разделы дашборда представляют данные в виде
-гистограмм/графиков в зависимости от времени. Для получения точных
-значений параметров для заданного момента времени для всех таких
-представлений необходимо поместить курсор мыши в заданную точку на
-представлении. После этого появляется форма с точными значениями
-параметров для данного момента времени. Пример такого уточнения приведен
-ниже для раздела **Block Tx Count 95 percentille** (рис. 6)
+The dashboard sections described below represent data in the form of histograms/graphs depending on time.
+To obtain the exact values of parameters for a given moment of time for all such views, it is necessary to place the mouse cursor at a given point on the view.
+After that, a form with exact values of parameters for the given moment of time appears.
+An example of such refinement is given below for the section **Block Tx Count 95 percentille** (Fig. 6)
 
 **Block Tx Count 95 percentille**
 
-Рисунок: 5
+Figure: 5
 
-№ метрики: 16
+Metric No.: 16
 
-Описание: значение 95-го перцентиля количества транзакций в блоке для
-каналов, обрабатываемых службой Robot
+Description: the value of the 95th percentile of the number of transactions per block for channels processed by the Robot service
 
-Комментарий: при наведении курсора мыши на гистограмму появляется форма
-с точными значениями для данного момента времени (рис. 6)
+Comment: when the mouse cursor is placed over the histogram, a form with the exact values for the given moment of time appears (Fig. 6)
 
 <img src="grafana6.png" style="width:6.33889in;height:4.79861in" alt="grafana7" />
 
-Рис. 6. Определение точных значений для каналов на гистограмме **Block
-Tx Count 95 percentille**
+Figure 6. Determination of exact values for channels on the histogram 
+
+**Block Tx Count 95 percentille**
 
 **TX waiting process count**
 
-Рисунок: 5
+Figure: 5
 
-№ метрики: 13
+Metric No.: 13
 
-Описание: количество транзакций (учитывается все, что находится в пакете
-- идентификаторы транзакций, свопы, мультиобмены, ключи свопов и ключи
-мультиспользований), ожидающих выполнения после добавления коллектором в
-очередь (robot - канал назначения, channel - исходный канал)
+Description: the number of transactions (everything in the packet is counted - transaction IDs, swaps, multi-exchanges, swap keys and multi-use keys) waiting to be executed after being added to the queue by the collector (robot is the destination channel, channel is the source channel).
 
 **Batch size total**
 
-Рисунок: 5
+Figure: 5
 
-№ метрики: 8
+Metric No.: 8
 
-Описание: размер пакетов по каналам назначения
+Description: packet size by destination channel
 
 **Batches executed total**
 
-Рисунок: 5
+Figure: 5
 
-№ метрики: 3
+Metric No.: 3
 
-Описание: среднее по интервалам количество обработанных пакетов по
-каналам назначения без ошибок, iserr=false
+Description: interval-averaged number of packets processed on destination channels without errors, iserr=false
 
 **Batches executed errors**
 
-Рисунок: 5
+Figure: 5
 
-№ метрики: 3
+Metric No.: 3
 
-Описание: среднее по интервалам количество обработанных пакетов по
-каналам назначения c ошибками, iserr=true
+Description: interval-averaged number of packets processed on destination channels with errors, iserr=true
 
 <img src="grafana7.png" style="width:10.37292in;height:4.54583in" alt="grafana6" />
 
-Рис. 7. Разделы дашборда, фрагмент 3
+Figure 7. Dashboard sections, fragment 3
 
 **Batch Collect Duration Seconds 95 percentille**
 
-Рисунок: 7
+Figure: 7
 
-№ метрики: 12
+Metric No.: 12
 
-Описание: значение 95-го перцентиля времени, затраченного на сбор
-пакета. Пакет собирается путем опроса коллекторов. Пакет готов, когда
-выполняется одно из ограничений пакета на количество транзакций, размер
-или тайм-аут
+Description: the value of the 95th percentile of the time taken to collect the packet.
+A packet is collected by polling the collectors.
+A packet is ready when one of the packet's constraints on number of transactions, size, or timeout is met
 
 **Batch execute duration seconds 95 percentille**
 
-Рисунок: 7
+Figure: 7
 
-№ метрики: 5
+Metric No.: 5
 
-Описание: значение 95-го перцентиля времени, затраченного на
-отправку-выполнение пакета в HLF
+Description: the value of the 95th percentile of the time taken to send-execute a packet in HLF
 
 **Batch Size 95 percentille**
 
-Рисунок: 7
+Figure: 7
 
-№ метрики: 7
+Metric No.: 7
 
-Описание: значение 95-го перцентиля размера пакета для данного канала
-назначения робота
+Description: the value of the 95th percentile packet size for a given robot destination channel
 
 **Batch Size Estimated Diff 95 percentille**
 
-Рисунок: 7
+Figure: 7
 
-№ метрики: 6
+Metric No.: 6
 
-Описание: значение 95-го перцентиля относительной разницы между реальным
-и предполагаемым размерами пакета для данного канала назначения робота
+Description: the 95th percentile value of the relative difference between the actual and estimated packet sizes for a given robot destination channel
 
 **Batch Size TX count 95 percentille**
 
-Рисунок: 7
+Figure: 7
 
-№ метрики: 11
+Metric No.: 11
 
-Описание: значение 95-го перцентиля общего количества транзакций,
-свопов, мульти-свопов, ключей свопов и ключей мультисвопов в пакете для
-данного канала назначения робота
+Description: the 95th percentile value of the total number of transactions, swaps, multi-swaps, swap keys, and multi-swap keys in a packet for a given robot destination channel
 
 ## Logging
 
-[Документация по логированию](doc/logging.md)
+[Logging documentation](doc/logging.md)
 
 ## Links
 ## License
