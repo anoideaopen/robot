@@ -154,7 +154,7 @@ func validateConfig(cfg *Config) error {
 	if cfg.DefaultBatchLimits.isEmpty() {
 		for _, robot := range cfg.Robots {
 			if robot.BatchLimits.isEmpty() {
-				return errors.Errorf("invalid batch limits for chName: %v", robot.ChName)
+				return errors.Errorf("invalid batch limits  for chName: %v", robot.ChName)
 			}
 		}
 	}
