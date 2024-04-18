@@ -122,7 +122,9 @@ func main() {
 	}
 
 	m := metrics.FromContext(ctx)
-	m.AppInitDuration().Set(time.Since(startTime).Seconds())
+	dur := time.Since(startTime)
+	m.AppInitDuration().Set(dur.Seconds())
+	l.Infof("Robot started, time - %s\n", dur.String())
 	wg.Wait()
 }
 
