@@ -36,7 +36,7 @@ func ParseProfile(profilePath string) (*HlfProfile, error) {
 	}
 
 	cp := ConnProfile{}
-	if err := yaml.Unmarshal(b, &cp); err != nil {
+	if err = yaml.Unmarshal(b, &cp); err != nil {
 		return nil, errors.Wrap(errors.WithStack(err), "error unmarshal connection profile")
 	}
 
