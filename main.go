@@ -268,7 +268,7 @@ func runRobot(ctx context.Context, r *chrobot.ChRobot, delayAfterError time.Dura
 		}
 	}
 
-	log.Info("robot for [%s] channel finished after cancel context", r.ChName())
+	log.Infof("robot for [%s] channel finished after cancel context", r.ChName())
 }
 
 func incTotalRobotStopped(m metrics.Metrics, err error) {
