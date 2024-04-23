@@ -232,7 +232,7 @@ func (chr *ChRobot) collectBatch(ctx context.Context, calcBatchSize func(b *exec
 			}
 
 			isAdded, err := b.AddIfInLimit(chc.chName, chc.bufData)
-			chr.log.Debugf("collect batch isAdded: %s, chName: %s", isAdded, chc.chName)
+			chr.log.Debugf("collect batch isAdded: %t, chName: %s", isAdded, chc.chName)
 			if err != nil {
 				return nil, nil, err
 			}
