@@ -3,10 +3,10 @@ module github.com/anoideaopen/robot
 go 1.18
 
 require (
-	github.com/anoideaopen/cartridge v0.0.2
-	github.com/anoideaopen/common-component v0.0.2
+	github.com/anoideaopen/cartridge v0.0.3
+	github.com/anoideaopen/common-component v0.0.3
 	github.com/anoideaopen/foundation v0.0.0-20240412063944-9a91dc2600fa
-	github.com/anoideaopen/glog v0.0.1
+	github.com/anoideaopen/glog v0.0.2
 	github.com/avast/retry-go/v4 v4.0.5
 	github.com/btcsuite/btcutil v1.0.2
 	github.com/go-playground/validator/v10 v10.10.1
