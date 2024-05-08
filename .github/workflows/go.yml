@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 env:
-  GO_VER: 1.21.9
+  GO_VER: 1.21.10
   GINKGO_VER: 2.13.2
 
 jobs:
