@@ -2,6 +2,7 @@ package parser
 
 import (
 	"encoding/hex"
+	"fmt"
 	"strings"
 
 	"github.com/anoideaopen/common-component/errorshlp"
@@ -13,7 +14,6 @@ import (
 	"github.com/anoideaopen/robot/logger"
 	protoSer "github.com/golang/protobuf/proto" //nolint:staticcheck
 	"github.com/hyperledger/fabric-protos-go/common"
-	"github.com/pkg/errors"
 )
 
 const (
@@ -87,7 +87,7 @@ func (p *Parser) extractTxsAndSwaps(txs []prsTx) ( //nolint:funlen,gocognit
 			continue
 		}
 
-		if common.HeaderType(chdr.Type) != common.HeaderType_ENDORSER_TRANSACTION {
+		if common.HeaderType(chdr.GetType()) != common.HeaderType_ENDORSER_TRANSACTION {
 			continue
 		}
 
@@ -105,7 +105,7 @@ func (p *Parser) extractTxsAndSwaps(txs []prsTx) ( //nolint:funlen,gocognit
 			}
 
 			if p.isOwnCh {
-				txID, s, ok := p.extractBatchTxFromRwSets(rwSets, chdr.TxId)
+				txID, s, ok := p.extractBatchTxFromRwSets(rwSets, chdr.GetTxId())
 				if ok {
 					batchTxs = append(batchTxs, txID)
 					totalSize += s
@@ -119,7 +119,7 @@ func (p *Parser) extractTxsAndSwaps(txs []prsTx) ( //nolint:funlen,gocognit
 			multiSwaps = append(multiSwaps, mss...)
 			totalSize += s
 
-			if action.payload.Action == nil || action.payload.Action.ProposalResponsePayload == nil {
+			if action.payload.GetAction().GetProposalResponsePayload() == nil {
 				p.log.Debug("no payload in chaincode action payload")
 				continue
 			}
@@ -143,12 +143,12 @@ func (p *Parser) extractTxsAndSwaps(txs []prsTx) ( //nolint:funlen,gocognit
 
 func (p *Parser) extractBatchTxFromRwSets(rwSets []prsRwSet, txid string) ([]byte, uint, bool) {
 	for _, rw := range rwSets {
-		for _, write := range rw.kvRWSet.Writes {
-			if write.IsDelete {
+		for _, write := range rw.kvRWSet.GetWrites() {
+			if write.GetIsDelete() {
 				continue
 			}
 
-			ixIDFromKey := p.extractTxBatchID(write.Key)
+			ixIDFromKey := p.extractTxBatchID(write.GetKey())
 			if ixIDFromKey == "" {
 				continue
 			}
@@ -177,21 +177,21 @@ func (p *Parser) extractSwapOrMultiSwapKey(action prsAction) (
 ) {
 	ccEvent, err := action.chaincodeEvent()
 	if err != nil {
-		resErr = errors.Wrap(err, "failed to get chaincode event from action")
+		resErr = fmt.Errorf("failed to get chaincode event from action: %w", err)
 		return
 	}
 
-	if ccEvent.EventName != swapKeyEvent && ccEvent.EventName != multiSwapKeyEvent {
+	if ccEvent.GetEventName() != swapKeyEvent && ccEvent.GetEventName() != multiSwapKeyEvent {
 		return
 	}
 
-	p.log.Infof("received key event [%s] %s", string(ccEvent.Payload), ccEvent.TxId)
+	p.log.Infof("received key event [%s] %s", string(ccEvent.GetPayload()), ccEvent.GetTxId())
 
-	args := strings.Split(string(ccEvent.Payload), "\t")
+	args := strings.Split(string(ccEvent.GetPayload()), "\t")
 	const countPayloadParts = 3
 	if len(args) < countPayloadParts {
-		resErr = errors.Errorf("incorrect key event on channel %s with payload [%s]",
-			ccEvent.ChaincodeId, string(ccEvent.Payload))
+		resErr = fmt.Errorf("incorrect key event on channel %s with payload [%s]",
+			ccEvent.GetChaincodeId(), string(ccEvent.GetPayload()))
 		return
 	}
 	toChannel, swapID, keyArg := args[0], args[1], args[2]
@@ -201,7 +201,7 @@ func (p *Parser) extractSwapOrMultiSwapKey(action prsAction) (
 
 	bSwapID, err := hex.DecodeString(swapID)
 	if err != nil {
-		resErr = errors.Wrapf(err, "incorrect id, %s", swapID)
+		resErr = fmt.Errorf("incorrect id, %s: %w", swapID, err)
 		return
 	}
 
@@ -211,7 +211,7 @@ func (p *Parser) extractSwapOrMultiSwapKey(action prsAction) (
 	}
 	totalSize = uint(len(bSwapID) + len(keyArg))
 
-	if ccEvent.EventName == swapKeyEvent {
+	if ccEvent.GetEventName() == swapKeyEvent {
 		swapKey = key
 		return
 	}
@@ -222,33 +222,33 @@ func (p *Parser) extractSwapOrMultiSwapKey(action prsAction) (
 
 func (p *Parser) extractSwapsAndMultiSwaps(rwSets []prsRwSet) (swaps []*proto.Swap, multiSwaps []*proto.MultiSwap, totalSize uint) {
 	for _, rw := range rwSets {
-		for _, write := range rw.kvRWSet.Writes {
-			if write.IsDelete {
+		for _, write := range rw.kvRWSet.GetWrites() {
+			if write.GetIsDelete() {
 				continue
 			}
 
-			if _, ok := p.hasPrefix(write.Key, p.txPrefixes.Swap); ok {
+			if _, ok := p.hasPrefix(write.GetKey(), p.txPrefixes.Swap); ok {
 				s := &proto.Swap{}
-				if err := protoSer.Unmarshal(write.Value, s); err != nil {
+				if err := protoSer.Unmarshal(write.GetValue(), s); err != nil {
 					p.log.Errorf("unmarshal swap from write-value error: %s", err)
 					continue
 				}
-				if p.dstChName == "" || strings.EqualFold(s.To, p.dstChName) {
+				if p.dstChName == "" || strings.EqualFold(s.GetTo(), p.dstChName) {
 					swaps = append(swaps, s)
-					totalSize += uint(len(write.Value))
+					totalSize += uint(len(write.GetValue()))
 				}
 				continue
 			}
 
-			if _, ok := p.hasPrefix(write.Key, p.txPrefixes.MultiSwap); ok {
+			if _, ok := p.hasPrefix(write.GetKey(), p.txPrefixes.MultiSwap); ok {
 				ms := &proto.MultiSwap{}
-				if err := protoSer.Unmarshal(write.Value, ms); err != nil {
+				if err := protoSer.Unmarshal(write.GetValue(), ms); err != nil {
 					p.log.Errorf("unmarshal multi swap from write-value error: %s", err)
 					continue
 				}
-				if p.dstChName == "" || strings.EqualFold(ms.To, p.dstChName) {
+				if p.dstChName == "" || strings.EqualFold(ms.GetTo(), p.dstChName) {
 					multiSwaps = append(multiSwaps, ms)
-					totalSize += uint(len(write.Value))
+					totalSize += uint(len(write.GetValue()))
 				}
 				continue
 			}

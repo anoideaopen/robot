@@ -40,7 +40,7 @@ func NewKey(private string) (*Key, error) {
 func (k *Key) Bytes() (raw []byte, err error) {
 	raw, err = x509.MarshalPKIXPublicKey(k.PubKey)
 	if err != nil {
-		return nil, fmt.Errorf("Failed marshalling key [%s]", err)
+		return nil, fmt.Errorf("failed marshalling key : %w", err)
 	}
 
 	return
@@ -77,14 +77,14 @@ func PEMToPrivateKey(raw []byte, pwd []byte) (interface{}, error) {
 		return nil, fmt.Errorf("failed decoding PEM. Block must be different from nil [% x]", raw)
 	}
 
-	if x509.IsEncryptedPEMBlock(block) {
+	if x509.IsEncryptedPEMBlock(block) { //nolint:staticcheck
 		if len(pwd) == 0 {
 			return nil, errors.New("encrypted Key. Need a password")
 		}
 
-		decrypted, err := x509.DecryptPEMBlock(block, pwd)
+		decrypted, err := x509.DecryptPEMBlock(block, pwd) //nolint:staticcheck
 		if err != nil {
-			return nil, fmt.Errorf("failed PEM decryption: [%s]", err)
+			return nil, fmt.Errorf("failed PEM decryption: %w", err)
 		}
 
 		key, err := derToPrivateKey(decrypted)
@@ -118,7 +118,7 @@ func derToPrivateKey(der []byte) (key interface{}, err error) {
 	}
 
 	if key, err = x509.ParseECPrivateKey(der); err == nil {
-		return
+		return key, nil
 	}
 
 	return nil, errors.New("invalid key type. The DER must contain an ecdsa.PrivateKey")

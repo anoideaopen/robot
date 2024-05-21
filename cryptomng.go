@@ -4,15 +4,15 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"io/ioutil"
+	"fmt"
 	"net/http"
+	"os"
 	"strings"
 
 	"github.com/anoideaopen/cartridge/manager"
 	"github.com/anoideaopen/glog"
 	"github.com/anoideaopen/robot/config"
 	"github.com/anoideaopen/robot/hlf/hlfprofile"
-	"github.com/pkg/errors"
 )
 
 func createCryptoManager(ctx context.Context, cfg *config.Config, hlfProfile *hlfprofile.HlfProfile) (manager.Manager, error) {
@@ -65,9 +65,9 @@ func createCryptoManager(ctx context.Context, cfg *config.Config, hlfProfile *hl
 
 		return m, nil
 	case config.LocalCryptoSrc:
-		return nil, nil
+		return nil, nil //nolint:nilnil
 	default:
-		return nil, errors.Errorf("unknown crypto src in config %s (must be %s | %s | %s)", cfg.CryptoSrc,
+		return nil, fmt.Errorf("unknown crypto src in config %s (must be %s | %s | %s)", cfg.CryptoSrc,
 			config.LocalCryptoSrc,
 			config.VaultCryptoSrc,
 			config.GoogleCryptoSrc,
@@ -81,9 +81,9 @@ func getRenewableVaultToken(ctx context.Context, vaultAddress, vaultAuthPath, va
 	log.Info("Use renewable tokens Vault auth scheme")
 	log.Infof("Read JWT from k8s service account")
 
-	serviceAccountJWT, err := ioutil.ReadFile(vaultServiceTokenPath)
+	serviceAccountJWT, err := os.ReadFile(vaultServiceTokenPath)
 	if err != nil {
-		return "", errors.Wrapf(err, "failed to read token from %s", vaultServiceTokenPath)
+		return "", fmt.Errorf("failed to read token from %s: %w", vaultServiceTokenPath, err)
 	}
 
 	vaultURL := strings.TrimSuffix(vaultAddress, "/")
@@ -98,12 +98,12 @@ func getRenewableVaultToken(ctx context.Context, vaultAddress, vaultAuthPath, va
 			"role": vaultRole,
 		})
 	if err != nil {
-		return "", errors.Wrap(err, "failed to marshal tokenRequest")
+		return "", fmt.Errorf("failed to marshal tokenRequest: %w", err)
 	}
 
 	resp, err := http.Post(tokenRequestPath, "application/json", bytes.NewBuffer(tokenRequest)) //nolint:noctx
 	if err != nil {
-		return "", errors.Wrap(err, "failed to get Vault token")
+		return "", fmt.Errorf("failed to get Vault token: %w", err)
 	}
 	defer func() {
 		_ = resp.Body.Close()
@@ -120,7 +120,7 @@ func getRenewableVaultToken(ctx context.Context, vaultAddress, vaultAuthPath, va
 	}
 	for dec.More() {
 		if err = dec.Decode(&renewableToken); err != nil {
-			return "", errors.Wrap(err, "failed to decode renewableToken")
+			return "", fmt.Errorf("failed to decode renewableToken: %w", err)
 		}
 	}
 

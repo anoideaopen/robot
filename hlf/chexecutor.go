@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/hex"
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 
@@ -19,7 +20,6 @@ import (
 	"github.com/golang/protobuf/proto" //nolint:staticcheck
 	"github.com/hyperledger/fabric-sdk-go/pkg/client/channel"
 	"github.com/hyperledger/fabric-sdk-go/pkg/core/config"
-	"github.com/pkg/errors"
 )
 
 const (
@@ -90,7 +90,7 @@ func (che *chExecutor) init(ctx context.Context,
 ) error {
 	configBackends, err := config.FromFile(connectionProfile)()
 	if err != nil {
-		return errors.WithStack(err)
+		return err
 	}
 
 	var sdkComps *sdkComponents
@@ -109,12 +109,12 @@ func (che *chExecutor) init(ctx context.Context,
 
 	chClient, err := channel.New(sdkComps.chProvider)
 	if err != nil {
-		return errors.WithStack(err)
+		return err
 	}
 
 	chCtx, err := sdkComps.chProvider()
 	if err != nil {
-		return errors.WithStack(err)
+		return err
 	}
 
 	che.executor = &hlfExecutor{
@@ -129,7 +129,7 @@ func (che *chExecutor) Execute(ctx context.Context, b *executordto.Batch, _ uint
 	execHlp := newExecWithSplitHlp(che.log, che.executeBatch,
 		func(_ *executordto.Batch, num int) {
 			che.m.TotalOrderingReqSizeExceeded().Inc(
-				metrics.Labels().IsFirstAttempt.Create(fmt.Sprintf("%v", num > 0)),
+				metrics.Labels().IsFirstAttempt.Create(strconv.FormatBool(num > 0)),
 			)
 		})
 	return execHlp.execute(ctx, b)
@@ -145,11 +145,11 @@ func (che *chExecutor) executeBatch(ctx context.Context, b *executordto.Batch) (
 	}
 	che.m.BatchItemsCount().Observe(
 		float64(
-			len(batch.TxIDs) +
-				len(batch.Swaps) +
-				len(batch.MultiSwaps) +
-				len(batch.Keys) +
-				len(batch.MultiSwapsKeys)))
+			len(batch.GetTxIDs()) +
+				len(batch.GetSwaps()) +
+				len(batch.GetMultiSwaps()) +
+				len(batch.GetKeys()) +
+				len(batch.GetMultiSwapsKeys())))
 
 	logBatchContent(che.log, b)
 
@@ -158,7 +158,7 @@ func (che *chExecutor) executeBatch(ctx context.Context, b *executordto.Batch) (
 
 	che.m.BatchExecuteInvokeTime().Observe(time.Since(now).Seconds())
 	che.m.TotalBatchExecuted().Inc(
-		metrics.Labels().IsErr.Create(fmt.Sprintf("%v", err != nil)))
+		metrics.Labels().IsErr.Create(strconv.FormatBool(err != nil)))
 
 	addTotalExecutedTx := func(count int, txType string) {
 		che.m.TotalExecutedTx().Add(
@@ -173,11 +173,11 @@ func (che *chExecutor) executeBatch(ctx context.Context, b *executordto.Batch) (
 
 	logBatchResponse(che.log, b, resp)
 
-	addTotalExecutedTx(len(batch.TxIDs), metrics.TxTypeTx)
-	addTotalExecutedTx(len(batch.Keys), metrics.TxTypeSwapKey)
-	addTotalExecutedTx(len(batch.MultiSwapsKeys), metrics.TxTypeMultiSwapKey)
-	addTotalExecutedTx(len(batch.Swaps), metrics.TxTypeSwap)
-	addTotalExecutedTx(len(batch.MultiSwaps), metrics.TxTypeMultiSwap)
+	addTotalExecutedTx(len(batch.GetTxIDs()), metrics.TxTypeTx)
+	addTotalExecutedTx(len(batch.GetKeys()), metrics.TxTypeSwapKey)
+	addTotalExecutedTx(len(batch.GetMultiSwapsKeys()), metrics.TxTypeMultiSwapKey)
+	addTotalExecutedTx(len(batch.GetSwaps()), metrics.TxTypeSwap)
+	addTotalExecutedTx(len(batch.GetMultiSwaps()), metrics.TxTypeMultiSwap)
 
 	che.m.HeightLedgerBlocks().Set(float64(resp.BlockNumber + 1))
 	return resp.BlockNumber, nil
@@ -207,7 +207,7 @@ func (che *chExecutor) executeWithRetry(ctx context.Context, batch *pb.Batch) (c
 	batchBytes, err := proto.Marshal(batch)
 	if err != nil {
 		return resp, errorshlp.WrapWithDetails(
-			errors.WithStack(err),
+			err,
 			nerrors.ErrTypeParsing, nerrors.ComponentExecutor)
 	}
 
@@ -223,7 +223,7 @@ func (che *chExecutor) executeWithRetry(ctx context.Context, batch *pb.Batch) (c
 			})
 		if err != nil {
 			che.m.TotalBatchExecuted().Inc(
-				metrics.Labels().IsErr.Create(fmt.Sprintf("%v", true)))
+				metrics.Labels().IsErr.Create("true"))
 
 			if IsEndorsementMismatchErr(err) {
 				che.log.Warningf("endorsement mismatch, err: %s", err)
@@ -268,25 +268,25 @@ func logBatchContent(log glog.Logger, b *executordto.Batch) {
 
 	_, _ = sb.WriteString(fmt.Sprintf("swaps (%v):\n", len(b.Swaps)))
 	for _, swap := range b.Swaps {
-		_, _ = sb.WriteString(hex.EncodeToString(swap.Id))
+		_, _ = sb.WriteString(hex.EncodeToString(swap.GetId()))
 		_, _ = sb.WriteString("\n")
 	}
 
 	_, _ = sb.WriteString(fmt.Sprintf("mswaps (%v):\n", len(b.MultiSwaps)))
 	for _, mswap := range b.MultiSwaps {
-		_, _ = sb.WriteString(hex.EncodeToString(mswap.Id))
+		_, _ = sb.WriteString(hex.EncodeToString(mswap.GetId()))
 		_, _ = sb.WriteString("\n")
 	}
 
 	_, _ = sb.WriteString(fmt.Sprintf("swaps-keys (%v):\n", len(b.Keys)))
 	for _, k := range b.Keys {
-		_, _ = sb.WriteString(hex.EncodeToString(k.Id))
+		_, _ = sb.WriteString(hex.EncodeToString(k.GetId()))
 		_, _ = sb.WriteString("\n")
 	}
 
 	_, _ = sb.WriteString(fmt.Sprintf("mswaps-keys (%v):\n", len(b.MultiKeys)))
 	for _, k := range b.MultiKeys {
-		_, _ = sb.WriteString(hex.EncodeToString(k.Id))
+		_, _ = sb.WriteString(hex.EncodeToString(k.GetId()))
 		_, _ = sb.WriteString("\n")
 	}
 
@@ -309,39 +309,39 @@ func logBatchResponse(log glog.Logger, b *executordto.Batch, resp channel.Respon
 		return
 	}
 	// preimage errs
-	for _, txresponse := range batchResp.TxResponses {
-		if txresponse.Error != nil {
+	for _, txresponse := range batchResp.GetTxResponses() {
+		if txresponse.GetError() != nil {
 			log.Debugf("tx was executed with error, txID: %s, method: %s, writes: %v, err: %s",
-				hex.EncodeToString(txresponse.Id), txresponse.Method, txresponse.Writes, txresponse.Error.Error)
+				hex.EncodeToString(txresponse.GetId()), txresponse.GetMethod(), txresponse.GetWrites(), txresponse.GetError().GetError())
 
 			log.With(
-				glog.Field{K: txID, V: hex.EncodeToString(txresponse.Id)},
-				glog.Field{K: method, V: txresponse.Method},
-				glog.Field{K: keyErrCode, V: txresponse.Error.Code},
-			).Warning(txresponse.Error.Error)
+				glog.Field{K: txID, V: hex.EncodeToString(txresponse.GetId())},
+				glog.Field{K: method, V: txresponse.GetMethod()},
+				glog.Field{K: keyErrCode, V: txresponse.GetError().GetCode()},
+			).Warning(txresponse.GetError().GetError())
 		} else {
 			log.Debugf("tx was executed successfully, txID: %s, method: %s, writes: %v",
-				hex.EncodeToString(txresponse.Id), txresponse.Method, txresponse.Writes)
+				hex.EncodeToString(txresponse.GetId()), txresponse.GetMethod(), txresponse.GetWrites())
 		}
 	}
 
 	// swap key errs
-	for _, swapkeyresp := range batchResp.SwapKeyResponses {
-		if swapkeyresp.Error != nil {
+	for _, swapkeyresp := range batchResp.GetSwapKeyResponses() {
+		if swapkeyresp.GetError() != nil {
 			log.With(
-				glog.Field{K: keyID, V: hex.EncodeToString(swapkeyresp.Id)},
-				glog.Field{K: keyErrCode, V: swapkeyresp.Error.Code},
-			).Error(swapkeyresp.Error.Error)
+				glog.Field{K: keyID, V: hex.EncodeToString(swapkeyresp.GetId())},
+				glog.Field{K: keyErrCode, V: swapkeyresp.GetError().GetCode()},
+			).Error(swapkeyresp.GetError().GetError())
 		}
 	}
 
 	// swaps errs
-	for _, swapresp := range batchResp.SwapResponses {
-		if swapresp.Error != nil {
+	for _, swapresp := range batchResp.GetSwapResponses() {
+		if swapresp.GetError() != nil {
 			log.With(
-				glog.Field{K: keyID, V: hex.EncodeToString(swapresp.Id)},
-				glog.Field{K: keyErrCode, V: swapresp.Error.Code},
-			).Error(swapresp.Error.Error)
+				glog.Field{K: keyID, V: hex.EncodeToString(swapresp.GetId())},
+				glog.Field{K: keyErrCode, V: swapresp.GetError().GetCode()},
+			).Error(swapresp.GetError().GetError())
 		}
 	}
 }

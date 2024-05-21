@@ -2,6 +2,7 @@ package chcollector
 
 import (
 	"context"
+	"errors"
 	"sync"
 
 	"github.com/anoideaopen/common-component/errorshlp"
@@ -11,7 +12,6 @@ import (
 	"github.com/anoideaopen/robot/metrics"
 	"github.com/hyperledger/fabric-protos-go/common"
 	"github.com/hyperledger/fabric-sdk-go/pkg/common/providers/fab"
-	"github.com/pkg/errors"
 )
 
 type ChDataParser interface {
@@ -34,7 +34,7 @@ func NewCollector(ctx context.Context,
 	dataReady chan<- struct{},
 	events <-chan *fab.BlockEvent,
 	bufSize uint,
-) (*chCollector, error) { //nolint:revive
+) (*chCollector, error) {
 	log := glog.FromContext(ctx)
 
 	if bufSize == 0 {
@@ -77,7 +77,7 @@ func (cc *chCollector) loopExtract(ctx context.Context) {
 			if !ok {
 				return
 			}
-			cc.log.Debugf("extract data from block: %v", ev.Block.Header.Number)
+			cc.log.Debugf("extract data from block: %v", ev.Block.GetHeader().GetNumber())
 			d, err := cc.prsr.ExtractData(ev.Block)
 			if err != nil {
 				cc.log.Errorf("extract data error: %s", err)

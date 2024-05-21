@@ -11,6 +11,8 @@ import (
 	"testing"
 	"time"
 
+	"errors"
+
 	"github.com/anoideaopen/common-component/loggerhlp"
 	"github.com/anoideaopen/foundation/core/types"
 	"github.com/anoideaopen/foundation/core/types/big"
@@ -23,7 +25,6 @@ import (
 	"github.com/hyperledger/fabric-sdk-go/pkg/client/ledger"
 	fsdkConfig "github.com/hyperledger/fabric-sdk-go/pkg/core/config"
 	"github.com/hyperledger/fabric-sdk-go/pkg/fabsdk"
-	"github.com/pkg/errors"
 	"github.com/stretchr/testify/require"
 	"golang.org/x/crypto/sha3"
 	"golang.org/x/sync/errgroup"
@@ -252,7 +253,7 @@ func getLedgerH(ciData ntesting.CiTestData, ch string) (uint64, error) {
 	tmpSdk, err := fabsdk.New(
 		fsdkConfig.FromFile(ciData.HlfProfilePath))
 	if err != nil {
-		return 0, errors.WithStack(err)
+		return 0, err
 	}
 	defer tmpSdk.Close()
 
@@ -260,11 +261,11 @@ func getLedgerH(ciData ntesting.CiTestData, ch string) (uint64, error) {
 		fabsdk.WithUser(ciData.HlfUserName),
 		fabsdk.WithOrg(ciData.HlfProfile.OrgName)))
 	if err != nil {
-		return 0, errors.WithStack(err)
+		return 0, err
 	}
 	resp, err := lClient.QueryInfo()
 	if err != nil {
-		return 0, errors.WithStack(err)
+		return 0, err
 	}
 
 	return resp.BCI.Height, nil
@@ -424,7 +425,7 @@ func multiSwapScenario(ctx context.Context, ciData ntesting.CiTestData) error {
 	}
 	l.Infof("issuer balance for group %s is: %d", ciData.HlfIndustrialGroup1, oldBGr1)
 	if oldBGr1 == 0 {
-		return errors.WithStack(fmt.Errorf("industrial balance for group %s must be greater than 0", ciData.HlfIndustrialGroup1))
+		return fmt.Errorf("industrial balance for group %s must be greater than 0", ciData.HlfIndustrialGroup1)
 	}
 
 	oldBGr2, err := getIndustrialBalance(ctx, industrialOwner, ciData.HlfIndustrialChannel, ciData.HlfIndustrialChannel, ciData.HlfIndustrialGroup2)
@@ -433,7 +434,7 @@ func multiSwapScenario(ctx context.Context, ciData ntesting.CiTestData) error {
 	}
 	l.Infof("issuer balance for group %s is: %d", ciData.HlfIndustrialGroup2, oldBGr2)
 	if oldBGr2 == 0 {
-		return errors.WithStack(fmt.Errorf("industrial balance for group %s must be greater than 0", ciData.HlfIndustrialGroup2))
+		return fmt.Errorf("industrial balance for group %s must be greater than 0", ciData.HlfIndustrialGroup2)
 	}
 
 	// multiswap industrial to fiat
@@ -531,29 +532,29 @@ func doMultiSwap(ctx context.Context, u *wallet.User, chFrom, chTo string, asset
 		return err
 	}
 
-	if err := waitMultiSwap(ctx, u, chTo, chTo, swapID); err != nil {
+	if err = waitMultiSwap(ctx, u, chTo, chTo, swapID); err != nil {
 		return err
 	}
 
-	if err := multiSwapDone(u, chTo, chTo, swapID, swapKey); err != nil {
+	if err = multiSwapDone(u, chTo, chTo, swapID, swapKey); err != nil {
 		return err
 	}
 
 	for _, a := range assets.Assets {
 		amount, err := strconv.Atoi(a.Amount)
 		if err != nil {
-			return errors.WithStack(err)
+			return err
 		}
 
 		// check destination ch allowed balance
-		if err := waitUserAllowedBalance(ctx, u,
+		if err = waitUserAllowedBalance(ctx, u,
 			chTo, chTo, uint64(amount)+oldAB[a.Group], a.Group); err != nil {
 			return err
 		}
 
 		// check source ch real balance
 
-		if err := waitIndustrialUserBalance(ctx, u, chFrom, chFrom, assetsGroups[a.Group], oldB[a.Group]-uint64(amount)); err != nil {
+		if err = waitIndustrialUserBalance(ctx, u, chFrom, chFrom, assetsGroups[a.Group], oldB[a.Group]-uint64(amount)); err != nil {
 			return err
 		}
 	}
@@ -573,11 +574,11 @@ func buy(ctx context.Context, u *wallet.User, token, currency string, amount uin
 		return err
 	}
 
-	if err := buyToken(ctx, u, token, currency, amount); err != nil {
+	if err = buyToken(ctx, u, token, currency, amount); err != nil {
 		return err
 	}
 
-	if err := waitUserBalance(ctx, u, token, token, oldCcB+amount); err != nil {
+	if err = waitUserBalance(ctx, u, token, token, oldCcB+amount); err != nil {
 		return err
 	}
 
@@ -589,7 +590,7 @@ func buy(ctx context.Context, u *wallet.User, token, currency string, amount uin
 func buyToken(_ context.Context, u *wallet.User, token, currency string, amount uint64) error {
 	_, err := u.SignedInvoke(nil, token, token, "buyToken", strconv.Itoa(int(amount)), strings.ToUpper(currency))
 	if err != nil {
-		return errors.WithStack(err)
+		return err
 	}
 	return err
 }
@@ -602,7 +603,7 @@ func swapBegin(_ context.Context, u *wallet.User, amount uint64, fromCh, toCh st
 		fromCh, fromCh, "swapBegin",
 		strings.ToUpper(fromCh), strings.ToUpper(toCh), strconv.Itoa(int(amount)), hex.EncodeToString(swapHash[:]))
 	if err != nil {
-		return "", "", errors.WithStack(err)
+		return "", "", err
 	}
 	return swapKey, res.Event.TxID, nil
 }
@@ -621,7 +622,7 @@ func multiSwapBegin(_ context.Context, u *wallet.User, assets types.MultiSwapAss
 		fromCh, fromCh, "multiSwapBegin",
 		strings.ToUpper(fromCh), string(b), strings.ToUpper(toCh), hex.EncodeToString(swapHash[:]))
 	if err != nil {
-		return "", "", errors.WithStack(err)
+		return "", "", err
 	}
 	return swapKey, res.Event.TxID, nil
 }
@@ -630,7 +631,7 @@ func multiSwapBegin(_ context.Context, u *wallet.User, assets types.MultiSwapAss
 func swapDone(u *wallet.User, ch, cc, swapID, swapKey string) error {
 	_, err := u.Invoke(ch, cc, "swapDone", swapID, swapKey)
 	if err != nil {
-		return errors.WithStack(err)
+		return err
 	}
 	return nil
 }
@@ -639,7 +640,7 @@ func swapDone(u *wallet.User, ch, cc, swapID, swapKey string) error {
 func multiSwapDone(u *wallet.User, ch, cc, swapID, swapKey string) error {
 	_, err := u.Invoke(ch, cc, "multiSwapDone", swapID, swapKey)
 	if err != nil {
-		return errors.WithStack(err)
+		return err
 	}
 	return nil
 }
@@ -649,7 +650,7 @@ func multiSwapDone(u *wallet.User, ch, cc, swapID, swapKey string) error {
 func waitSwap(ctx context.Context, u *wallet.User, ch, cc, swapID string) error {
 	for {
 		if ctx.Err() != nil {
-			return errors.WithStack(ctx.Err())
+			return ctx.Err()
 		}
 		_, err := u.Query(ch, cc, "swapGet", swapID)
 		if err == nil {
@@ -664,7 +665,7 @@ func waitSwap(ctx context.Context, u *wallet.User, ch, cc, swapID string) error 
 func waitMultiSwap(ctx context.Context, u *wallet.User, ch, cc, swapID string) error {
 	for {
 		if ctx.Err() != nil {
-			return errors.WithStack(ctx.Err())
+			return ctx.Err()
 		}
 		_, err := u.Query(ch, cc, "multiSwapGet", swapID)
 		if err == nil {
@@ -678,7 +679,7 @@ func waitMultiSwap(ctx context.Context, u *wallet.User, ch, cc, swapID string) e
 func getBalance(_ context.Context, user *wallet.User, channelName, chainCodeName string) (uint64, error) {
 	tokenBalanceResponse, err := user.Query(channelName, chainCodeName, "balanceOf", user.Addr())
 	if err != nil {
-		return 0, errors.WithStack(err)
+		return 0, err
 	}
 	return parseBalance(tokenBalanceResponse)
 }
@@ -697,7 +698,7 @@ func parseBalance(balanceResponse []byte) (uint64, error) {
 	tokenBalanceStr := strings.ReplaceAll(string(balanceResponse), "\"", "")
 	b, err := strconv.ParseUint(tokenBalanceStr, 10, 64)
 	if err != nil {
-		return 0, errors.WithStack(err)
+		return 0, err
 	}
 	return b, nil
 }
@@ -706,21 +707,21 @@ func parseBalance(balanceResponse []byte) (uint64, error) {
 func getIndustrialBalance(_ context.Context, user *wallet.User, channelName, chainCodeName, group string) (uint64, error) {
 	tokenBalanceResponse, err := user.Query(channelName, chainCodeName, "industrialBalanceOf", user.Addr())
 	if err != nil {
-		return 0, errors.WithStack(err)
+		return 0, err
 	}
 
 	var result map[string]string
 	if err = json.Unmarshal(tokenBalanceResponse, &result); err != nil {
-		return 0, errors.WithStack(err)
+		return 0, err
 	}
 
 	v, ok := result[group]
 	if !ok {
-		return 0, errors.Errorf("group not found %s", group)
+		return 0, fmt.Errorf("group not found %s", group)
 	}
 	vv, err := strconv.Atoi(v)
 	if err != nil {
-		return 0, errors.WithStack(err)
+		return 0, err
 	}
 
 	return uint64(vv), nil
@@ -756,7 +757,7 @@ func waitBalance(ctx context.Context, expectedBalance uint64, getBalance func() 
 	log := glog.FromContext(ctx)
 	for {
 		if ctx.Err() != nil {
-			return errors.WithStack(ctx.Err())
+			return ctx.Err()
 		}
 		b, err := getBalance()
 		if err != nil {
@@ -785,11 +786,11 @@ func setRate(_ context.Context, u *wallet.User, token, currency string, rate uin
 	}
 	_, err = u.SignedInvoke(nil, token, token, "setRate", "buyToken", strings.ToUpper(currency), strconv.Itoa(int(rate)))
 	if err != nil {
-		return errors.WithStack(err)
+		return err
 	}
 	_, err = u.SignedInvoke(nil, token, token, "setRate", "buyBack", strings.ToUpper(currency), strconv.Itoa(int(rate)))
 	if err != nil {
-		return errors.WithStack(err)
+		return err
 	}
 
 	for {
@@ -815,11 +816,11 @@ func isRateSet(u *wallet.User, token, currency string, rateValue uint64) (bool, 
 
 	resp, err := u.Query(token, token, "metadata")
 	if err != nil {
-		return false, errors.WithStack(err)
+		return false, err
 	}
 
-	if err := json.Unmarshal(resp, &meta); err != nil {
-		return false, errors.WithStack(err)
+	if err = json.Unmarshal(resp, &meta); err != nil {
+		return false, err
 	}
 
 	var buyTokenFound, buyBackFound bool

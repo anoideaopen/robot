@@ -3,11 +3,13 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"os"
 	"os/signal"
 	"runtime/debug"
+	"strconv"
 	"strings"
 	"sync"
 	"syscall"
@@ -30,7 +32,6 @@ import (
 	"github.com/anoideaopen/robot/metrics/prometheus"
 	"github.com/anoideaopen/robot/server"
 	"github.com/anoideaopen/robot/storage/redis"
-	"github.com/pkg/errors"
 )
 
 var AppInfoVer = "undefined-ver"
@@ -170,7 +171,7 @@ func createRobots(ctx context.Context, cfg *config.Config, hlfProfile *hlfprofil
 			bLimits = rCfg.BatchLimits
 		}
 		if bLimits == nil {
-			return nil, errors.Errorf("no configuration for batch limits in %s robot", rCfg.ChName)
+			return nil, fmt.Errorf("no configuration for batch limits in %s robot", rCfg.ChName)
 		}
 
 		r := chrobot.NewRobot(ctx, rCfg.ChName, rCfg.InitMinExecBlockNum,
@@ -272,7 +273,7 @@ func runRobot(ctx context.Context, r *chrobot.ChRobot, delayAfterError time.Dura
 }
 
 func incTotalRobotStopped(m metrics.Metrics, err error) {
-	isErr := fmt.Sprintf("%v", err != nil)
+	isErr := strconv.FormatBool(err != nil)
 	errType := nerrors.ErrTypeInternal
 	componentName := nerrors.ComponentRobot
 	dErr, ok := errorshlp.ExtractDetailsError(err)

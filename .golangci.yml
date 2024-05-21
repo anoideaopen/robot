@@ -1,6 +1,6 @@
 run:
   # The default concurrency value is the number of available CPU.
-  go: '1.18'
+  go: '1.22'
   concurrency: 4
   timeout: 5m
   tests: false
@@ -46,21 +46,27 @@ linters:
     - promlinter
     - nosprintfhostport
     - nilnil
-    - logrlint
+    - loggercheck
     - grouper
-    - execinquery
     - errname
     - decorder
     - durationcheck
     - nilerr
     - forcetypeassert
-    - interfacebloat
     - contextcheck
     - loggercheck
     - reassign
     - testableexamples
     - dupword
     - gocheckcompilerdirectives
+    - perfsprint
+    - testifylint
+    - sloglint
+    - protogetter
+    - fatcontext
+    - spancheck
+    - intrange
+    - copyloopvar
   disable:
     - godot
     - wsl
@@ -89,16 +95,23 @@ linters:
     - dupl
     - funlen
     - gomnd
-issues:
-  exclude-rules:
-    - path: _test\.go
-      linters:
-        - funlen
-  exclude-dirs:
-    - hlf/sdkwrapper
+    - execinquery
+    - interfacebloat
 linters-settings:
   gosec:
     excludes:
       - 'G107'
       - 'G402'
       - 'G404'
+  revive:
+    ignore-generated-header: true
+    rules:
+      - name: dot-imports
+        severity: warning
+        disabled: false
+        arguments:
+          - allowedPackages: ["github.com/onsi/gomega", "github.com/onsi/ginkgo/v2"]
+  stylecheck:
+    dot-import-whitelist:
+      - github.com/onsi/gomega
+      - github.com/onsi/ginkgo/v2

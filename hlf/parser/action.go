@@ -1,11 +1,12 @@
 package parser
 
 import (
+	"fmt"
+
 	"github.com/golang/protobuf/proto" //nolint:staticcheck
 	"github.com/hyperledger/fabric-protos-go/ledger/rwset"
 	"github.com/hyperledger/fabric-protos-go/ledger/rwset/kvrwset"
 	"github.com/hyperledger/fabric-protos-go/peer"
-	"github.com/pkg/errors"
 )
 
 type prsRwSet struct {
@@ -22,8 +23,8 @@ type prsAction struct {
 // Concretely, for chaincodes, it contains a hashed representation of the proposal (proposalHash) and a representation of the chaincode state changes and events inside the extension field.
 func (a *prsAction) proposalResponsePayload() (*peer.ProposalResponsePayload, error) {
 	proposalResponsePayload := &peer.ProposalResponsePayload{}
-	if err := proto.Unmarshal(a.payload.Action.ProposalResponsePayload, proposalResponsePayload); err != nil {
-		return nil, errors.Wrap(err, "unmarshal proposal response payload error")
+	if err := proto.Unmarshal(a.payload.GetAction().GetProposalResponsePayload(), proposalResponsePayload); err != nil {
+		return nil, fmt.Errorf("unmarshal proposal response payload error: %w", err)
 	}
 	return proposalResponsePayload, nil
 }
@@ -35,8 +36,8 @@ func (a *prsAction) chaincodeAction() (*peer.ChaincodeAction, error) {
 		return nil, err
 	}
 	chaincodeAction := &peer.ChaincodeAction{}
-	if err := proto.Unmarshal(proposalResponsePayload.Extension, chaincodeAction); err != nil {
-		return nil, errors.Wrap(err, "unmarshal chaincode action error")
+	if err = proto.Unmarshal(proposalResponsePayload.GetExtension(), chaincodeAction); err != nil {
+		return nil, fmt.Errorf("unmarshal chaincode action error: %w", err)
 	}
 	return chaincodeAction, nil
 }
@@ -48,8 +49,8 @@ func (a *prsAction) chaincodeEvent() (*peer.ChaincodeEvent, error) {
 		return nil, err
 	}
 	chaincodeEvent := &peer.ChaincodeEvent{}
-	if err := proto.Unmarshal(chaincodeAction.Events, chaincodeEvent); err != nil {
-		return nil, errors.Wrap(err, "unmarshal chaincode event error")
+	if err = proto.Unmarshal(chaincodeAction.GetEvents(), chaincodeEvent); err != nil {
+		return nil, fmt.Errorf("unmarshal chaincode event error: %w", err)
 	}
 	return chaincodeEvent, nil
 }
@@ -62,14 +63,14 @@ func (a *prsAction) rwSets() ([]prsRwSet, error) {
 	}
 
 	txReadWriteSet := &rwset.TxReadWriteSet{}
-	if err := proto.Unmarshal(chaincodeAction.Results, txReadWriteSet); err != nil {
-		return nil, errors.Wrap(err, "unmarshal tx read-write set error")
+	if err = proto.Unmarshal(chaincodeAction.GetResults(), txReadWriteSet); err != nil {
+		return nil, fmt.Errorf("unmarshal tx read-write set error: %w", err)
 	}
 
-	result := make([]prsRwSet, len(txReadWriteSet.NsRwset))
-	for i, rwSet := range txReadWriteSet.NsRwset {
-		if err := proto.Unmarshal(rwSet.Rwset, &result[i].kvRWSet); err != nil {
-			return nil, errors.Wrap(err, "unmarshal kv read-write set error")
+	result := make([]prsRwSet, len(txReadWriteSet.GetNsRwset()))
+	for i, rwSet := range txReadWriteSet.GetNsRwset() {
+		if err = proto.Unmarshal(rwSet.GetRwset(), &result[i].kvRWSet); err != nil {
+			return nil, fmt.Errorf("unmarshal kv read-write set error: %w", err)
 		}
 	}
 	return result, err

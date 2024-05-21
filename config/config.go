@@ -1,6 +1,7 @@
 package config
 
 import (
+	"errors"
 	"flag"
 	"fmt"
 	"os"
@@ -9,7 +10,6 @@ import (
 	"time"
 
 	"github.com/go-playground/validator/v10"
-	"github.com/pkg/errors"
 	"github.com/spf13/viper"
 )
 
@@ -154,27 +154,26 @@ func validateConfig(cfg *Config) error {
 	if cfg.DefaultBatchLimits.isEmpty() {
 		for _, robot := range cfg.Robots {
 			if robot.BatchLimits.isEmpty() {
-				return errors.Errorf("invalid batch limits for chName: %v", robot.ChName)
+				return fmt.Errorf("invalid batch limits for chName: %v", robot.ChName)
 			}
 		}
 	}
 
 	if len(cfg.Robots) == 0 {
-		return errors.Errorf("no robots")
+		return errors.New("no robots")
 	}
 
 	for _, robot := range cfg.Robots {
 		if len(robot.SrcChannels) == 0 {
-			return errors.Errorf("no srcChannels for channel: %v", robot.ChName)
+			return fmt.Errorf("no srcChannels for channel: %v", robot.ChName)
 		}
 
 		if robot.CollectorsBufSize == 0 {
-			return errors.Errorf("collectorsBufSize must be positive for channel: %v", robot.ChName)
+			return fmt.Errorf("collectorsBufSize must be positive for channel: %v", robot.ChName)
 		}
 
-		const errTempl = "%w for channel: %v"
 		if _, err = robot.ExecOpts.EffExecuteTimeout(cfg.DefaultRobotExecOpts); err != nil {
-			return errors.WithStack(fmt.Errorf(errTempl, err, robot.ChName))
+			return fmt.Errorf("error for channel %v: %w", robot.ChName, err)
 		}
 	}
 
@@ -185,7 +184,7 @@ func validateConfig(cfg *Config) error {
 	if cfg.CryptoSrc != LocalCryptoSrc &&
 		cfg.CryptoSrc != GoogleCryptoSrc &&
 		cfg.CryptoSrc != VaultCryptoSrc {
-		return errors.Errorf("unknown crypto manager kind: %v", cfg.CryptoSrc)
+		return fmt.Errorf("unknown crypto manager kind: %v", cfg.CryptoSrc)
 	}
 
 	if cfg.CryptoSrc == GoogleCryptoSrc && cfg.GoogleCryptoSettings == nil {
@@ -203,12 +202,12 @@ func validateSwaps(robots []*Robot) error {
 	// check for duplicates
 	for _, dst := range robots {
 		if _, ok := rm[dst.ChName]; ok {
-			return errors.Errorf("robot duplicate for channel: %v", dst.ChName)
+			return fmt.Errorf("robot duplicate for channel: %v", dst.ChName)
 		}
 		rm[dst.ChName] = map[string]struct{}{}
 		for _, src := range dst.SrcChannels {
 			if _, ok := rm[dst.ChName][src.ChName]; ok {
-				return errors.Errorf("robot source duplicate for channel: %v source: %v", dst.ChName, src.ChName)
+				return fmt.Errorf("robot source duplicate for channel: %v source: %v", dst.ChName, src.ChName)
 			}
 			rm[dst.ChName][src.ChName] = struct{}{}
 		}
@@ -224,7 +223,7 @@ func validateSwaps(robots []*Robot) error {
 				continue
 			}
 			if _, ok := rm[src][dst]; !ok {
-				return errors.Errorf(
+				return fmt.Errorf(
 					"robot for channel: %v source: %v configured, but robot for channel: %v source: %v not found",
 					dst, src, src, dst,
 				)
@@ -239,7 +238,7 @@ func validateRequiredFields(cfg *Config) error {
 	validate := validator.New()
 	err := validate.Struct(*cfg)
 	if err != nil {
-		return errors.Errorf("err(s):\n%+v", err)
+		return fmt.Errorf("err(s): %w", err)
 	}
 	return nil
 }
@@ -256,12 +255,12 @@ func findConfigPath() (string, bool, error) {
 	// 3. config.yaml
 	ex, err := os.Executable()
 	if err != nil {
-		return "", false, errors.Wrap(err, "error on finding config file")
+		return "", false, fmt.Errorf("error on finding config file: %w", err)
 	}
 	p := filepath.Join(filepath.Dir(ex), "config.yaml")
 	ok, err := existFile(p)
 	if err != nil {
-		return "", false, errors.Wrapf(err, "error on finding %s file", p)
+		return "", false, fmt.Errorf("error on finding %s file: %w", p, err)
 	}
 	if ok {
 		return p, true, nil
@@ -270,7 +269,7 @@ func findConfigPath() (string, bool, error) {
 	p = "/etc/config.yaml"
 	ok, err = existFile(p)
 	if err != nil {
-		return "", false, errors.Wrapf(err, "error on finding %s file", p)
+		return "", false, fmt.Errorf("error on finding %s file: %w", p, err)
 	}
 	if ok {
 		return p, true, nil
@@ -287,12 +286,12 @@ func getConfig(cfgPath string) (*Config, error) {
 
 	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err != nil {
-		return nil, errors.Wrap(err, "failed viper.ReadInConfig")
+		return nil, fmt.Errorf("failed viper.ReadInConfig: %w", err)
 	}
 
 	cfg := Config{}
 	if err := viper.UnmarshalExact(&cfg); err != nil {
-		return nil, errors.Wrap(err, "failed viper.Unmarshal")
+		return nil, fmt.Errorf("failed viper.Unmarshal: %w", err)
 	}
 
 	return &cfg, nil
@@ -314,7 +313,7 @@ func existFile(p string) (bool, error) {
 		if errors.Is(err, os.ErrNotExist) {
 			return false, nil
 		}
-		return false, errors.WithStack(err)
+		return false, err
 	}
 	return true, nil
 }

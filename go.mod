@@ -1,6 +1,6 @@
 module github.com/anoideaopen/robot
 
-go 1.18
+go 1.22
 
 require (
 	github.com/anoideaopen/cartridge v0.0.3
@@ -15,7 +15,6 @@ require (
 	github.com/google/uuid v1.4.0
 	github.com/hyperledger/fabric-protos-go v0.3.2
 	github.com/hyperledger/fabric-sdk-go v1.0.0
-	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v1.13.1
 	github.com/spf13/viper v1.12.0
 	github.com/stretchr/testify v1.8.4
@@ -71,6 +70,7 @@ require (
 	github.com/pelletier/go-toml v1.9.5 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.1 // indirect
 	github.com/pierrec/lz4 v2.6.0+incompatible // indirect
+	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/prometheus/client_model v0.2.0 // indirect
 	github.com/prometheus/common v0.37.0 // indirect

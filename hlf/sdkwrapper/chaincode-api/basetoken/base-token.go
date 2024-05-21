@@ -1,8 +1,9 @@
-package base_token
+package basetoken
 
 import (
 	"crypto/ed25519"
 	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/anoideaopen/foundation/core/types/big"
@@ -26,9 +27,9 @@ type BaseTokenInterface interface {
 	AllowedBalanceOf(address string, token string) (*channel.Response, error)
 	Transfer(keyPair *KeyPair, toAddress string, amount *big.Int, ref string) (*channel.Response, error)
 	SwapBegin(keyPair *KeyPair, token string, contractTo string, amount uint64, hash string) (*channel.Response, error)
-	SwapCancel(keyPair *KeyPair, swapTransactionId string) (*channel.Response, error)
-	SwapDone(swapTransactionId string, swapKey string) (*channel.Response, error)
-	SwapGet(swapTransactionId string) (*channel.Response, error)
+	SwapCancel(keyPair *KeyPair, swapTransactionID string) (*channel.Response, error)
+	SwapDone(swapTransactionID string, swapKey string) (*channel.Response, error)
+	SwapGet(swapTransactionID string) (*channel.Response, error)
 	GetChannelName() string
 	GetChaincodeName() string
 	GetHlfClient() *service.HLFClient
@@ -70,7 +71,7 @@ func (b *BaseTokenAPI) SetRate(dealType dealType, currency string, rate uint64) 
 	methodArgs := []string{
 		string(dealType),
 		currency,
-		fmt.Sprintf("%d", rate),
+		strconv.FormatUint(rate, 10),
 	}
 	methodName := "setRate"
 	peers := ""
@@ -90,7 +91,7 @@ func (b *BaseTokenAPI) DeleteRate(dealType dealType, currency string, rate uint6
 	methodArgs := []string{
 		string(dealType),
 		currency,
-		fmt.Sprintf("%d", rate),
+		strconv.FormatUint(rate, 10),
 	}
 	methodName := "deleteRate"
 	peers := ""
@@ -219,7 +220,7 @@ func (b *BaseTokenAPI) SwapBegin(keyPair *KeyPair, token string, contractTo stri
 	methodArgs := []string{
 		strings.ToUpper(token),
 		strings.ToUpper(contractTo),
-		fmt.Sprintf("%d", amount),
+		strconv.FormatUint(amount, 10),
 		hash,
 	}
 	methodName := "swapBegin"
@@ -231,13 +232,13 @@ func (b *BaseTokenAPI) SwapBegin(keyPair *KeyPair, token string, contractTo stri
 // SwapCancel - swap reset.
 // Method signature: TxSwapCancel(sender types.Sender, swapID string) error
 // No additional conditions are required.
-func (b *BaseTokenAPI) SwapCancel(keyPair *KeyPair, swapTransactionId string) (*channel.Response, error) {
+func (b *BaseTokenAPI) SwapCancel(keyPair *KeyPair, swapTransactionID string) (*channel.Response, error) {
 	err := b.Validate()
 	if err != nil {
 		return nil, err
 	}
 	methodArgs := []string{
-		swapTransactionId,
+		swapTransactionID,
 	}
 	methodName := "swapCancel"
 	peers := ""
@@ -256,13 +257,13 @@ func (b *BaseTokenAPI) SwapCancel(keyPair *KeyPair, swapTransactionId string) (*
 
 // SwapDone - start of the atomic swap process.
 // No additional conditions are required.
-func (b *BaseTokenAPI) SwapDone(swapTransactionId string, swapKey string) (*channel.Response, error) {
+func (b *BaseTokenAPI) SwapDone(swapTransactionID string, swapKey string) (*channel.Response, error) {
 	err := b.Validate()
 	if err != nil {
 		return nil, err
 	}
 	methodArgs := []string{
-		swapTransactionId,
+		swapTransactionID,
 		swapKey,
 	}
 	methodName := "swapDone"
@@ -274,13 +275,13 @@ func (b *BaseTokenAPI) SwapDone(swapTransactionId string, swapKey string) (*chan
 // SwapGet - swap information.
 // Method signature: QuerySwapGet(swapID string) (*proto.Swap, error)
 // No additional conditions are required.
-func (b *BaseTokenAPI) SwapGet(swapTransactionId string) (*channel.Response, error) {
+func (b *BaseTokenAPI) SwapGet(swapTransactionID string) (*channel.Response, error) {
 	err := b.Validate()
 	if err != nil {
 		return nil, err
 	}
 	methodArgs := []string{
-		swapTransactionId,
+		swapTransactionID,
 	}
 	methodName := "swapGet"
 	return b.hlfClient.Query(b.ChannelName, b.ChaincodeName, methodName, methodArgs)

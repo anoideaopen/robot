@@ -3,10 +3,10 @@ package server
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/anoideaopen/glog"
-	"github.com/pkg/errors"
 )
 
 type AppInfo struct {
@@ -18,7 +18,7 @@ func appInfoHandler(ctx context.Context, appInfo *AppInfo) (http.HandlerFunc, er
 	log := glog.FromContext(ctx)
 	resp, err := json.Marshal(appInfo)
 	if err != nil {
-		return nil, errors.Wrapf(err, "marshal app info error")
+		return nil, fmt.Errorf("marshal app info error: %w", err)
 	}
 
 	return func(w http.ResponseWriter, _ *http.Request) {

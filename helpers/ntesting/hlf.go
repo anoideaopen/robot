@@ -7,14 +7,13 @@ import (
 
 	"github.com/anoideaopen/glog"
 	"github.com/anoideaopen/robot/hlf/sdkwrapper/wallet"
-	"github.com/pkg/errors"
 )
 
 // GetBalance returns balance of user.
 func GetBalance(_ context.Context, user *wallet.User, channelName, chainCodeName string) (uint64, error) {
 	tokenBalanceResponse, err := user.QueryWithRetryIfEndorsementMismatch(channelName, chainCodeName, "balanceOf", user.Addr())
 	if err != nil {
-		return 0, errors.WithStack(err)
+		return 0, err
 	}
 	return ParseBalance(tokenBalanceResponse)
 }
@@ -24,7 +23,7 @@ func ParseBalance(balanceResponse []byte) (uint64, error) {
 	tokenBalanceStr := strings.ReplaceAll(string(balanceResponse), "\"", "")
 	b, err := strconv.ParseUint(tokenBalanceStr, 10, 64)
 	if err != nil {
-		return 0, errors.WithStack(err)
+		return 0, err
 	}
 	return b, nil
 }
@@ -38,7 +37,7 @@ func GetFiatOwner(_ context.Context, ciData CiTestData) (*wallet.User, error) {
 		"fiatOwner",
 		ciData.HlfFiatOwnerKey)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 	return u, nil
 }
@@ -52,7 +51,7 @@ func GetCcOwner(_ context.Context, ciData CiTestData) (*wallet.User, error) {
 		"ccOwner",
 		ciData.HlfCcOwnerKey)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 	return u, nil
 }
@@ -66,7 +65,7 @@ func GetIndustrialOwner(_ context.Context, ciData CiTestData) (*wallet.User, err
 		"industrialOwner",
 		ciData.HlfIndustrialOwnerKey)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 	return u, nil
 }
@@ -83,7 +82,7 @@ func CreateTestUser(_ context.Context, ciData CiTestData, userID string) (*walle
 		userID,
 		"")
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 	return u, nil
 }
