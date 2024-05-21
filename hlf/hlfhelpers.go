@@ -11,7 +11,6 @@ import (
 	hlfcontext "github.com/hyperledger/fabric-sdk-go/pkg/common/providers/context"
 	"github.com/hyperledger/fabric-sdk-go/pkg/common/providers/core"
 	"github.com/hyperledger/fabric-sdk-go/pkg/fabsdk"
-	"github.com/pkg/errors"
 )
 
 type sdkComponents struct {
@@ -41,13 +40,13 @@ func createOrGetSdk(configBackends []core.ConfigBackend, cryptoManager manager.M
 	if cryptoManager != nil {
 		connectOpts, err := cartridge.NewConnector(cryptoManager, cartridge.NewVaultConnectProvider(configBackends...)).Opts()
 		if err != nil {
-			return nil, errors.WithStack(err)
+			return nil, err
 		}
 		opts = connectOpts
 	}
 	skd, err := fabsdk.New(configBackendsToProvider(configBackends), opts...)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 	fabricSDK = skd
 	return fabricSDK, nil

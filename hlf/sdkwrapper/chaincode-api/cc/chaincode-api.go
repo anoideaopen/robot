@@ -3,7 +3,7 @@ package cc
 import (
 	"fmt"
 
-	basetoken "github.com/anoideaopen/robot/hlf/sdkwrapper/chaincode-api/base-token"
+	"github.com/anoideaopen/robot/hlf/sdkwrapper/chaincode-api/basetoken"
 	"github.com/anoideaopen/robot/hlf/sdkwrapper/service"
 )
 

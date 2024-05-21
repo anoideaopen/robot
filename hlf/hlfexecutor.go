@@ -2,6 +2,7 @@ package hlf
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	pb "github.com/hyperledger/fabric-protos-go/peer"
@@ -11,7 +12,6 @@ import (
 	"github.com/hyperledger/fabric-sdk-go/pkg/common/errors/status"
 	chctx "github.com/hyperledger/fabric-sdk-go/pkg/common/providers/context"
 	"github.com/hyperledger/fabric-sdk-go/pkg/common/providers/fab"
-	"github.com/pkg/errors"
 )
 
 type ExecuteOptions struct {
@@ -65,7 +65,7 @@ func (cth *commitTxHandler) Handle(reqCtx *invoke.RequestContext, clientCtx *inv
 		EventService.RegisterTxStatusEvent(
 		string(reqCtx.Response.TransactionID))
 	if err != nil {
-		reqCtx.Error = errors.Wrap(errors.WithStack(err), "error registering for TxStatus event")
+		reqCtx.Error = fmt.Errorf("error registering for TxStatus event: %w", err)
 		return
 	}
 	defer clientCtx.EventService.Unregister(reg)
@@ -76,12 +76,12 @@ func (cth *commitTxHandler) Handle(reqCtx *invoke.RequestContext, clientCtx *inv
 			ProposalResponses: reqCtx.Response.Responses,
 		})
 	if err != nil {
-		reqCtx.Error = errors.Wrap(errors.WithStack(err), "createTransaction failed")
+		reqCtx.Error = fmt.Errorf("createTransaction failed: %w", err)
 		return
 	}
 
 	if _, err = clientCtx.Transactor.SendTransaction(tx); err != nil {
-		reqCtx.Error = errors.Wrap(errors.WithStack(err), "sendTransaction failed")
+		reqCtx.Error = fmt.Errorf("sendTransaction failed: %w", err)
 		return
 	}
 
@@ -91,20 +91,17 @@ func (cth *commitTxHandler) Handle(reqCtx *invoke.RequestContext, clientCtx *inv
 		reqCtx.Response.TxValidationCode = txStatus.TxValidationCode
 
 		if txStatus.TxValidationCode != pb.TxValidationCode_VALID {
-			reqCtx.Error = errors.WithStack(
-				status.New(status.EventServerStatus, int32(txStatus.TxValidationCode),
-					"received invalid transaction", nil))
+			reqCtx.Error = status.New(status.EventServerStatus, int32(txStatus.TxValidationCode),
+				"received invalid transaction", nil)
 		}
 		return
 	case <-cth.ctx.Done():
-		reqCtx.Error = errors.WithStack(
-			status.New(status.ClientStatus, status.Unknown.ToInt32(),
-				"Execute didn't receive block event (context done)", nil))
+		reqCtx.Error = status.New(status.ClientStatus, status.Unknown.ToInt32(),
+			"Execute didn't receive block event (context done)", nil)
 		return
 	case <-reqCtx.Ctx.Done():
-		reqCtx.Error = errors.WithStack(
-			status.New(status.ClientStatus, status.Timeout.ToInt32(),
-				"Execute didn't receive block event", nil))
+		reqCtx.Error = status.New(status.ClientStatus, status.Timeout.ToInt32(),
+			"Execute didn't receive block event", nil)
 		return
 	}
 }

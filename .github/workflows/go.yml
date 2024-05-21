@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 env:
-  GO_VER: 1.21.10
+  GO_VER: 1.22.3
   GINKGO_VER: 2.13.2
 
 jobs:
@@ -56,7 +56,7 @@ jobs:
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v4
         with:
-          version: v1.57
+          version: v1.58
           args: --out-format=colored-line-number
           skip-cache: true
 

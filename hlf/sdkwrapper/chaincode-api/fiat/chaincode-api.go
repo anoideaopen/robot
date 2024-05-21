@@ -2,8 +2,9 @@ package fiat
 
 import (
 	"fmt"
+	"strconv"
 
-	basetoken "github.com/anoideaopen/robot/hlf/sdkwrapper/chaincode-api/base-token"
+	"github.com/anoideaopen/robot/hlf/sdkwrapper/chaincode-api/basetoken"
 	"github.com/anoideaopen/robot/hlf/sdkwrapper/service"
 	"github.com/hyperledger/fabric-sdk-go/pkg/client/channel"
 )
@@ -32,7 +33,7 @@ func (b *API) Emit(toAddress string, emitAmount uint64) (*channel.Response, erro
 	}
 	methodArgs := []string{
 		toAddress,
-		fmt.Sprintf("%d", emitAmount),
+		strconv.FormatUint(emitAmount, 10),
 	}
 	methodName := "emit"
 	peers := ""

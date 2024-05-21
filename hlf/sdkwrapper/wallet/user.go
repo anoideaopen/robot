@@ -5,8 +5,9 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -18,7 +19,7 @@ import (
 	"github.com/anoideaopen/robot/hlf/sdkwrapper/logger"
 	"github.com/anoideaopen/robot/hlf/sdkwrapper/service"
 	"github.com/btcsuite/btcutil/base58"
-	pb "github.com/golang/protobuf/proto"
+	pb "github.com/golang/protobuf/proto" //nolint:staticcheck
 	"github.com/hyperledger/fabric-sdk-go/pkg/common/errors/status"
 	"github.com/hyperledger/fabric-sdk-go/pkg/common/providers/core"
 	"github.com/hyperledger/fabric-sdk-go/pkg/common/providers/fab"
@@ -64,12 +65,12 @@ func NewUser(msp, backendCert, backendKey, connection, id, privateKey string, op
 		}
 	}
 
-	if user.backend == nil {
+	if user.backend == nil { //nolint:nestif
 		certData, err := os.Open(backendCert)
 		if err != nil {
 			return nil, err
 		}
-		cert, err := ioutil.ReadAll(certData)
+		cert, err := io.ReadAll(certData)
 		certData.Close()
 		if err != nil {
 			return nil, err
@@ -78,7 +79,7 @@ func NewUser(msp, backendCert, backendKey, connection, id, privateKey string, op
 		if err != nil {
 			return nil, err
 		}
-		key, err := ioutil.ReadAll(keyData)
+		key, err := io.ReadAll(keyData)
 		keyData.Close()
 		if err != nil {
 			return nil, err
@@ -128,7 +129,10 @@ func NewKeyPair(private string) (ed25519.PrivateKey, ed25519.PublicKey, error) {
 	}
 	privateKey := ed25519.PrivateKey(append([]byte{ver}, decoded...))
 
-	pk := privateKey.Public().(ed25519.PublicKey)
+	pk, ok := privateKey.Public().(ed25519.PublicKey)
+	if !ok {
+		return nil, nil, errors.New("invalid private key")
+	}
 	return privateKey, pk, nil
 }
 
@@ -272,7 +276,8 @@ func (u *User) SignedInvoke(nonce *int64, ch, cc, fn string, args ...string) (*I
 
 	result := append(append([]string{fn, "", ch, cc}, args...), n, base58.Encode(u.PublicKey))
 	message := sha3.Sum256([]byte(strings.Join(result, "")))
-	newArgs := append(result[1:], base58.Encode(u.Sign(message[:])))
+	var newArgs []string
+	newArgs = append(append(newArgs, result[1:]...), base58.Encode(u.Sign(message[:])))
 	resp, err := u.InvokeWithListener(ch, cc, fn, newArgs...)
 	if err != nil {
 		return nil, err
@@ -293,15 +298,15 @@ func (u *User) SignedInvoke(nonce *int64, ch, cc, fn string, args ...string) (*I
 			return nil, err
 		}
 
-		for _, txResp := range batchResp.TxResponses {
-			if bytes.Equal(txResp.Id, binaryTx) {
+		for _, txResp := range batchResp.GetTxResponses() {
+			if bytes.Equal(txResp.GetId(), binaryTx) {
 				logger.Info("batch",
 					zap.String("channel", cc),
 					zap.String("tx ID", e.TxID),
 					zap.Int32("validation code:", int32(e.TxValidationCode)),
-					zap.String("batch ID", hex.EncodeToString(txResp.Id)),
+					zap.String("batch ID", hex.EncodeToString(txResp.GetId())),
 					zap.Any("writes", txResp.GetWrites()),
-					zap.Any("error", txResp.Error),
+					zap.Any("error", txResp.GetError()),
 				)
 				return &InvokeResponse{
 					Event:    resp.Event,
@@ -309,7 +314,7 @@ func (u *User) SignedInvoke(nonce *int64, ch, cc, fn string, args ...string) (*I
 				}, nil
 			}
 		}
-		return nil, fmt.Errorf("batch doesn't contain response for transaction")
+		return nil, errors.New("batch doesn't contain response for transaction")
 	}
 
 	return &InvokeResponse{
@@ -326,7 +331,8 @@ func (u *User) SignedInvokeAsync(ch, cc, fn string, args ...string) (*InvokeResp
 	nonce := strconv.FormatInt(time.Now().UnixNano()/1000000, 10)
 	result := append(append([]string{fn, "", ch, cc}, args...), nonce, base58.Encode(u.PublicKey))
 	message := sha3.Sum256([]byte(strings.Join(result, "")))
-	newArgs := append(result[1:], base58.Encode(u.Sign(message[:])))
+	var newArgs []string
+	newArgs = append(append(newArgs, result[1:]...), base58.Encode(u.Sign(message[:])))
 	resp, err := u.Invoke(ch, cc, fn, newArgs...)
 	if err != nil {
 		return nil, err
@@ -352,6 +358,9 @@ func (u *User) Query(ch, cc, fn string, args ...string) ([]byte, error) {
 		return nil, err
 	}
 	t, err := n.GetContract(cc).CreateTransaction(fn)
+	if err != nil {
+		return nil, err
+	}
 	// ToDo temporarily
 	/*
 		gateway.WithEvaluateRequestOptions(
@@ -380,7 +389,7 @@ func (u *User) QueryWithRetryIfEndorsementMismatch(ch, cc, fn string, args ...st
 		return nil, err
 	}
 
-	for i := 0; i < retryCount; i++ {
+	for range retryCount {
 		r, err = t.Evaluate(args...)
 		if err != nil {
 			if isEndorsementMismatchErr(err) {
@@ -396,11 +405,8 @@ func (u *User) QueryWithRetryIfEndorsementMismatch(ch, cc, fn string, args ...st
 
 func (u *User) BalanceShouldBe(expected uint64) error {
 	expectedBalance := "\"" + strconv.FormatUint(expected, 10) + "\""
-	var (
-		balance string
-		n       int = 0
-	)
-	for balance == "" && n < 10 {
+	var balance string
+	for range 10 {
 		tokenBalanceResponse, err := u.QueryWithRetryIfEndorsementMismatch("fiat", "fiat", "balanceOf", u.Addr())
 		if err != nil {
 			break
@@ -411,7 +417,6 @@ func (u *User) BalanceShouldBe(expected uint64) error {
 			break
 		}
 		time.Sleep(500 * time.Millisecond)
-		n++
 	}
 
 	if expectedBalance != balance {
@@ -420,8 +425,8 @@ func (u *User) BalanceShouldBe(expected uint64) error {
 	return nil
 }
 
-func (u *User) SwapAnswerAndDone(ch, cc, swapId string, swapKey string) error {
-	swapBytes, err := u.Query(ch, cc, "swapGet", swapId)
+func (u *User) SwapAnswerAndDone(ch, cc, swapID string, swapKey string) error {
+	swapBytes, err := u.Query(ch, cc, "swapGet", swapID)
 	if err != nil {
 		return err
 	}
@@ -435,45 +440,45 @@ func (u *User) SwapAnswerAndDone(ch, cc, swapId string, swapKey string) error {
 	batchForTargetChan := &proto.Batch{
 		Swaps: []*proto.Swap{swap},
 	}
-	to := strings.ToLower(swap.To)
+	to := strings.ToLower(swap.GetTo())
 	txEvent, batchResp, err := u.SendBatch(to, to, batchForTargetChan)
 	if err != nil {
 		return err
 	}
 
 	found := false
-	for _, swapResp := range batchResp.SwapResponses {
-		swapRespId := hex.EncodeToString(swapResp.Id)
-		if swapRespId == swapId {
+	for _, swapResp := range batchResp.GetSwapResponses() {
+		swapRespID := hex.EncodeToString(swapResp.GetId())
+		if swapRespID == swapID {
 			logger.Info("batch",
 				zap.String("to", to),
 				zap.String("txEvent.TxID", txEvent.TxID),
 				zap.Int32("txEvent.TxValidationCode", int32(txEvent.TxValidationCode)),
-				zap.String("swapRespId", swapRespId),
-				zap.Any("swapResp.Writes", swapResp.Writes),
-				zap.Any("swapResp.Error", swapResp.Error),
+				zap.String("swapRespId", swapRespID),
+				zap.Any("swapResp.Writes", swapResp.GetWrites()),
+				zap.Any("swapResp.Error", swapResp.GetError()),
 			)
 			found = true
 		}
 	}
 	if !found {
-		return fmt.Errorf("batch doesn't contain response for swap response")
+		return errors.New("batch doesn't contain response for swap response")
 	}
 
 	time.Sleep(time.Millisecond * 1000)
 
-	if _, err := u.Invoke(to, to, "swapDone", swapId, swapKey); err != nil {
+	if _, err := u.Invoke(to, to, "swapDone", swapID, swapKey); err != nil {
 		return err
 	}
 
-	binarySwapId, err := hex.DecodeString(swapId)
+	binarySwapID, err := hex.DecodeString(swapID)
 	if err != nil {
 		return err
 	}
 
 	time.Sleep(time.Millisecond * 1000)
 	batchForOriginChan := &proto.Batch{
-		Keys: []*proto.SwapKey{{Id: binarySwapId, Key: swapKey}},
+		Keys: []*proto.SwapKey{{Id: binarySwapID, Key: swapKey}},
 	}
 
 	txEvent, batchResp, err = u.SendBatch(ch, cc, batchForOriginChan)
@@ -481,22 +486,22 @@ func (u *User) SwapAnswerAndDone(ch, cc, swapId string, swapKey string) error {
 		return err
 	}
 
-	for _, swapResp := range batchResp.SwapKeyResponses {
-		swapRespId := hex.EncodeToString(swapResp.Id)
-		if swapRespId == swapId {
+	for _, swapResp := range batchResp.GetSwapKeyResponses() {
+		swapRespID := hex.EncodeToString(swapResp.GetId())
+		if swapRespID == swapID {
 			logger.Info("batch",
 				zap.String("channel", cc),
 				zap.String("txEvent.TxID", txEvent.TxID),
 				zap.Int32("txEvent.TxValidationCode", int32(txEvent.TxValidationCode)),
-				zap.String("swapRespId", swapRespId),
-				zap.Any("swapResp.Writes", swapResp.Writes),
-				zap.Any("swapResp.Error", swapResp.Error),
+				zap.String("swapRespId", swapRespID),
+				zap.Any("swapResp.Writes", swapResp.GetWrites()),
+				zap.Any("swapResp.Error", swapResp.GetError()),
 			)
 			return nil
 		}
 	}
 
-	return fmt.Errorf("batch doesn't contain response for swap key")
+	return errors.New("batch doesn't contain response for swap key")
 }
 
 func (u *User) SendBatch(ch, cc string, batch *proto.Batch) (*fab.TxStatusEvent, *proto.BatchResponse, error) {
@@ -517,10 +522,10 @@ func (u *User) SendBatch(ch, cc string, batch *proto.Batch) (*fab.TxStatusEvent,
 
 func checkIsNotBackend(u *User) error {
 	if u == nil {
-		return fmt.Errorf("user can't be nil")
+		return errors.New("user can't be nil")
 	}
 	if u.isBackend {
-		return fmt.Errorf("backend is not allowed to call this method")
+		return errors.New("backend is not allowed to call this method")
 	}
 	return nil
 }

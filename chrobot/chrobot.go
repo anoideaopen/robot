@@ -12,7 +12,6 @@ import (
 	"github.com/anoideaopen/robot/dto/stordto"
 	"github.com/anoideaopen/robot/logger"
 	"github.com/anoideaopen/robot/metrics"
-	"github.com/pkg/errors"
 )
 
 type ChStorage interface {
@@ -130,7 +129,7 @@ func (chr *ChRobot) Run(ctx context.Context) error {
 		}
 	}
 
-	return errors.WithStack(ctx.Err())
+	return ctx.Err()
 }
 
 func (chr *ChRobot) closeCollectors() {
@@ -220,7 +219,7 @@ func (chr *ChRobot) collectBatch(ctx context.Context, calcBatchSize func(b *exec
 				select {
 				case bd, ok := <-chc.collector.GetData():
 					if !ok {
-						return nil, nil, errors.Errorf("end of collector channel src:%s, dst:%s", chc.chName, chr.chName)
+						return nil, nil, fmt.Errorf("end of collector channel src:%s, dst:%s", chc.chName, chr.chName)
 					}
 					chc.bufData = bd
 				default:
@@ -249,7 +248,7 @@ func (chr *ChRobot) collectBatch(ctx context.Context, calcBatchSize func(b *exec
 		if !isFound {
 			select {
 			case <-ctx.Done():
-				return nil, nil, errors.WithStack(ctx.Err())
+				return nil, nil, ctx.Err()
 			case <-b.Deadline():
 				bfe, limInfo := b.GetBatchForExec()
 				chr.log.Debugf("batch collected, cbatch deadline, batch for exec: %v, limInfo: %v", bfe, limInfo)
@@ -258,7 +257,7 @@ func (chr *ChRobot) collectBatch(ctx context.Context, calcBatchSize func(b *exec
 			}
 		}
 	}
-	return nil, nil, errors.WithStack(ctx.Err())
+	return nil, nil, ctx.Err()
 }
 
 func (chr *ChRobot) executeBatch(ctx context.Context, chExec ChExecutor, bfe *executordto.Batch, batchInfo *collectorbatch.BatchInfo) error {

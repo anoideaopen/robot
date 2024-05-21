@@ -1,6 +1,7 @@
 package common
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"sync"
@@ -31,7 +32,7 @@ func NewInstanceSDK(connectionYaml string, user string, vaultConfig *VaultConfig
 
 func (ins *InstanceSDK) ChannelClient(channel string) (*channel.Client, error) {
 	if !ins.initialized {
-		panic(fmt.Errorf("fabric sdk not initialized"))
+		panic(errors.New("fabric sdk not initialized"))
 	}
 
 	return ins.channelClient(channel)
@@ -60,7 +61,7 @@ type InstanceSDK struct {
 
 func (ins *InstanceSDK) init() error {
 	if ins.connectionProfilePath == "" {
-		return fmt.Errorf("connection.yaml undefined")
+		return errors.New("connection.yaml undefined")
 	}
 
 	if _, err := os.Stat(ins.connectionProfilePath); err != nil {
@@ -70,7 +71,7 @@ func (ins *InstanceSDK) init() error {
 	}
 
 	if ins.user == "" {
-		return fmt.Errorf("hlf user undefined")
+		return errors.New("hlf user undefined")
 	}
 
 	ins.configProvider = config.FromFile(ins.connectionProfilePath)
@@ -138,26 +139,32 @@ func (ins *InstanceSDK) configMeta() ([]core.ConfigBackend, error) {
 
 	value, ok := backends[0].Lookup("client.organization")
 	if !ok {
-		return nil, fmt.Errorf("no client organization defined in the config")
+		return nil, errors.New("no client organization defined in the config")
 	}
 
-	ins.org = value.(string)
+	ins.org, ok = value.(string)
+	if !ok {
+		return nil, errors.New("no client organization defined in the config")
+	}
 
 	value, ok = backends[0].Lookup("organizations." + ins.org + ".mspid")
 	if !ok {
-		return nil, fmt.Errorf("no client organization defined in the config")
+		return nil, errors.New("no client organization defined in the config")
 	}
 
-	ins.mspID = value.(string)
+	ins.mspID, ok = value.(string)
+	if !ok {
+		return nil, errors.New("no client organization defined in the config")
+	}
 
 	channelsIface, ok := backends[0].Lookup("channels")
 	if !ok {
-		return nil, fmt.Errorf("failed to find channels in connection profile")
+		return nil, errors.New("failed to find channels in connection profile")
 	}
 
 	channelsMap, ok := channelsIface.(map[string]interface{})
 	if !ok {
-		return nil, fmt.Errorf("failed to parse connection profile")
+		return nil, errors.New("failed to parse connection profile")
 	}
 
 	ins.channels = nil

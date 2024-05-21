@@ -2,6 +2,8 @@ package collectorbatch
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"time"
 
 	"github.com/anoideaopen/common-component/errorshlp"
@@ -11,7 +13,6 @@ import (
 	"github.com/anoideaopen/robot/helpers/nerrors"
 	"github.com/anoideaopen/robot/logger"
 	"github.com/anoideaopen/robot/metrics"
-	"github.com/pkg/errors"
 )
 
 var ErrBlockDataOutOfLimit = errors.New("block data out of limit")
@@ -144,10 +145,8 @@ func (b *CBatch) AddIfInLimit(chName string, d *collectordto.BlockData) (bool, e
 		if b.prevBatch.countBlocks == 1 {
 			return false,
 				errorshlp.WrapWithDetails(
-					errors.Wrapf(
-						ErrBlockDataOutOfLimit,
-						"ch: %s, block: %v, current len: %v, batch len limit: %v",
-						chName, d.BlockNum, b.prevBatch.len, b.limits.LenLimit),
+					fmt.Errorf("ch: %s, block: %v, current len: %v, batch len limit: %v: %w",
+						chName, d.BlockNum, b.prevBatch.len, b.limits.LenLimit, ErrBlockDataOutOfLimit),
 					nerrors.ErrTypeInternal, nerrors.ComponentBatch)
 		}
 		return false, nil
@@ -169,9 +168,8 @@ func (b *CBatch) AddIfInLimit(chName string, d *collectordto.BlockData) (bool, e
 			if b.prevBatch.countBlocks == 1 {
 				return false,
 					errorshlp.WrapWithDetails(
-						errors.Wrapf(ErrBlockDataOutOfLimit,
-							"ch: %s, block: %v, total size: %v, batch size limit: %v",
-							chName, d.BlockNum, realSize, b.limits.SizeLimit),
+						fmt.Errorf("ch: %s, block: %v, total size: %v, batch size limit: %v: %w",
+							chName, d.BlockNum, realSize, b.limits.SizeLimit, ErrBlockDataOutOfLimit),
 						nerrors.ErrTypeInternal, nerrors.ComponentBatch)
 			}
 			return false, nil
@@ -267,7 +265,7 @@ func (b *CBatch) addBlockToBatch(ab *internalBatch,
 
 	if chName == b.chName {
 		startIndex := len(ab.batch.Txs) - len(d.Txs)
-		for i := 0; i < len(d.Txs); i++ {
+		for i := range len(d.Txs) {
 			ab.batch.TxIndToBlocks[uint(i+startIndex)] = d.BlockNum
 		}
 	}

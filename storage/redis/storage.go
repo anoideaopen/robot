@@ -6,6 +6,7 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"encoding/gob"
+	"errors"
 	"fmt"
 	"os"
 
@@ -15,7 +16,6 @@ import (
 	"github.com/anoideaopen/robot/helpers/nerrors"
 	"github.com/anoideaopen/robot/logger"
 	"github.com/go-redis/redis/v8"
-	"github.com/pkg/errors"
 )
 
 var ErrStorVersionMismatch = errors.New("error version mismatch")
@@ -60,14 +60,14 @@ func NewStorage(
 			cert, err := os.ReadFile(rootCA)
 			if err != nil {
 				return nil,
-					errorshlp.WrapWithDetails(errors.Wrapf(err, "failed to read root CA certificate %s", rootCA),
+					errorshlp.WrapWithDetails(fmt.Errorf("failed to read root CA certificate %s: %w", rootCA, err),
 						nerrors.ErrTypeInternal,
 						nerrors.ComponentStorage)
 			}
 
 			if ok := certPool.AppendCertsFromPEM(cert); !ok {
 				return nil,
-					errorshlp.WrapWithDetails(errors.Errorf(
+					errorshlp.WrapWithDetails(fmt.Errorf(
 						"failed to add root CA certificate %s to the certificate pool", rootCA),
 						nerrors.ErrTypeInternal,
 						nerrors.ComponentStorage)
@@ -97,7 +97,7 @@ func (stor *Storage) SaveCheckPoints(ctx context.Context, cp *stordto.ChCheckPoi
 
 		if ok {
 			if current.Ver != cp.Ver {
-				return errors.WithStack(ErrStorVersionMismatch)
+				return ErrStorVersionMismatch
 			}
 			newCp.Ver++
 		}
@@ -106,7 +106,7 @@ func (stor *Storage) SaveCheckPoints(ctx context.Context, cp *stordto.ChCheckPoi
 			return stor.setChCheckPoint(ctx, pipe, &newCp)
 		})
 
-		return errors.WithStack(err)
+		return err
 	}, stor.chCheckPointKey)
 	if err != nil {
 		return nil, errorshlp.WrapWithDetails(
@@ -139,7 +139,7 @@ func (stor *Storage) getChCheckPoint(ctx context.Context, cl redis.Cmdable) (*st
 		if errors.Is(err, redis.Nil) {
 			return nil, false, nil
 		}
-		return nil, false, errors.WithStack(err)
+		return nil, false, err
 	}
 
 	res := &stordto.ChCheckPoint{}
@@ -158,7 +158,7 @@ func (stor *Storage) getChCheckPoint(ctx context.Context, cl redis.Cmdable) (*st
 
 func (stor *Storage) RemoveAllData(ctx context.Context) error {
 	res := stor.client.Del(ctx, stor.chCheckPointKey)
-	return errors.WithStack(res.Err())
+	return res.Err()
 }
 
 func encodeData(data interface{}) ([]byte, error) {
@@ -167,7 +167,7 @@ func encodeData(data interface{}) ([]byte, error) {
 	if err := e.Encode(data); err != nil {
 		return nil,
 			errorshlp.WrapWithDetails(
-				errors.WithStack(err), nerrors.ErrTypeParsing,
+				err, nerrors.ErrTypeParsing,
 				nerrors.ComponentStorage)
 	}
 	return bytebuffer.Bytes(), nil
@@ -178,7 +178,7 @@ func decodeData(data []byte, res interface{}) error {
 	d := gob.NewDecoder(bytebuffer)
 	if err := d.Decode(res); err != nil {
 		return errorshlp.WrapWithDetails(
-			errors.WithStack(err), nerrors.ErrTypeParsing,
+			err, nerrors.ErrTypeParsing,
 			nerrors.ComponentStorage)
 	}
 	return nil

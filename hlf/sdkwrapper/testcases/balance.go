@@ -1,11 +1,11 @@
-package test_cases
+package testcases
 
 import (
 	"errors"
 	"fmt"
 	"strconv"
 
-	basetoken "github.com/anoideaopen/robot/hlf/sdkwrapper/chaincode-api/base-token"
+	"github.com/anoideaopen/robot/hlf/sdkwrapper/chaincode-api/basetoken"
 	"github.com/anoideaopen/robot/hlf/sdkwrapper/service"
 	"github.com/hyperledger/fabric-sdk-go/pkg/client/channel"
 )
@@ -61,7 +61,7 @@ func UserBalanceShouldBe(keyPair *basetoken.KeyPair, tokenOwnChannel basetoken.B
 	}
 
 	if amount != expectedAmount {
-		return errors.New(fmt.Sprintf("amount %d but expect amount is %d", amount, expectedAmount))
+		return fmt.Errorf("amount %d but expect amount is %d", amount, expectedAmount)
 	}
 
 	return nil
@@ -79,7 +79,7 @@ func UserAllowedBalanceShouldBe(keyPair *basetoken.KeyPair, externalChannel base
 	}
 
 	if allowedAmount != expectedAllowedAmount {
-		return errors.New(fmt.Sprintf("allowed amount %d but expect allowed amount is %d", allowedAmount, expectedAllowedAmount))
+		return fmt.Errorf("allowed amount %d but expect allowed amount is %d", allowedAmount, expectedAllowedAmount)
 	}
 
 	return nil

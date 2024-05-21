@@ -14,6 +14,8 @@ import (
 	"testing"
 	"time"
 
+	"errors"
+
 	"github.com/anoideaopen/common-component/loggerhlp"
 	"github.com/anoideaopen/foundation/core/types"
 	"github.com/anoideaopen/foundation/core/types/big"
@@ -26,7 +28,6 @@ import (
 	"github.com/hyperledger/fabric-sdk-go/pkg/client/ledger"
 	fsdkConfig "github.com/hyperledger/fabric-sdk-go/pkg/core/config"
 	"github.com/hyperledger/fabric-sdk-go/pkg/fabsdk"
-	"github.com/pkg/errors"
 	"github.com/stretchr/testify/require"
 	"golang.org/x/crypto/sha3"
 	"golang.org/x/sync/errgroup"

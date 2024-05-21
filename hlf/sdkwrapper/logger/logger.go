@@ -26,12 +26,11 @@ func GetLogger() *zap.Logger {
 		if err != nil {
 			panic(err)
 		}
-		defer logger.Sync()
 
+		err = logger.Sync()
 		if err != nil {
 			log.Fatalf("can't initialize zap logger: %v", err)
 		}
-		defer logger.Sync()
 	}
 	return logger
 }

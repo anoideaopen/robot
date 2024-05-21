@@ -62,28 +62,28 @@ var (
 	errCiData  error
 	ciDataOnce sync.Once
 
-	isIntegration = testshlp.EnvVar{Name: fmt.Sprintf("%s_IS_INTEGRATION", envTestPrefix), DontUseDefaultVal: true}.GetBool()
+	isIntegration = testshlp.EnvVar{Name: envTestPrefix + "_IS_INTEGRATION", DontUseDefaultVal: true}.GetBool()
 
 	// for develop using
-	envSetEnvFromFile = testshlp.EnvVar{Name: fmt.Sprintf("%s_SET_ENV_FROM_FILE", envTestPrefix), DontUseDefaultVal: true}
+	envSetEnvFromFile = testshlp.EnvVar{Name: envTestPrefix + "_SET_ENV_FROM_FILE", DontUseDefaultVal: true}
 
-	envHlfProfilePath        = testshlp.EnvVar{Name: fmt.Sprintf("%s_HLF_PROFILE", envTestPrefix), DontUseDefaultVal: true}
-	envHlfUserName           = testshlp.EnvVar{Name: fmt.Sprintf("%s_HLF_USER", envTestPrefix), DontUseDefaultVal: true}
-	envHlfCert               = testshlp.EnvVar{Name: fmt.Sprintf("%s_HLF_CERT", envTestPrefix), DontUseDefaultVal: true}
-	envHlfSk                 = testshlp.EnvVar{Name: fmt.Sprintf("%s_HLF_SK", envTestPrefix), DontUseDefaultVal: true}
-	envHlfFiatOwnerKey       = testshlp.EnvVar{Name: fmt.Sprintf("%s_HLF_FIAT_OWNER_KEY_BASE58CHECK", envTestPrefix), DontUseDefaultVal: true}
-	envHlfCcOwnerKey         = testshlp.EnvVar{Name: fmt.Sprintf("%s_HLF_CC_OWNER_KEY_BASE58CHECK", envTestPrefix), DontUseDefaultVal: true}
-	envHlfIndustrialOwnerKey = testshlp.EnvVar{Name: fmt.Sprintf("%s_HLF_INDUSTRIAL_OWNER_KEY_BASE58CHECK", envTestPrefix), DontUseDefaultVal: true}
-	envHlfFiatChannel        = testshlp.EnvVar{Name: fmt.Sprintf("%s_HLF_CH_FIAT", envTestPrefix), DontUseDefaultVal: true}
-	envHlfCcChannel          = testshlp.EnvVar{Name: fmt.Sprintf("%s_HLF_CH_CC", envTestPrefix), DontUseDefaultVal: true}
-	envHlfIndustrialChannel  = testshlp.EnvVar{Name: fmt.Sprintf("%s_HLF_CH_INDUSTRIAL", envTestPrefix), DontUseDefaultVal: true}
-	envHlfNoCcChannel        = testshlp.EnvVar{Name: fmt.Sprintf("%s_HLF_CH_NO_CC", envTestPrefix), DontUseDefaultVal: true}
-	envHlfDoSwapTests        = testshlp.EnvVar{Name: fmt.Sprintf("%s_HLF_DO_SWAPS", envTestPrefix), DefaultVal: "false"}
-	envHlfDoMultiSwapTests   = testshlp.EnvVar{Name: fmt.Sprintf("%s_HLF_DO_MSWAPS", envTestPrefix), DefaultVal: "false"}
-	envHlfIndustrialGroup1   = testshlp.EnvVar{Name: fmt.Sprintf("%s_HLF_INDUSTRIAL_GROUP1", envTestPrefix), DontUseDefaultVal: true}
-	envHlfIndustrialGroup2   = testshlp.EnvVar{Name: fmt.Sprintf("%s_HLF_INDUSTRIAL_GROUP2", envTestPrefix), DontUseDefaultVal: true}
-	envRedisAddr             = testshlp.EnvVar{Name: fmt.Sprintf("%s_REDIS_ADDR", envTestPrefix), DefaultVal: "127.0.0.1:6379"}
-	envRedisPass             = testshlp.EnvVar{Name: fmt.Sprintf("%s_REDIS_PASS", envTestPrefix), DefaultVal: "test"}
+	envHlfProfilePath        = testshlp.EnvVar{Name: envTestPrefix + "_HLF_PROFILE", DontUseDefaultVal: true}
+	envHlfUserName           = testshlp.EnvVar{Name: envTestPrefix + "_HLF_USER", DontUseDefaultVal: true}
+	envHlfCert               = testshlp.EnvVar{Name: envTestPrefix + "_HLF_CERT", DontUseDefaultVal: true}
+	envHlfSk                 = testshlp.EnvVar{Name: envTestPrefix + "_HLF_SK", DontUseDefaultVal: true}
+	envHlfFiatOwnerKey       = testshlp.EnvVar{Name: envTestPrefix + "_HLF_FIAT_OWNER_KEY_BASE58CHECK", DontUseDefaultVal: true}
+	envHlfCcOwnerKey         = testshlp.EnvVar{Name: envTestPrefix + "_HLF_CC_OWNER_KEY_BASE58CHECK", DontUseDefaultVal: true}
+	envHlfIndustrialOwnerKey = testshlp.EnvVar{Name: envTestPrefix + "_HLF_INDUSTRIAL_OWNER_KEY_BASE58CHECK", DontUseDefaultVal: true}
+	envHlfFiatChannel        = testshlp.EnvVar{Name: envTestPrefix + "_HLF_CH_FIAT", DontUseDefaultVal: true}
+	envHlfCcChannel          = testshlp.EnvVar{Name: envTestPrefix + "_HLF_CH_CC", DontUseDefaultVal: true}
+	envHlfIndustrialChannel  = testshlp.EnvVar{Name: envTestPrefix + "_HLF_CH_INDUSTRIAL", DontUseDefaultVal: true}
+	envHlfNoCcChannel        = testshlp.EnvVar{Name: envTestPrefix + "_HLF_CH_NO_CC", DontUseDefaultVal: true}
+	envHlfDoSwapTests        = testshlp.EnvVar{Name: envTestPrefix + "_HLF_DO_SWAPS", DefaultVal: "false"}
+	envHlfDoMultiSwapTests   = testshlp.EnvVar{Name: envTestPrefix + "_HLF_DO_MSWAPS", DefaultVal: "false"}
+	envHlfIndustrialGroup1   = testshlp.EnvVar{Name: envTestPrefix + "_HLF_INDUSTRIAL_GROUP1", DontUseDefaultVal: true}
+	envHlfIndustrialGroup2   = testshlp.EnvVar{Name: envTestPrefix + "_HLF_INDUSTRIAL_GROUP2", DontUseDefaultVal: true}
+	envRedisAddr             = testshlp.EnvVar{Name: envTestPrefix + "_REDIS_ADDR", DefaultVal: "127.0.0.1:6379"}
+	envRedisPass             = testshlp.EnvVar{Name: envTestPrefix + "_REDIS_PASS", DefaultVal: "test"}
 )
 
 func initCiData() (CiTestData, error) {

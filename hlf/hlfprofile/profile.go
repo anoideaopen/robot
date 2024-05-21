@@ -1,9 +1,9 @@
 package hlfprofile
 
 import (
+	"fmt"
 	"os"
 
-	"github.com/pkg/errors"
 	"gopkg.in/yaml.v3"
 )
 
@@ -32,18 +32,17 @@ type ConnProfile struct {
 func ParseProfile(profilePath string) (*HlfProfile, error) {
 	b, err := os.ReadFile(profilePath)
 	if err != nil {
-		return nil, errors.Wrap(errors.WithStack(err), "error read connection profile path")
+		return nil, fmt.Errorf("error read connection profile path: %w", err)
 	}
 
 	cp := ConnProfile{}
 	if err = yaml.Unmarshal(b, &cp); err != nil {
-		return nil, errors.Wrap(errors.WithStack(err), "error unmarshal connection profile")
+		return nil, fmt.Errorf("error unmarshal connection profile: %w", err)
 	}
 
 	org, ok := cp.Organizations[cp.Client.Org]
 	if !ok {
-		return nil, errors.Wrap(errors.Errorf("cannot find mspid for org: %s", cp.Client.Org),
-			"error unmarshal connection profile")
+		return nil, fmt.Errorf("error unmarshal connection profile: cannot find mspid for org: %s", cp.Client.Org)
 	}
 
 	res := &HlfProfile{

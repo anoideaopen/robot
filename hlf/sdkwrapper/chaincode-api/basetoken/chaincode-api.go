@@ -1,4 +1,4 @@
-package base_token
+package basetoken
 
 import (
 	"errors"

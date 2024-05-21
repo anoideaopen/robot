@@ -1,14 +1,13 @@
-package test_cases
+package testcases
 
 import (
 	"context"
 	"encoding/hex"
-	"errors"
 	"fmt"
 	"strconv"
 	"time"
 
-	base_token "github.com/anoideaopen/robot/hlf/sdkwrapper/chaincode-api/base-token"
+	"github.com/anoideaopen/robot/hlf/sdkwrapper/chaincode-api/basetoken"
 	"github.com/anoideaopen/robot/hlf/sdkwrapper/logger"
 	"github.com/hyperledger/fabric-protos-go/peer"
 	"github.com/hyperledger/fabric-sdk-go/pkg/client/channel"
@@ -22,7 +21,7 @@ import (
 // user - who will swap token - token owner
 // token - title token
 // swapAmount - amount of token
-func Swap(fromChaincodeAPI base_token.BaseTokenInterface, toChaincodeAPI base_token.BaseTokenInterface, keyPair *base_token.KeyPair, token string, swapAmount uint64) error {
+func Swap(fromChaincodeAPI basetoken.BaseTokenInterface, toChaincodeAPI basetoken.BaseTokenInterface, keyPair *basetoken.KeyPair, token string, swapAmount uint64) error {
 	swapKey := strconv.Itoa(int(time.Now().UnixNano()))
 	swapHash := sha3.Sum256([]byte(swapKey))
 
@@ -37,19 +36,19 @@ func Swap(fromChaincodeAPI base_token.BaseTokenInterface, toChaincodeAPI base_to
 		panic(err)
 	}
 	if response.TxValidationCode != peer.TxValidationCode_VALID {
-		err = errors.New(fmt.Sprintf("TxValidationCode %d", response.TxValidationCode))
+		err = fmt.Errorf("TxValidationCode %d", response.TxValidationCode)
 		panic(err)
 	}
-	swapTransactionId := string(response.TransactionID)
+	swapTransactionID := string(response.TransactionID)
 
 	// check swap is created in both channels
-	resp, err := WaitSwapInOtherChannel(fromChaincodeAPI, swapTransactionId)
+	resp, err := WaitSwapInOtherChannel(fromChaincodeAPI, swapTransactionID)
 	if err != nil {
 		panic(err)
 	}
 	logger.Info("waitSwapInOtherChannel", zap.ByteString("from fiat to cc", resp.Payload))
 
-	resp, err = WaitSwapInOtherChannel(toChaincodeAPI, swapTransactionId)
+	resp, err = WaitSwapInOtherChannel(toChaincodeAPI, swapTransactionID)
 	if err != nil {
 		panic(err)
 	}
@@ -62,14 +61,14 @@ func Swap(fromChaincodeAPI base_token.BaseTokenInterface, toChaincodeAPI base_to
 	defer cancel()
 
 	err = Retry(ctx, func() error {
-		response, err = toChaincodeAPI.SwapDone(swapTransactionId, swapKey)
+		response, err = toChaincodeAPI.SwapDone(swapTransactionID, swapKey)
 		return err
 	}, 5000*time.Millisecond)
 
 	return err
 }
 
-func WaitSwapInOtherChannel(chaincodeAPI base_token.BaseTokenInterface, swapTransactionId string) (*channel.Response, error) {
+func WaitSwapInOtherChannel(chaincodeAPI basetoken.BaseTokenInterface, swapTransactionID string) (*channel.Response, error) {
 	var response *channel.Response
 	var err error
 
@@ -80,7 +79,7 @@ func WaitSwapInOtherChannel(chaincodeAPI base_token.BaseTokenInterface, swapTran
 	defer cancel()
 
 	err = Retry(ctx, func() error {
-		response, err = chaincodeAPI.SwapGet(swapTransactionId)
+		response, err = chaincodeAPI.SwapGet(swapTransactionID)
 		return err
 	}, 5000*time.Millisecond)
 

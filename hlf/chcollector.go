@@ -3,6 +3,7 @@ package hlf
 import (
 	"context"
 	"fmt"
+	"strconv"
 	"sync"
 	"time"
 
@@ -24,7 +25,6 @@ import (
 	"github.com/hyperledger/fabric-sdk-go/pkg/core/config"
 	"github.com/hyperledger/fabric-sdk-go/pkg/fab/events/client"
 	"github.com/hyperledger/fabric-sdk-go/pkg/fab/events/deliverclient/seek"
-	"github.com/pkg/errors"
 )
 
 type realCollector interface {
@@ -81,7 +81,7 @@ func (ses *sdkEventsSrc) close() {
 		// bug from sdk - need to dry channel another way - leak registration
 		go func() {
 			// just dry
-			for range ses.events { //nolint:revive
+			for range ses.events {
 			}
 		}()
 
@@ -209,7 +209,7 @@ func (cc *chCollector) createSdkEventsSrc(ctx context.Context, startFrom uint64)
 
 	configBackends, err := cc.configProvider()
 	if err != nil {
-		resErr = errors.WithStack(err)
+		resErr = err
 		return
 	}
 	res = &sdkEventsSrc{
@@ -246,14 +246,14 @@ func (cc *chCollector) createSdkEventsSrc(ctx context.Context, startFrom uint64)
 
 	res.eventService, err = event.New(res.sdkComps.chProvider, clOpt...)
 	if err != nil {
-		resErr = errors.WithStack(err)
+		resErr = err
 		return
 	}
 	cc.log.Debug("event client created")
 
 	res.reg, res.events, err = res.eventService.RegisterBlockEvent()
 	if err != nil {
-		resErr = errors.WithStack(err)
+		resErr = err
 		return
 	}
 	cc.log.Debug("blocks events registered")
@@ -305,12 +305,12 @@ func (cc *chCollector) loopProxyByEvents(ctx context.Context, startedFrom uint64
 				return lastPushedBlockNum
 			}
 
-			if ev.Block == nil || ev.Block.Header == nil {
+			if ev.Block == nil || ev.Block.GetHeader() == nil {
 				cc.log.Error("got event block: invalid block!!!")
 				return lastPushedBlockNum
 			}
 
-			blockNum := ev.Block.Header.Number
+			blockNum := ev.Block.GetHeader().GetNumber()
 			cc.log.Debugf("got event block: %v", blockNum)
 
 			// It is allowed to receive (startedFrom - 1) once when we start receiving blocks
@@ -344,9 +344,9 @@ func (cc *chCollector) loopProxyByEvents(ctx context.Context, startedFrom uint64
 
 func (cc *chCollector) sendChErrMetric(isFirstAttempt, isSrcChClosed, isTimeout bool) {
 	cc.m.TotalSrcChErrors().Inc(
-		metrics.Labels().IsFirstAttempt.Create(fmt.Sprint(isFirstAttempt)),
-		metrics.Labels().IsSrcChClosed.Create(fmt.Sprint(isSrcChClosed)),
-		metrics.Labels().IsTimeout.Create(fmt.Sprint(isTimeout)),
+		metrics.Labels().IsFirstAttempt.Create(strconv.FormatBool(isFirstAttempt)),
+		metrics.Labels().IsSrcChClosed.Create(strconv.FormatBool(isSrcChClosed)),
+		metrics.Labels().IsTimeout.Create(strconv.FormatBool(isTimeout)),
 	)
 }
 

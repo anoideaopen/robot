@@ -1,10 +1,11 @@
 package parser
 
 import (
+	"fmt"
+
 	"github.com/golang/protobuf/proto" //nolint:staticcheck
 	"github.com/hyperledger/fabric-protos-go/common"
 	"github.com/hyperledger/fabric-protos-go/peer"
-	"github.com/pkg/errors"
 )
 
 // prsBlock contains all the necessary information about the blockchain block
@@ -20,35 +21,35 @@ type prsBlock struct {
 func fromFabricBlock(block *common.Block) (*prsBlock, error) {
 	metadata := &common.Metadata{}
 
-	if err := proto.Unmarshal(block.Metadata.Metadata[common.BlockMetadataIndex_SIGNATURES], metadata); err != nil {
-		return nil, errors.Wrapf(err, "error unmarshaling metadata from block at index [%s]", common.BlockMetadataIndex_SIGNATURES)
+	if err := proto.Unmarshal(block.GetMetadata().GetMetadata()[common.BlockMetadataIndex_SIGNATURES], metadata); err != nil {
+		return nil, fmt.Errorf("error unmarshaling metadata from block at index [%s]: %w", common.BlockMetadataIndex_SIGNATURES, err)
 	}
 
 	envelope := &common.Envelope{}
-	if err := proto.Unmarshal(block.Data.Data[0], envelope); err != nil {
-		return nil, errors.Wrap(err, "unmarshal envelope error")
+	if err := proto.Unmarshal(block.GetData().GetData()[0], envelope); err != nil {
+		return nil, fmt.Errorf("unmarshal envelope error: %w", err)
 	}
 
 	payload := &common.Payload{}
-	if err := proto.Unmarshal(envelope.Payload, payload); err != nil {
-		return nil, errors.Wrap(err, "unmarshal payload error")
+	if err := proto.Unmarshal(envelope.GetPayload(), payload); err != nil {
+		return nil, fmt.Errorf("unmarshal payload error: %w", err)
 	}
 
 	hdr := &common.ChannelHeader{}
-	if err := proto.Unmarshal(payload.Header.ChannelHeader, hdr); err != nil {
-		return nil, errors.Wrap(err, "unmarshal channel header error")
+	if err := proto.Unmarshal(payload.GetHeader().GetChannelHeader(), hdr); err != nil {
+		return nil, fmt.Errorf("unmarshal channel header error: %w", err)
 	}
 
-	filter := block.Metadata.Metadata[common.BlockMetadataIndex_TRANSACTIONS_FILTER]
+	filter := block.GetMetadata().GetMetadata()[common.BlockMetadataIndex_TRANSACTIONS_FILTER]
 	if filter == nil {
-		filter = block.Metadata.Metadata[1] // for HLF 1.x compatibility
+		filter = block.GetMetadata().GetMetadata()[1] // for HLF 1.x compatibility
 	}
 
 	return &prsBlock{
-		data:      block.Data.Data,
-		number:    block.Header.Number,
+		data:      block.GetData().GetData(),
+		number:    block.GetHeader().GetNumber(),
 		txsFilter: filter,
-		isConfig:  common.HeaderType(hdr.Type) == common.HeaderType_CONFIG || common.HeaderType(hdr.Type) == common.HeaderType_ORDERER_TRANSACTION,
+		isConfig:  common.HeaderType(hdr.GetType()) == common.HeaderType_CONFIG || common.HeaderType(hdr.GetType()) == common.HeaderType_ORDERER_TRANSACTION,
 	}, nil
 }
 
