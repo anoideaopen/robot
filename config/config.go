@@ -38,42 +38,12 @@ type Config struct {
 
 	PromMetrics *PromMetrics `mapstructure:"promMetrics"`
 
-	// can be local, vault, google
-	CryptoSrc            CryptoSrc             `mapstructure:"cryptoSrc" validate:"required"`
-	VaultCryptoSettings  *VaultCryptoSettings  `mapstructure:"vaultCryptoSettings"`
-	GoogleCryptoSettings *GoogleCryptoSettings `mapstructure:"googleCryptoSettings"`
-
 	DefaultRobotExecOpts ExecuteOptions `mapstructure:"defaultRobotExecOpts" validate:"dive"`
 	Robots               []*Robot       `mapstructure:"robots" validate:"dive"`
 }
 
 type PromMetrics struct {
 	PrefixForMetrics string `mapstructure:"prefix"`
-}
-
-type CryptoSrc string
-
-const (
-	LocalCryptoSrc  CryptoSrc = "local"
-	VaultCryptoSrc  CryptoSrc = "vault"
-	GoogleCryptoSrc CryptoSrc = "google"
-)
-
-type VaultCryptoSettings struct {
-	VaultToken              string `mapstructure:"vaultToken"`
-	UseRenewableVaultTokens bool   `mapstructure:"useRenewableVaultTokens"`
-	VaultAddress            string `mapstructure:"vaultAddress"`
-	VaultAuthPath           string `mapstructure:"vaultAuthPath"`
-	VaultRole               string `mapstructure:"vaultRole"`
-	VaultServiceTokenPath   string `mapstructure:"vaultServiceTokenPath"`
-	VaultNamespace          string `mapstructure:"vaultNamespace"`
-	UserCert                string `mapstructure:"userCert"`
-}
-
-type GoogleCryptoSettings struct {
-	GcloudProject string `mapstructure:"gcloudProject"`
-	GcloudCreds   string `mapstructure:"gcloudCreds"`
-	UserCert      string `mapstructure:"userCert"`
 }
 
 type Robot struct {
@@ -181,19 +151,6 @@ func validateConfig(cfg *Config) error {
 		return err
 	}
 
-	if cfg.CryptoSrc != LocalCryptoSrc &&
-		cfg.CryptoSrc != GoogleCryptoSrc &&
-		cfg.CryptoSrc != VaultCryptoSrc {
-		return fmt.Errorf("unknown crypto manager kind: %v", cfg.CryptoSrc)
-	}
-
-	if cfg.CryptoSrc == GoogleCryptoSrc && cfg.GoogleCryptoSettings == nil {
-		return errors.New("googleCryptoSettings are empty")
-	}
-
-	if cfg.CryptoSrc == VaultCryptoSrc && cfg.VaultCryptoSettings == nil {
-		return errors.New("vaultCryptoSettings are empty")
-	}
 	return nil
 }
 
@@ -338,9 +295,6 @@ func (c Config) WithoutSensitiveData() Config {
 		DefaultBatchLimits:     c.DefaultBatchLimits.withoutSensitiveData(),
 		DefaultRobotExecOpts:   c.DefaultRobotExecOpts.withoutSensitiveData(),
 		RedisStorage:           c.RedisStorage.withoutSensitiveData(),
-		CryptoSrc:              c.CryptoSrc,
-		VaultCryptoSettings:    c.VaultCryptoSettings.withoutSensitiveData(),
-		GoogleCryptoSettings:   c.GoogleCryptoSettings.withoutSensitiveData(),
 		Robots:                 robots,
 		PromMetrics:            c.PromMetrics,
 	}
@@ -404,32 +358,5 @@ func (s *RedisStorage) withoutSensitiveData() *RedisStorage {
 		Password: sensitiveDataMask,
 		WithTLS:  s.WithTLS,
 		RootCAs:  []string{sensitiveDataMask},
-	}
-}
-
-func (s *VaultCryptoSettings) withoutSensitiveData() *VaultCryptoSettings {
-	if s == nil {
-		return nil
-	}
-	return &VaultCryptoSettings{
-		VaultToken:              sensitiveDataMask,
-		UseRenewableVaultTokens: s.UseRenewableVaultTokens,
-		VaultAddress:            s.VaultAddress,
-		VaultAuthPath:           s.VaultAuthPath,
-		VaultRole:               sensitiveDataMask,
-		VaultServiceTokenPath:   sensitiveDataMask,
-		VaultNamespace:          sensitiveDataMask,
-		UserCert:                sensitiveDataMask,
-	}
-}
-
-func (s *GoogleCryptoSettings) withoutSensitiveData() *GoogleCryptoSettings {
-	if s == nil {
-		return nil
-	}
-	return &GoogleCryptoSettings{
-		GcloudProject: sensitiveDataMask,
-		GcloudCreds:   sensitiveDataMask,
-		UserCert:      sensitiveDataMask,
 	}
 }

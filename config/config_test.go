@@ -58,8 +58,6 @@ func TestGetConfigSimple(t *testing.T) {
 	require.Equal(t, c.TxSwapPrefix, "swaps")
 	require.Equal(t, c.TxMultiSwapPrefix, "multi_swap")
 	require.Equal(t, c.TxPreimagePrefix, "batchTransactions")
-
-	require.EqualValues(t, c.CryptoSrc, LocalCryptoSrc)
 }
 
 func TestGetConfigOverrideEnv(t *testing.T) {
