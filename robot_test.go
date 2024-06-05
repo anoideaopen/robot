@@ -232,7 +232,6 @@ func createConfig(_ *testing.T, ciData ntesting.CiTestData) (*config.Config, err
 		},
 
 		PromMetrics: nil,
-		CryptoSrc:   config.LocalCryptoSrc,
 		Robots:      robots,
 		DefaultRobotExecOpts: config.ExecuteOptions{
 			ExecuteTimeout: &executeTimeout,

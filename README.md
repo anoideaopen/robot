@@ -168,22 +168,6 @@ redisStor:
   withTLS: true    # enable TLS for communication with Redis
   rootCAs: /path/to/ca1.pem,/path/to/ca2.pem # comma-separated root CA's certificates list for TLS with Redis
 
-# Crypto configuration
-cryptoSrc: vault # values: local, vault, google
-vaultCryptoSettings: # HashiCorp Vault configuration
-  vaultToken: 123                     # access token for Vault
-  useRenewableVaultTokens: false
-  vaultAddress: http://localhost:8200 # Vault instance address
-  vaultAuthPath:                      # to which endpoint to send requests to get a temporary Vault token
-  vaultRole:                          # Vault role
-  vaultServiceTokenPath:              # path to the token file for accessing the k8s
-  vaultNamespace: kv/                 # directory where all crypto materials are located in Vault
-  userCert: backend@MSP-cert.pem # Fabric user's cert
-googleCryptoSettings: # Google KMS configuration
-  gcloudProject: # GCloud project ID
-  gcloudCreds:   # path to GCloud credentials
-  userCert:      # Fabric user's cert
-
 # Prometheus configuration
 promMetrics:
   prefix: robot_ # Prometheus prefix

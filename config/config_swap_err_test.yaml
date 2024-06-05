@@ -31,8 +31,6 @@ txSwapPrefix: swaps
 txMultiSwapPrefix: multi_swap
 txPreimagePrefix: batchTransactions
 
-cryptoSrc: local
-
 redisStor:
   dbPrefix: robot
   addr:
