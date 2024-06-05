@@ -8,7 +8,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/anoideaopen/cartridge/manager"
 	"github.com/anoideaopen/common-component/errorshlp"
 	pb "github.com/anoideaopen/foundation/proto"
 	"github.com/anoideaopen/glog"
@@ -52,7 +51,6 @@ func createChExecutor(
 	connectionProfile string,
 	userName, orgName string,
 	execOpts ExecuteOptions,
-	cryptoManager manager.Manager,
 ) (*chExecutor, error) {
 	log := glog.FromContext(ctx).
 		With(logger.Labels{
@@ -73,10 +71,7 @@ func createChExecutor(
 		retryExecuteMaxDelay: retryExecuteMaxDelay,
 		retryExecuteDelay:    retryExecuteDelay,
 	}
-	if err := chExec.init(ctx,
-		connectionProfile, orgName, userName,
-		execOpts,
-		cryptoManager); err != nil {
+	if err := chExec.init(ctx, connectionProfile, orgName, userName, execOpts); err != nil {
 		chExec.Close()
 		return nil, errorshlp.WrapWithDetails(err, nerrors.ErrTypeHlf, nerrors.ComponentExecutor)
 	}
@@ -86,7 +81,6 @@ func createChExecutor(
 func (che *chExecutor) init(ctx context.Context,
 	connectionProfile, org, user string,
 	execOpts ExecuteOptions,
-	cryptoManager manager.Manager,
 ) error {
 	configBackends, err := config.FromFile(connectionProfile)()
 	if err != nil {
@@ -94,13 +88,7 @@ func (che *chExecutor) init(ctx context.Context,
 	}
 
 	var sdkComps *sdkComponents
-	if cryptoManager != nil {
-		sdkComps, err = createSdkComponentsWithCryptoMng(ctx, che.chName, org, configBackends,
-			cryptoManager)
-	} else {
-		sdkComps, err = createSdkComponentsWithoutCryptoMng(ctx, che.chName, org, user,
-			configBackends)
-	}
+	sdkComps, err = createSdkComponents(ctx, che.chName, org, user, configBackends)
 	if err != nil {
 		return err
 	}

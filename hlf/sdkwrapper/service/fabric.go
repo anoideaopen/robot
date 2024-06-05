@@ -10,8 +10,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/anoideaopen/cartridge"
-	"github.com/anoideaopen/cartridge/manager"
 	"github.com/anoideaopen/foundation/core/multiswap"
 	"github.com/anoideaopen/foundation/proto"
 	"github.com/anoideaopen/robot/hlf/sdkwrapper/logger"
@@ -25,7 +23,6 @@ import (
 	contextApi "github.com/hyperledger/fabric-sdk-go/pkg/common/providers/context"
 	core2 "github.com/hyperledger/fabric-sdk-go/pkg/common/providers/core"
 	"github.com/hyperledger/fabric-sdk-go/pkg/common/providers/fab"
-	"github.com/hyperledger/fabric-sdk-go/pkg/core/config"
 	"github.com/hyperledger/fabric-sdk-go/pkg/fabsdk"
 	"go.uber.org/zap"
 )
@@ -48,109 +45,6 @@ const (
 	KeyEvent          = "key"
 	BatchExecuteEvent = "batchExecute"
 )
-
-func NewHLFClient(connectionConfigPath string, username string, organization string, vaultConfig *VaultConfig) (*HLFClient, error) {
-	var hlfClient *HLFClient
-	var err error
-	if vaultConfig != nil && len(vaultConfig.Address) != 0 && len(vaultConfig.Token) != 0 && len(vaultConfig.Path) != 0 &&
-		len(vaultConfig.UserCertName) != 0 && len(vaultConfig.UserOrgMspID) != 0 {
-		hlfClient, err = newHLFClientVault(connectionConfigPath, organization, vaultConfig)
-		if err != nil {
-			return nil, err
-		}
-	} else {
-		hlfClient, err = newHLFClientFile(connectionConfigPath, username, organization)
-		if err != nil {
-			return nil, err
-		}
-	}
-	return hlfClient, nil
-}
-
-type VaultConfig struct {
-	Token string `mapstructure:"token,omitempty"`
-	Path  string `mapstructure:"path,omitempty"`
-
-	Address      string `mapstructure:"address,omitempty"`
-	UserCertName string `mapstructure:"user_cert_name,omitempty"`
-	UserOrgMspID string `mapstructure:"user_org_msp_id,omitempty"`
-}
-
-func newHLFClientVault(connectionConfigPath string, organization string, vaultConfig *VaultConfig) (*HLFClient, error) {
-	hlfClient := newHLFClient()
-
-	configProvider := config.FromFile(connectionConfigPath)
-	configBackends, err := configProvider()
-	if err != nil {
-		return nil, err
-	}
-
-	vaultManager, err := manager.NewVaultManager(
-		vaultConfig.UserOrgMspID,
-		vaultConfig.UserCertName,
-		vaultConfig.Address,
-		vaultConfig.Token,
-		vaultConfig.Path,
-	)
-	if err != nil {
-		logger.Error("Failed to create new vault manager", zap.Error(err))
-		return nil, err
-	}
-
-	var connectOpts []fabsdk.Option
-
-	connector := cartridge.NewConnector(vaultManager, cartridge.NewVaultConnectProvider(configBackends...))
-	if connector != nil {
-		connectOpts, err = connector.Opts()
-		if err != nil {
-			logger.Error("Failed to get connector Opts", zap.Error(err))
-			return nil, err
-		}
-	}
-
-	err = hlfClient.AddFabsdk(configProvider, connectOpts...)
-	if err != nil {
-		logger.Error("Failed to create new channel client", zap.Error(err))
-		return nil, err
-	}
-	if hlfClient == nil {
-		logger.Error("Failed to create new channel client")
-		return nil, err
-	}
-
-	hlfClient.ContextOptions = append(hlfClient.ContextOptions, fabsdk.WithIdentity(vaultManager.SigningIdentity()))
-	hlfClient.ContextOptions = append(hlfClient.ContextOptions, fabsdk.WithOrg(organization))
-
-	return hlfClient, nil
-}
-
-func newHLFClientFile(connectionConfigPath string, username string, organization string) (*HLFClient, error) {
-	hlfClient := newHLFClient()
-
-	configProvider := config.FromFile(connectionConfigPath)
-
-	err := hlfClient.AddFabsdk(configProvider)
-	if err != nil {
-		logger.Error("Failed to create new channel client", zap.Error(err))
-		return nil, err
-	}
-	if hlfClient == nil {
-		logger.Error("Failed to create new channel client")
-		return nil, err
-	}
-
-	hlfClient.ContextOptions = append(hlfClient.ContextOptions, fabsdk.WithUser(username))
-	hlfClient.ContextOptions = append(hlfClient.ContextOptions, fabsdk.WithOrg(organization))
-
-	return hlfClient, nil
-}
-
-func newHLFClient() *HLFClient {
-	return &HLFClient{
-		channels:                channelComponents{components: make(map[string]*channelConnection)},
-		NotifierChaincodeEvents: map[string]<-chan *fab.CCEvent{},
-	}
-}
 
 func (hlf *HLFClient) AddFabsdk(configProvider core2.ConfigProvider, opts ...fabsdk.Option) error {
 	sdk, err := fabsdk.New(configProvider, opts...)

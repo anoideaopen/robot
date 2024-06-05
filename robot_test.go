@@ -5,13 +5,12 @@ import (
 	"context"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strconv"
 	"strings"
 	"testing"
 	"time"
-
-	"errors"
 
 	"github.com/anoideaopen/common-component/loggerhlp"
 	"github.com/anoideaopen/foundation/core/types"
@@ -89,10 +88,7 @@ func TestRobots(t *testing.T) {
 	var cancel context.CancelFunc
 	ctx, cancel = context.WithCancel(ctx)
 
-	cryptoMng, err := createCryptoManager(ctx, cfg, ciData.HlfProfile)
-	require.NoError(t, err)
-
-	robots, err := createRobots(ctx, cfg, ciData.HlfProfile, cryptoMng)
+	robots, err := createRobots(ctx, cfg, ciData.HlfProfile)
 	require.NoError(t, err)
 	require.NotEmpty(t, robots)
 

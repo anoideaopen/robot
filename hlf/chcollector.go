@@ -7,7 +7,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/anoideaopen/cartridge/manager"
 	"github.com/anoideaopen/common-component/errorshlp"
 	"github.com/anoideaopen/glog"
 	"github.com/anoideaopen/robot/chcollector"
@@ -41,7 +40,6 @@ type chCollector struct {
 	user           string
 	org            string
 	configProvider core.ConfigProvider
-	cryptoManager  manager.Manager
 
 	initStartFrom uint64
 	realCollector realCollector
@@ -121,7 +119,6 @@ func createChCollector(ctx context.Context,
 	dataReady chan<- struct{}, startFrom uint64, bufSize uint,
 	connectionProfile, userName, orgName string,
 	txPrefixes parserdto.TxPrefixes,
-	cryptoManager manager.Manager,
 ) (*chCollector, error) {
 	log := glog.FromContext(ctx).
 		With(logger.Labels{
@@ -148,7 +145,6 @@ func createChCollector(ctx context.Context,
 		ctx, log, m,
 		srcChName, startFrom,
 		connectionProfile, userName, orgName,
-		cryptoManager,
 		proxyEvents, rc, nil,
 		defaultDelayAfterSrcError,
 		defaultAwaitEventsTimeout,
@@ -159,7 +155,6 @@ func createChCollectorAdv(ctx context.Context,
 	log glog.Logger, m metrics.Metrics,
 	srcChName string, startFrom uint64,
 	connectionProfile, userName, orgName string,
-	cryptoManager manager.Manager,
 	proxyEvents chan<- *fab.BlockEvent,
 	rc realCollector,
 	createEventsSrc func(ctx context.Context, startFrom uint64) (eventsSrc, error),
@@ -173,7 +168,6 @@ func createChCollectorAdv(ctx context.Context,
 		user:           userName,
 		org:            orgName,
 		configProvider: config.FromFile(connectionProfile),
-		cryptoManager:  cryptoManager,
 
 		initStartFrom:      startFrom,
 		proxyEvents:        proxyEvents,
@@ -215,13 +209,7 @@ func (cc *chCollector) createSdkEventsSrc(ctx context.Context, startFrom uint64)
 	res = &sdkEventsSrc{
 		log: cc.log,
 	}
-	if cc.cryptoManager != nil {
-		res.sdkComps, resErr = createSdkComponentsWithCryptoMng(ctx, cc.srcChName, cc.org, configBackends,
-			cc.cryptoManager)
-	} else {
-		res.sdkComps, resErr = createSdkComponentsWithoutCryptoMng(ctx, cc.srcChName, cc.org, cc.user,
-			configBackends)
-	}
+	res.sdkComps, resErr = createSdkComponents(ctx, cc.srcChName, cc.org, cc.user, configBackends)
 	if resErr != nil {
 		return
 	}
