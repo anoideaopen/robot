@@ -1,7 +1,14 @@
 # Robot
 
+[![Go Report Card](https://goreportcard.com/badge/github.com/anoideaopen/robot)](https://goreportcard.com/report/github.com/anoideaopen/robot)
+[![Go Reference](https://pkg.go.dev/badge/github.com/anoideaopen/robot.svg)](https://pkg.go.dev/github.com/anoideaopen/robot)
+![GitHub License](https://img.shields.io/github/license/anoideaopen/robot)
+
 [![Go Verify Build](https://github.com/anoideaopen/robot/actions/workflows/go.yml/badge.svg?branch=main)](https://github.com/anoideaopen/robot/actions/workflows/go.yml)
 [![Security vulnerability scan](https://github.com/anoideaopen/robot/actions/workflows/vulnerability-scan.yml/badge.svg?branch=main)](https://github.com/anoideaopen/robot/actions/workflows/vulnerability-scan.yml)
+![GitHub go.mod Go version (branch)](https://img.shields.io/github/go-mod/go-version/anoideaopen/robot/main)
+![GitHub Tag](https://img.shields.io/github/v/tag/anoideaopen/robot)
+
 
 ## TOC
 - [Robot](#robot)
