@@ -32,7 +32,6 @@ func TestChExecutorCreateWithoutChainCode(t *testing.T) {
 		ciData.HlfUserName,
 		ciData.HlfProfile.OrgName,
 		defaultExecOpts,
-		nil,
 	)
 	require.NoError(t, err)
 	require.NotNil(t, che)
@@ -117,7 +116,6 @@ func newFiatChExecutor(ctx context.Context, t *testing.T, ciData ntesting.CiTest
 		ciData.HlfUserName,
 		ciData.HlfProfile.OrgName,
 		defaultExecOpts,
-		nil,
 	)
 	require.NoError(t, err)
 	return che

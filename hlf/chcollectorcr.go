@@ -3,28 +3,12 @@ package hlf
 import (
 	"context"
 
-	"github.com/anoideaopen/cartridge/manager"
 	"github.com/anoideaopen/robot/dto/parserdto"
 )
 
 type ChCollectorCreator func(ctx context.Context,
 	dataReady chan<- struct{},
 	srcChName string, startFrom uint64) (*chCollector, error)
-
-func NewChCollectorCreatorWithCryptoMgr(
-	dstChName,
-	connectionProfile, userName, orgName string,
-	txPrefixes parserdto.TxPrefixes,
-	cryptoManager manager.Manager,
-	bufSize uint,
-) ChCollectorCreator {
-	return newChCollectorCreator(dstChName,
-		connectionProfile,
-		userName, orgName,
-		txPrefixes,
-		cryptoManager,
-		bufSize)
-}
 
 func NewChCollectorCreator(
 	dstChName, connectionProfile,
@@ -36,7 +20,6 @@ func NewChCollectorCreator(
 		connectionProfile,
 		userName, orgName,
 		txPrefixes,
-		nil,
 		bufSize)
 }
 
@@ -45,7 +28,6 @@ func newChCollectorCreator(
 	connectionProfile,
 	userName, orgName string,
 	txPrefixes parserdto.TxPrefixes,
-	cryptoManager manager.Manager,
 	bufSize uint,
 ) ChCollectorCreator {
 	return func(ctx context.Context, dataReady chan<- struct{}, srcChName string, startFrom uint64) (*chCollector, error) {
@@ -53,7 +35,6 @@ func newChCollectorCreator(
 			dstChName, srcChName,
 			dataReady, startFrom, bufSize,
 			connectionProfile, userName, orgName,
-			txPrefixes,
-			cryptoManager)
+			txPrefixes)
 	}
 }

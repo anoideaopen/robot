@@ -5,8 +5,6 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/anoideaopen/cartridge"
-	"github.com/anoideaopen/cartridge/manager"
 	"github.com/hyperledger/fabric-sdk-go/pkg/common/errors/status"
 	hlfcontext "github.com/hyperledger/fabric-sdk-go/pkg/common/providers/context"
 	"github.com/hyperledger/fabric-sdk-go/pkg/common/providers/core"
@@ -22,7 +20,7 @@ var (
 	fabricSDK     *fabsdk.FabricSDK
 )
 
-func createOrGetSdk(configBackends []core.ConfigBackend, cryptoManager manager.Manager) (*fabsdk.FabricSDK, error) {
+func createOrGetSdk(configBackends []core.ConfigBackend) (*fabsdk.FabricSDK, error) {
 	createSdkLock.RLock()
 	if fabricSDK != nil {
 		createSdkLock.RUnlock()
@@ -37,13 +35,6 @@ func createOrGetSdk(configBackends []core.ConfigBackend, cryptoManager manager.M
 		return fabricSDK, nil
 	}
 	var opts []fabsdk.Option
-	if cryptoManager != nil {
-		connectOpts, err := cartridge.NewConnector(cryptoManager, cartridge.NewVaultConnectProvider(configBackends...)).Opts()
-		if err != nil {
-			return nil, err
-		}
-		opts = connectOpts
-	}
 	skd, err := fabsdk.New(configBackendsToProvider(configBackends), opts...)
 	if err != nil {
 		return nil, err
@@ -52,34 +43,18 @@ func createOrGetSdk(configBackends []core.ConfigBackend, cryptoManager manager.M
 	return fabricSDK, nil
 }
 
-func createSdkComponentsWithoutCryptoMng(
+func createSdkComponents(
 	_ context.Context,
 	chName, orgName, userName string,
 	configBackends []core.ConfigBackend,
 ) (*sdkComponents, error) {
-	sdk, err := createOrGetSdk(configBackends, nil)
+	sdk, err := createOrGetSdk(configBackends)
 	if err != nil {
 		return nil, err
 	}
 
 	return &sdkComponents{
 		chProvider: sdk.ChannelContext(chName, fabsdk.WithUser(userName), fabsdk.WithOrg(orgName)),
-	}, nil
-}
-
-func createSdkComponentsWithCryptoMng(
-	_ context.Context,
-	chName, orgName string,
-	configBackends []core.ConfigBackend,
-	cryptoManager manager.Manager,
-) (*sdkComponents, error) {
-	sdk, err := createOrGetSdk(configBackends, cryptoManager)
-	if err != nil {
-		return nil, err
-	}
-
-	return &sdkComponents{
-		chProvider: sdk.ChannelContext(chName, fabsdk.WithIdentity(cryptoManager.SigningIdentity()), fabsdk.WithOrg(orgName)),
 	}, nil
 }
 

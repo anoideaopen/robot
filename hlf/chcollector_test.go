@@ -36,7 +36,6 @@ func TestProxyLoopCreate(t *testing.T) {
 		log, metrics.FromContext(ctx),
 		"srcCh", 0,
 		"fakeConnectionProfile", "fakeUser", "fakeOrg",
-		nil,
 		proxyEvents,
 		stubRealColl,
 		eventsSrcCreator.createEventsSrc,

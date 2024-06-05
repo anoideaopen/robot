@@ -15,7 +15,6 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/anoideaopen/cartridge/manager"
 	"github.com/anoideaopen/common-component/basemetrics/baseprometheus"
 	"github.com/anoideaopen/common-component/errorshlp"
 	"github.com/anoideaopen/common-component/loggerhlp"
@@ -60,11 +59,6 @@ func main() {
 
 	ctx, cancel := context.WithCancel(glog.NewContext(context.Background(), l))
 
-	cryptoMng, err := createCryptoManager(ctx, cfg, hlfProfile)
-	if err != nil {
-		panic(err)
-	}
-
 	// metrics
 	var metricsH http.Handler
 	if cfg.PromMetrics != nil {
@@ -98,7 +92,7 @@ func main() {
 
 	// robots
 
-	robots, err := createRobots(ctx, cfg, hlfProfile, cryptoMng)
+	robots, err := createRobots(ctx, cfg, hlfProfile)
 	if err != nil {
 		panic(err)
 	}
@@ -145,7 +139,7 @@ func createLogger(cfg *config.Config, hlfProfile *hlfprofile.HlfProfile) (glog.L
 	return l, nil
 }
 
-func createRobots(ctx context.Context, cfg *config.Config, hlfProfile *hlfprofile.HlfProfile, cryptoManager manager.Manager) ([]*chrobot.ChRobot, error) {
+func createRobots(ctx context.Context, cfg *config.Config, hlfProfile *hlfprofile.HlfProfile) ([]*chrobot.ChRobot, error) {
 	robots := make([]*chrobot.ChRobot, 0, len(cfg.Robots))
 	for _, rCfg := range cfg.Robots {
 		allSrcChannels := map[string]uint64{}
@@ -153,8 +147,8 @@ func createRobots(ctx context.Context, cfg *config.Config, hlfProfile *hlfprofil
 			allSrcChannels[sc.ChName] = *sc.InitBlockNum
 		}
 
-		ccr := createChCollectorCreator(cfg, hlfProfile, rCfg, cryptoManager)
-		ecr, err := createChExecutorCreator(cfg, hlfProfile, rCfg, cryptoManager)
+		ccr := createChCollectorCreator(cfg, hlfProfile, rCfg)
+		ecr, err := createChExecutorCreator(cfg, hlfProfile, rCfg)
 		if err != nil {
 			return nil, err
 		}
@@ -196,41 +190,30 @@ func createRobots(ctx context.Context, cfg *config.Config, hlfProfile *hlfprofil
 	return robots, nil
 }
 
-func createChCollectorCreator(cfg *config.Config, hlfProfile *hlfprofile.HlfProfile, rCfg *config.Robot,
-	cryptoManager manager.Manager,
+func createChCollectorCreator(cfg *config.Config, hlfProfile *hlfprofile.HlfProfile,
+	rCfg *config.Robot,
 ) hlf.ChCollectorCreator {
 	txPrefixes := parserdto.TxPrefixes{
 		Tx:        cfg.TxPreimagePrefix,
 		Swap:      cfg.TxSwapPrefix,
 		MultiSwap: cfg.TxMultiSwapPrefix,
 	}
-	if cryptoManager == nil {
-		return hlf.NewChCollectorCreator(
-			rCfg.ChName, cfg.ProfilePath, cfg.UserName, hlfProfile.OrgName,
-			txPrefixes,
-			rCfg.CollectorsBufSize)
-	}
-	return hlf.NewChCollectorCreatorWithCryptoMgr(
+	return hlf.NewChCollectorCreator(
 		rCfg.ChName, cfg.ProfilePath, cfg.UserName, hlfProfile.OrgName,
-		txPrefixes, cryptoManager,
+		txPrefixes,
 		rCfg.CollectorsBufSize)
 }
 
-func createChExecutorCreator(cfg *config.Config, hlfProfile *hlfprofile.HlfProfile, rCfg *config.Robot,
-	cryptoManager manager.Manager,
+func createChExecutorCreator(cfg *config.Config, hlfProfile *hlfprofile.HlfProfile,
+	rCfg *config.Robot,
 ) (hlf.ChExecutorCreator, error) {
 	execOpts, err := mapExecOpts(cfg, rCfg)
 	if err != nil {
 		return nil, err
 	}
 
-	if cryptoManager == nil {
-		return hlf.NewChExecutorCreator(rCfg.ChName, cfg.ProfilePath,
-			cfg.UserName, hlfProfile.OrgName, execOpts), nil
-	}
-
-	return hlf.NewChExecutorCreatorWithCryptoMgr(rCfg.ChName, cfg.ProfilePath,
-		cfg.UserName, hlfProfile.OrgName, execOpts, cryptoManager), nil
+	return hlf.NewChExecutorCreator(rCfg.ChName, cfg.ProfilePath,
+		cfg.UserName, hlfProfile.OrgName, execOpts), nil
 }
 
 func runRobot(ctx context.Context, r *chrobot.ChRobot, delayAfterError time.Duration, lm *server.LivenessMng) {
