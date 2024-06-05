@@ -1,24 +1,45 @@
-ARG BUILDER_IMAGE=docker.io/library/golang
-ARG BUILDER_VERSION=1.18-alpine
+###############################################################################
+# Build image
+###############################################################################
 
-FROM $BUILDER_IMAGE:$BUILDER_VERSION AS builder
+ARG UBUNTU_VER
+FROM ubuntu:${UBUNTU_VER} as builder
 
-WORKDIR /go/src/app
+ARG TARGETARCH
+ARG TARGETOS
+ARG GO_VER
+ARG APP_VER=unknown
 
-ARG GOPRIVATE=github.com
-ARG REGISTRY_NETRC="machine github.com login REGISTRY_USERNAME password REGISTRY_PASSWORD"
-ARG APP_VERSION=unknown
+RUN apt update && apt install -y \
+    git \
+    gcc \
+    curl \
+    make
 
-RUN echo "$REGISTRY_NETRC" > ~/.netrc
+RUN curl -sL https://go.dev/dl/go${GO_VER}.${TARGETOS}-${TARGETARCH}.tar.gz | tar zxf - -C /usr/local
+ENV PATH="/usr/local/go/bin:$PATH"
 
-COPY go.mod go.sum ./
-RUN apk add --no-cache git=~2 binutils=~2 'upx>=3' && CGO_ENABLED=0 go mod download
+ADD . .
 
-COPY . .
-RUN CGO_ENABLED=0 go build -v -ldflags="-X 'main.AppInfoVer=$APP_VERSION'" -o /go/bin/app && strip /go/bin/app && upx -5 -q /go/bin/app
+RUN CGO_ENABLED=0 go build -v -ldflags="-X 'main.AppInfoVer=$APP_VER'" -o /go/bin/app
 
-FROM docker.io/library/alpine:3.15
-COPY --chown=65534:65534 --from=builder /go/bin/app /
+###############################################################################
+# Runtime image
+###############################################################################
+
+ARG UBUNTU_VER
+FROM ubuntu:${UBUNTU_VER}
+
+ARG APP_VER
+
+# set up nsswitch.conf for Go's "netgo" implementation
+# - https://github.com/golang/go/blob/go1.9.1/src/net/conf.go#L194-L275
+# - docker run --rm debian:stretch grep '^hosts:' /etc/nsswitch.conf
+RUN echo 'hosts: files dns' > /etc/nsswitch.conf
+
+ENV     APP_VER      ${APP_VER}
+
+COPY    --chown=65534:65534 --from=builder /go/bin/app /
 USER 65534
 
 ENTRYPOINT [ "/app" ]
