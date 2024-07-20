@@ -3,7 +3,7 @@ module github.com/anoideaopen/robot
 go 1.22.4
 
 require (
-	github.com/anoideaopen/common-component v0.0.5
+	github.com/anoideaopen/common-component v0.0.6
 	github.com/anoideaopen/foundation v0.0.2-0.20240603112837-d0830e597d52
 	github.com/anoideaopen/glog v0.0.3
 	github.com/avast/retry-go/v4 v4.0.5
