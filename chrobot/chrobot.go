@@ -103,6 +103,12 @@ func (chr *ChRobot) ChName() string {
 	return chr.chName
 }
 
+func (chr *ChRobot) Collectors() []*chCollector { return chr.collectors }
+
+func (chc *chCollector) ChName() string { return chc.chName }
+
+func (chc *chCollector) Collector() ChCollector { return chc.collector }
+
 func (chr *ChRobot) Run(ctx context.Context) error {
 	chExec, err := chr.chExecCr(ctx)
 	if err != nil {
@@ -112,7 +118,7 @@ func (chr *ChRobot) Run(ctx context.Context) error {
 
 	defer chr.closeCollectors()
 
-	if err = chr.createCollectors(ctx); err != nil {
+	if err = chr.CreateCollectors(ctx); err != nil {
 		return err
 	}
 
@@ -142,7 +148,8 @@ func (chr *ChRobot) closeCollectors() {
 	chr.dataReady = nil
 }
 
-func (chr *ChRobot) createCollectors(ctx context.Context) error {
+// CreateCollectors - creates robot collectors
+func (chr *ChRobot) CreateCollectors(ctx context.Context) error {
 	for chName := range chr.chsSources {
 		chr.m.TxWaitingCount().Set(0,
 			metrics.Labels().Channel.Create(chName))
@@ -198,7 +205,7 @@ func (chr *ChRobot) createCollectors(ctx context.Context) error {
 }
 
 // collectBatch collects data from all collectors
-// and returns batch if some limit is reached (time of collection, size in bytes, size in items, etc).
+// and returns batch if some limit is reached (time of collection, size in bytes, size in items, etc.).
 //
 // It takes context param and callback that calculates size of the batch in bytes.
 func (chr *ChRobot) collectBatch(ctx context.Context, calcBatchSize func(b *executordto.Batch) (uint, error)) (*executordto.Batch, *collectorbatch.BatchInfo, error) { //nolint:gocognit

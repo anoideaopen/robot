@@ -1,4 +1,4 @@
-package config
+package unit
 
 import (
 	"fmt"
@@ -6,17 +6,18 @@ import (
 	"testing"
 	"time"
 
+	"github.com/anoideaopen/robot/config"
 	"github.com/stretchr/testify/require"
 )
 
 const (
-	testConfigName        = "config_test.yaml"
-	testSwapConfigName    = "config_swap_test.yaml"
-	testSwapErrConfigName = "config_swap_err_test.yaml"
+	testConfigName        = "../../config/config_test.yaml"
+	testSwapConfigName    = "../../config/config_swap_test.yaml"
+	testSwapErrConfigName = "../../config/config_swap_err_test.yaml"
 )
 
 func TestGetConfigSimple(t *testing.T) {
-	c, err := getConfig(testConfigName)
+	c, err := config.GetConfigFromPath(testConfigName)
 	require.NoError(t, err)
 	require.NotNil(t, c)
 
@@ -61,48 +62,48 @@ func TestGetConfigSimple(t *testing.T) {
 }
 
 func TestGetConfigOverrideEnv(t *testing.T) {
-	err := os.Setenv(fmt.Sprintf("%s_LOGLEVEL", EnvPrefix), "myval")
+	err := os.Setenv(fmt.Sprintf("%s_LOGLEVEL", config.EnvPrefix), "myval")
 	require.NoError(t, err)
 
 	// now does not work
 	// err = os.Setenv(fmt.Sprintf("%s_ROBOTS1_CHNAME", envPrefix), "myname")
 	// require.NoError(t, err)
 
-	c, err := getConfig(testConfigName)
+	c, err := config.GetConfigFromPath(testConfigName)
 	require.NoError(t, err)
 	require.NotNil(t, c)
 	require.Equal(t, "myval", c.LogLevel)
 }
 
 func TestValidateConfig(t *testing.T) {
-	c, err := getConfig(testConfigName)
+	c, err := config.GetConfigFromPath(testConfigName)
 	require.NoError(t, err)
-	err = validateConfig(c)
+	err = config.ValidateConfig(c)
 	require.NoError(t, err)
 }
 
 func TestValidateSwapConfig(t *testing.T) {
-	c, err := getConfig(testSwapConfigName)
+	c, err := config.GetConfigFromPath(testSwapConfigName)
 	require.NoError(t, err)
-	err = validateConfig(c)
+	err = config.ValidateConfig(c)
 	require.NoError(t, err)
 
-	c, err = getConfig(testSwapErrConfigName)
+	c, err = config.GetConfigFromPath(testSwapErrConfigName)
 	require.NoError(t, err)
-	err = validateConfig(c)
+	err = config.ValidateConfig(c)
 	require.Error(t, err)
 }
 
 func TestExecuteOptions(t *testing.T) {
 	defExecuteTimeout := time.Duration(100)
-	defOpts := ExecuteOptions{
+	defOpts := config.ExecuteOptions{
 		ExecuteTimeout: &defExecuteTimeout,
 	}
 
 	executeTimeout := time.Duration(10)
 
 	// 1. full ExecOptions
-	fullExecOptions := ExecuteOptions{
+	fullExecOptions := config.ExecuteOptions{
 		ExecuteTimeout: &executeTimeout,
 	}
 
@@ -111,7 +112,7 @@ func TestExecuteOptions(t *testing.T) {
 	require.NoError(t, err)
 
 	// 2. empty ExecOptions
-	emptyExecOptions := ExecuteOptions{}
+	emptyExecOptions := config.ExecuteOptions{}
 	et, err = emptyExecOptions.EffExecuteTimeout(defOpts)
 	require.EqualValues(t, *defOpts.ExecuteTimeout, et)
 	require.NoError(t, err)

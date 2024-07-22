@@ -73,12 +73,13 @@ func IsEndorsementMismatchErr(err error) bool {
 	return ok && status.Code(s.Code) == status.EndorsementMismatch
 }
 
-const errReqSizeMarker = "is bigger than request max bytes"
+const ErrReqSizeMarker = "is bigger than request max bytes"
 
-func isOrderingReqSizeExceededErr(err error) bool {
+// IsOrderingReqSizeExceededErr checks error message for containing ErrReqSizeMarker
+func IsOrderingReqSizeExceededErr(err error) bool {
 	if err == nil {
 		return false
 	}
 
-	return strings.Contains(err.Error(), errReqSizeMarker)
+	return strings.Contains(err.Error(), ErrReqSizeMarker)
 }

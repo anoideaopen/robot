@@ -1,28 +1,20 @@
-package parser
+package unit
 
 import (
-	"os"
 	"testing"
 
 	"github.com/anoideaopen/common-component/testshlp"
-	"github.com/anoideaopen/robot/dto/parserdto"
-	"github.com/golang/protobuf/proto"
-	"github.com/hyperledger/fabric-protos-go/common"
+	"github.com/anoideaopen/robot/hlf/parser"
+	cmn "github.com/anoideaopen/robot/test/unit/common"
 	"github.com/stretchr/testify/require"
 )
 
-var defaultPrefixes = parserdto.TxPrefixes{
-	Tx:        "batchTransactions",
-	Swap:      "swaps",
-	MultiSwap: "multi_swap",
-}
-
-func TestCreate(t *testing.T) {
+func TestParserCreate(t *testing.T) {
 	_, log := testshlp.CreateCtxLogger(t)
 
-	prs := NewParser(log,
+	prs := parser.NewParser(log,
 		"dstCh", "srcCh",
-		defaultPrefixes)
+		cmn.DefaultPrefixes)
 	require.NotNil(t, prs)
 }
 
@@ -30,12 +22,12 @@ func TestParserExtractData(t *testing.T) {
 	_, log := testshlp.CreateCtxLogger(t)
 
 	t.Run("[NEGATIVE] config block", func(t *testing.T) {
-		prs := NewParser(log,
+		prs := parser.NewParser(log,
 			"ch1", "ch1",
-			defaultPrefixes)
+			cmn.DefaultPrefixes)
 		require.NotNil(t, prs)
 
-		bl := getBlock(t, "test-data/blocks/config_block.block")
+		bl := cmn.GetBlock(t, "../../hlf/parser/test-data/blocks/config_block.block")
 		d, err := prs.ExtractData(bl)
 		require.NoError(t, err)
 		require.NotNil(t, d)
@@ -47,12 +39,12 @@ func TestParserExtractData(t *testing.T) {
 	})
 
 	t.Run("extract txs", func(t *testing.T) {
-		prs := NewParser(log,
+		prs := parser.NewParser(log,
 			"ch1", "ch1",
-			defaultPrefixes)
+			cmn.DefaultPrefixes)
 		require.NotNil(t, prs)
 
-		bl := getBlock(t, "test-data/blocks/block_with_preimages.block")
+		bl := cmn.GetBlock(t, "../../hlf/parser/test-data/blocks/block_with_preimages.block")
 		d, err := prs.ExtractData(bl)
 		require.NoError(t, err)
 		require.NotNil(t, d)
@@ -64,12 +56,12 @@ func TestParserExtractData(t *testing.T) {
 	})
 
 	t.Run("extract swap keys", func(t *testing.T) {
-		prs := NewParser(log,
+		prs := parser.NewParser(log,
 			"", "ch1",
-			defaultPrefixes)
+			cmn.DefaultPrefixes)
 		require.NotNil(t, prs)
 
-		bl := getBlock(t, "test-data/blocks/block_with_keys.block")
+		bl := cmn.GetBlock(t, "../../hlf/parser/test-data/blocks/block_with_keys.block")
 		d, err := prs.ExtractData(bl)
 		require.NoError(t, err)
 		require.NotNil(t, d)
@@ -81,12 +73,12 @@ func TestParserExtractData(t *testing.T) {
 	})
 
 	t.Run("extract swap", func(t *testing.T) {
-		prs := NewParser(log,
+		prs := parser.NewParser(log,
 			"fiat", "cc",
-			defaultPrefixes)
+			cmn.DefaultPrefixes)
 		require.NotNil(t, prs)
 
-		bl := getBlock(t, "test-data/blocks/block_with_swaps.block")
+		bl := cmn.GetBlock(t, "../../hlf/parser/test-data/blocks/block_with_swaps.block")
 		d, err := prs.ExtractData(bl)
 		require.NoError(t, err)
 		require.NotNil(t, d)
@@ -98,12 +90,12 @@ func TestParserExtractData(t *testing.T) {
 	})
 
 	t.Run("extract multiswap", func(t *testing.T) {
-		prs := NewParser(log,
+		prs := parser.NewParser(log,
 			"bac", "ba",
-			defaultPrefixes)
+			cmn.DefaultPrefixes)
 		require.NotNil(t, prs)
 
-		bl := getBlock(t, "test-data/blocks/block_with_multiswaps.block")
+		bl := cmn.GetBlock(t, "../../hlf/parser/test-data/blocks/block_with_multiswaps.block")
 		d, err := prs.ExtractData(bl)
 		require.NoError(t, err)
 		require.NotNil(t, d)
@@ -115,12 +107,12 @@ func TestParserExtractData(t *testing.T) {
 	})
 
 	t.Run("extract multiswap keys", func(t *testing.T) {
-		prs := NewParser(log,
+		prs := parser.NewParser(log,
 			"ba", "bac",
-			defaultPrefixes)
+			cmn.DefaultPrefixes)
 		require.NotNil(t, prs)
 
-		bl := getBlock(t, "test-data/blocks/block_with_multikeys.block")
+		bl := cmn.GetBlock(t, "../../hlf/parser/test-data/blocks/block_with_multikeys.block")
 		d, err := prs.ExtractData(bl)
 		require.NoError(t, err)
 		require.NotNil(t, d)
@@ -130,15 +122,4 @@ func TestParserExtractData(t *testing.T) {
 		require.Empty(t, d.SwapsKeys)
 		require.NotEmpty(t, d.MultiSwapsKeys)
 	})
-}
-
-func getBlock(t *testing.T, pathToBlock string) *common.Block {
-	file, err := os.ReadFile(pathToBlock)
-	require.NoError(t, err)
-
-	fabBlock := &common.Block{}
-	err = proto.Unmarshal(file, fabBlock)
-	require.NoError(t, err)
-
-	return fabBlock
 }

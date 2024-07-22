@@ -1,4 +1,4 @@
-package hlf
+package unit
 
 import (
 	"context"
@@ -9,6 +9,7 @@ import (
 	"github.com/anoideaopen/common-component/testshlp"
 	"github.com/anoideaopen/foundation/proto"
 	"github.com/anoideaopen/robot/dto/executordto"
+	"github.com/anoideaopen/robot/hlf"
 	"github.com/stretchr/testify/require"
 )
 
@@ -71,7 +72,7 @@ func TestSplitBatchForExec(t *testing.T) {
 		name := fmt.Sprintf("exec:%d success:%d error:%d",
 			tc.executedTxCount, tc.lastSuccessCount, tc.lastErrorCount)
 		t.Run(name, func(t *testing.T) {
-			b := splitBatchForExec(tc.executedTxCount, tc.lastSuccessCount, tc.lastErrorCount, origBatch, l)
+			b := hlf.SplitBatchForExec(tc.executedTxCount, tc.lastSuccessCount, tc.lastErrorCount, origBatch, l)
 			checkBatch(b, tc.expected)
 		})
 	}
@@ -89,11 +90,11 @@ func TestExecWithSplitHlpNormal(t *testing.T) {
 	// pass the test function executeBatch, which will further calculate
 	// the result of the execution of the batches and network
 	// the results of the execution into the test dump.
-	ewsHlp := newExecWithSplitHlp(l, exs.executeBatch, nil)
+	ewsHlp := hlf.NewExecWithSplitHlp(l, exs.executeBatch, nil)
 
 	// take a pre-created batch
 	origBatch := generateOrigBatch()
-	_, err := ewsHlp.execute(context.Background(), origBatch)
+	_, err := ewsHlp.Execute(context.Background(), origBatch)
 	require.NoError(t, err)
 
 	checkExecAttempts(t, exs, []execAttempt{{
@@ -118,12 +119,12 @@ func TestExecWithSplitHlpExceededError(t *testing.T) {
 	// pass the test function executeBatch, which will further calculate
 	// the result of the execution of the batches and network
 	// the results of the execution into the test dump.
-	ewsHlp := newExecWithSplitHlp(l, exs.executeBatch, nil)
+	ewsHlp := hlf.NewExecWithSplitHlp(l, exs.executeBatch, nil)
 
 	// take a pre-created batch
 	origBatch := generateOrigBatch()
 	// call the function under test execute
-	_, err := ewsHlp.execute(context.Background(), origBatch)
+	_, err := ewsHlp.Execute(context.Background(), origBatch)
 	require.NoError(t, err)
 
 	checkExecAttempts(t, exs, []execAttempt{
@@ -161,12 +162,12 @@ func TestExecWithSplitHlpError(t *testing.T) {
 
 	// pass the test function executeBatch, which will further calculate the result of
 	// the execution of the batches and network the results of the execution into the test dump.
-	ewsHlp := newExecWithSplitHlp(l, exs.executeBatch, nil)
+	ewsHlp := hlf.NewExecWithSplitHlp(l, exs.executeBatch, nil)
 
 	// take a pre-created batch
 	origBatch := generateOrigBatch()
 	// call the function under test execute
-	_, err := ewsHlp.execute(context.Background(), origBatch)
+	_, err := ewsHlp.Execute(context.Background(), origBatch)
 	require.Error(t, err)
 	require.ErrorIs(t, err, testErr)
 
@@ -192,18 +193,18 @@ func TestExecBatcReqSizeErrorAfterSplit(t *testing.T) {
 	}
 
 	// add size error to executeBatch return at 8 execution
-	testErr := errors.New(errReqSizeMarker)
+	testErr := errors.New(hlf.ErrReqSizeMarker)
 	exs.callHlp.AddErrMap(exs.executeBatch, map[int]error{7: testErr})
 
 	// pass the test function executeBatch, which will further calculate
 	// the result of the execution of the batches and network the results
 	// of the execution into the test dump.
-	ewsHlp := newExecWithSplitHlp(l, exs.executeBatch, nil)
+	ewsHlp := hlf.NewExecWithSplitHlp(l, exs.executeBatch, nil)
 
 	// take a pre-created batch
 	origBatch := generateOrigBatch()
 	// call the function under test execute
-	_, err := ewsHlp.execute(context.Background(), origBatch)
+	_, err := ewsHlp.Execute(context.Background(), origBatch)
 	require.Error(t, err)
 	require.ErrorIs(t, err, testErr)
 
@@ -237,12 +238,12 @@ func TestExecBatchWithNoReqSizeError(t *testing.T) {
 
 	// pass the test function executeBatch, which will further calculate the result of
 	// the execution of the batches and network the results of the execution into the test dump.
-	ewsHlp := newExecWithSplitHlp(l, exs.executeBatch, nil)
+	ewsHlp := hlf.NewExecWithSplitHlp(l, exs.executeBatch, nil)
 
 	// take a pre-created batch
 	origBatch := generateOrigBatch()
 	// call the function under test execute
-	_, err := ewsHlp.execute(context.Background(), origBatch)
+	_, err := ewsHlp.Execute(context.Background(), origBatch)
 	require.Error(t, err)
 	require.ErrorIs(t, err, testErr)
 
@@ -267,12 +268,12 @@ func TestExecBatchWithNoReqSizeErrorOneTransaction(t *testing.T) {
 
 	// pass the test function executeBatch, which will further calculate the result of
 	// the execution of the batches and network the results of the execution into the test dump.
-	ewsHlp := newExecWithSplitHlp(l, exs.executeBatch, nil)
+	ewsHlp := hlf.NewExecWithSplitHlp(l, exs.executeBatch, nil)
 
 	// take a pre-created batch
 	origBatch := generateOrigBatch()
 	// call the function under test execute
-	_, err := ewsHlp.execute(context.Background(), origBatch)
+	_, err := ewsHlp.Execute(context.Background(), origBatch)
 	require.Error(t, err)
 	require.ErrorIs(t, err, testErr)
 
@@ -297,12 +298,12 @@ func TestExecWithSplitHlpExceededErrorThenExecuteSwaps(t *testing.T) {
 
 	// pass the test function executeBatch, which will further calculate the result of
 	// the execution of the batches and network the results of the execution into the test dump.
-	ewsHlp := newExecWithSplitHlp(l, exs.executeBatch, nil)
+	ewsHlp := hlf.NewExecWithSplitHlp(l, exs.executeBatch, nil)
 
 	// we take a pre-created batches with 11 transactions and 2 swaps
 	origBatch := generateBatchWithTxsAndSwaps()
 	// call the function under test execute
-	_, err := ewsHlp.execute(context.Background(), origBatch)
+	_, err := ewsHlp.Execute(context.Background(), origBatch)
 	require.NoError(t, err)
 
 	checkExecAttempts(t, exs, []execAttempt{
@@ -333,12 +334,12 @@ func TestExecWithSwaps(t *testing.T) {
 
 	// pass the test function executeBatch, which will further calculate
 	// the result of the execution of the batches and network the results of the execution into the test dump.
-	ewsHlp := newExecWithSplitHlp(l, exs.executeBatch, nil)
+	ewsHlp := hlf.NewExecWithSplitHlp(l, exs.executeBatch, nil)
 
 	// we take a pre-created batch with 2 swaps
 	origBatch := generateBatchWithTxsAndSwaps()
 	// call the function under test execute
-	_, err := ewsHlp.execute(context.Background(), origBatch)
+	_, err := ewsHlp.Execute(context.Background(), origBatch)
 	require.NoError(t, err)
 
 	checkExecAttempts(t, exs, []execAttempt{
@@ -386,7 +387,7 @@ func (ex *executorStub) executeBatch(_ context.Context, b *executordto.Batch) (u
 	err := ex.callHlp.Call(ex.executeBatch)
 	if err != nil {
 		// if an error came from executeBatch, check for error reqSizeExceededErr
-		ex.attempts = append(ex.attempts, execAttempt{batchSize: len(b.Txs), isError: true, isSizeExceededError: isOrderingReqSizeExceededErr(err)})
+		ex.attempts = append(ex.attempts, execAttempt{batchSize: len(b.Txs), isError: true, isSizeExceededError: hlf.IsOrderingReqSizeExceededErr(err)})
 		return 0, err
 		// If another error occurs, just set error true
 	}
@@ -394,7 +395,7 @@ func (ex *executorStub) executeBatch(_ context.Context, b *executordto.Batch) (u
 	// than the maximum, we net the error reqSizeExceededErr.
 	if ex.maxBatchSize > 0 && len(b.Txs) > int(ex.maxBatchSize) {
 		ex.attempts = append(ex.attempts, execAttempt{batchSize: len(b.Txs), isError: true, isSizeExceededError: true})
-		return 0, errors.New(errReqSizeMarker)
+		return 0, errors.New(hlf.ErrReqSizeMarker)
 	}
 
 	// add the attempt to the array with attempts
