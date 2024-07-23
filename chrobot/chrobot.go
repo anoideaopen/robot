@@ -3,6 +3,10 @@ package chrobot
 import (
 	"context"
 	"fmt"
+	"github.com/anoideaopen/robot/config"
+	"github.com/anoideaopen/robot/hlf"
+	"github.com/anoideaopen/robot/hlf/hlfprofile"
+	"github.com/anoideaopen/robot/storage/redis"
 	"time"
 
 	"github.com/anoideaopen/glog"
@@ -354,4 +358,56 @@ func storedCheckpointsMsg(checkPoints *stordto.ChCheckPoint) string {
 	}
 	msg += fmt.Sprintf("exec on peers with minimum blocknum in ledger %d\n", checkPoints.MinExecBlockNum)
 	return msg
+}
+
+// CreateRobots - creates robots specified by config
+func CreateRobots(ctx context.Context, cfg *config.Config, hlfProfile *hlfprofile.HlfProfile) ([]*ChRobot, error) {
+	robots := make([]*ChRobot, 0, len(cfg.Robots))
+	for _, rCfg := range cfg.Robots {
+		allSrcChannels := map[string]uint64{}
+		for _, sc := range rCfg.SrcChannels {
+			allSrcChannels[sc.ChName] = *sc.InitBlockNum
+		}
+
+		ccr := hlf.CreateChCollectorCreator(cfg, hlfProfile, rCfg)
+		ecr, err := hlf.CreateChExecutorCreator(cfg, hlfProfile, rCfg)
+		if err != nil {
+			return nil, err
+		}
+
+		stor, err := redis.NewStorage(ctx, cfg.RedisStorage.Addr, cfg.RedisStorage.Password,
+			cfg.RedisStorage.WithTLS, cfg.RedisStorage.RootCAs,
+			cfg.RedisStorage.DBPrefix, rCfg.ChName)
+		if err != nil {
+			return nil, err
+		}
+
+		bLimits := cfg.DefaultBatchLimits
+		if rCfg.BatchLimits != nil {
+			bLimits = rCfg.BatchLimits
+		}
+		if bLimits == nil {
+			return nil, fmt.Errorf("no configuration for batch limits in %s robot", rCfg.ChName)
+		}
+
+		r := NewRobot(ctx, rCfg.ChName, rCfg.InitMinExecBlockNum,
+			allSrcChannels,
+			func(ctx context.Context, dataReady chan<- struct{}, srcChName string, startFrom uint64) (ChCollector, error) {
+				return ccr(ctx, dataReady, srcChName, startFrom)
+			},
+			func(ctx context.Context) (ChExecutor, error) {
+				return ecr(ctx)
+			},
+			stor,
+			collectorbatch.Limits{
+				BlocksCountLimit: bLimits.BatchBlocksCountLimit,
+				TimeoutLimit:     bLimits.BatchTimeoutLimit,
+				LenLimit:         bLimits.BatchLenLimit,
+				SizeLimit:        bLimits.BatchSizeLimit,
+			})
+
+		robots = append(robots, r)
+	}
+
+	return robots, nil
 }
