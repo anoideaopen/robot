@@ -1,4 +1,4 @@
-package hlf
+package unit
 
 import (
 	"context"
@@ -9,6 +9,7 @@ import (
 
 	"github.com/anoideaopen/common-component/testshlp"
 	"github.com/anoideaopen/robot/dto/collectordto"
+	"github.com/anoideaopen/robot/hlf"
 	"github.com/anoideaopen/robot/metrics"
 	"github.com/hyperledger/fabric-protos-go/common"
 	"github.com/hyperledger/fabric-sdk-go/pkg/common/providers/fab"
@@ -23,7 +24,7 @@ func TestProxyLoopCreate(t *testing.T) {
 	eventsSrcCreator := newStubEventsSrcCreator(5)
 
 	createEventSrcErr := errors.New("createEventsSrc error")
-	eventsSrcCreator.callHlp.AddErrMap(eventsSrcCreator.createEventsSrc, map[int]error{
+	eventsSrcCreator.callHlp.AddErrMap(eventsSrcCreator.CreateEventsSrc, map[int]error{
 		0: createEventSrcErr,
 		2: createEventSrcErr,
 		4: createEventSrcErr,
@@ -32,13 +33,13 @@ func TestProxyLoopCreate(t *testing.T) {
 	delayAfterSrcError := 1 * time.Second
 	awaitEventsTimeout := 60 * time.Second
 
-	chColl := createChCollectorAdv(ctx,
+	chColl := hlf.CreateChCollectorAdv(ctx,
 		log, metrics.FromContext(ctx),
 		"srcCh", 0,
 		"fakeConnectionProfile", "fakeUser", "fakeOrg",
 		proxyEvents,
 		stubRealColl,
-		eventsSrcCreator.createEventsSrc,
+		eventsSrcCreator.CreateEventsSrc,
 		delayAfterSrcError,
 		awaitEventsTimeout,
 	)
@@ -117,11 +118,11 @@ type stubEventsSrc struct {
 	closeCb func()
 }
 
-func (r *stubEventsSrc) close() {
+func (r *stubEventsSrc) Close() {
 	r.closeCb()
 }
 
-func (r *stubEventsSrc) getEvents() <-chan *fab.BlockEvent {
+func (r *stubEventsSrc) GetEvents() <-chan *fab.BlockEvent {
 	return r.events
 }
 
@@ -143,8 +144,8 @@ func newStubEventsSrcCreator(chunkLen int) *stubEventsSrcCreator {
 	}
 }
 
-func (r *stubEventsSrcCreator) createEventsSrc(_ context.Context, startFrom uint64) (eventsSrc, error) {
-	if err := r.callHlp.Call(r.createEventsSrc); err != nil {
+func (r *stubEventsSrcCreator) CreateEventsSrc(_ context.Context, startFrom uint64) (hlf.EventsSrc, error) {
+	if err := r.callHlp.Call(r.CreateEventsSrc); err != nil {
 		return nil, err
 	}
 	atomic.AddUint32(r.createdCount, 1)

@@ -1,4 +1,4 @@
-package hlf
+package unit
 
 import (
 	"context"
@@ -9,6 +9,7 @@ import (
 	"github.com/anoideaopen/common-component/testshlp"
 	"github.com/anoideaopen/foundation/proto"
 	"github.com/anoideaopen/robot/dto/executordto"
+	"github.com/anoideaopen/robot/hlf"
 	"github.com/anoideaopen/robot/metrics"
 	"github.com/hyperledger/fabric-sdk-go/pkg/client/channel"
 	"github.com/hyperledger/fabric-sdk-go/pkg/common/errors/status"
@@ -28,7 +29,7 @@ func createMockExecutor(unRecoverableCallNum, successCallNum int) *mockExecutor 
 	}
 }
 
-func (mex *mockExecutor) execute(_ context.Context, _ channel.Request) (channel.Response, error) {
+func (mex *mockExecutor) Execute(_ context.Context, _ channel.Request) (channel.Response, error) {
 	mex.callsCount++
 
 	switch mex.callsCount {
@@ -45,20 +46,20 @@ func (mex *mockExecutor) execute(_ context.Context, _ channel.Request) (channel.
 func TestChExecutorRetryExecute(t *testing.T) {
 	_, l := testshlp.CreateCtxLogger(t)
 
-	che := &chExecutor{
-		log:                  l,
-		m:                    metrics.FromContext(context.Background()),
-		chName:               "fiat",
-		retryExecuteMaxDelay: time.Millisecond,
+	che := &hlf.ChExecutor{
+		Log:                  l,
+		Metrics:              metrics.FromContext(context.Background()),
+		ChName:               "fiat",
+		RetryExecuteMaxDelay: time.Millisecond,
 	}
 
 	t.Run("[POSITIVE] success retry after mismatches", func(t *testing.T) {
 		successCallNum := 5
 		unRecoverableCallNum := successCallNum + 1
-		che.retryExecuteAttempts = uint(successCallNum)
+		che.RetryExecuteAttempts = uint(successCallNum)
 
 		chc := createMockExecutor(unRecoverableCallNum, successCallNum)
-		che.executor = chc
+		che.Executor = chc
 
 		nnn, err := che.Execute(context.Background(), &executordto.Batch{}, 0)
 		require.NoError(t, err)
@@ -69,10 +70,10 @@ func TestChExecutorRetryExecute(t *testing.T) {
 	t.Run("[NEGATIVE] attempts exceeded", func(t *testing.T) {
 		successCallNum := 5
 		unRecoverableCallNum := successCallNum + 1
-		che.retryExecuteAttempts = uint(successCallNum - 1)
+		che.RetryExecuteAttempts = uint(successCallNum - 1)
 
 		chc := createMockExecutor(unRecoverableCallNum, successCallNum)
-		che.executor = chc
+		che.Executor = chc
 
 		_, err := che.Execute(context.Background(), &executordto.Batch{}, 0)
 
@@ -83,10 +84,10 @@ func TestChExecutorRetryExecute(t *testing.T) {
 	t.Run("[NEGATIVE] unrecoverable error during retry", func(t *testing.T) {
 		successCallNum := 5
 		unRecoverableCallNum := successCallNum - 1
-		che.retryExecuteAttempts = uint(successCallNum - 1)
+		che.RetryExecuteAttempts = uint(successCallNum - 1)
 
 		chc := createMockExecutor(unRecoverableCallNum, successCallNum)
-		che.executor = chc
+		che.Executor = chc
 
 		_, err := che.Execute(context.Background(), &executordto.Batch{}, 0)
 
@@ -99,7 +100,7 @@ func TestLogBatchContent(t *testing.T) {
 	_, log := testshlp.CreateCtxLogger(t)
 
 	b := &executordto.Batch{}
-	logBatchContent(log, b)
+	hlf.LogBatchContent(log, b)
 
 	b2 := &executordto.Batch{
 		Txs:        [][]byte{[]byte("tx1"), []byte("tx2"), []byte("tx3")},
@@ -108,5 +109,5 @@ func TestLogBatchContent(t *testing.T) {
 		Keys:       []*proto.SwapKey{{Id: []byte("ksw1")}, {Id: []byte("ksw2")}},
 		MultiKeys:  []*proto.SwapKey{{Id: []byte("kmsw1")}, {Id: []byte("kmsw2")}},
 	}
-	logBatchContent(log, b2)
+	hlf.LogBatchContent(log, b2)
 }

@@ -24,7 +24,7 @@ type hlfExecutor struct {
 	execOpts ExecuteOptions
 }
 
-func (he *hlfExecutor) execute(ctx context.Context, request channel.Request) (channel.Response, error) {
+func (he *hlfExecutor) Execute(ctx context.Context, request channel.Request) (channel.Response, error) {
 	var options []channel.RequestOption
 
 	executeTimeout := he.chCtx.EndpointConfig().Timeout(fab.Execute)

@@ -1,30 +1,23 @@
-package chcollector
+package unit
 
 import (
 	"context"
 	"errors"
 	"fmt"
 	"log"
-	"os"
 	"reflect"
 	"testing"
 	"time"
 
 	"github.com/anoideaopen/common-component/testshlp"
+	"github.com/anoideaopen/robot/chcollector"
 	"github.com/anoideaopen/robot/dto/collectordto"
-	"github.com/anoideaopen/robot/dto/parserdto"
 	"github.com/anoideaopen/robot/hlf/parser"
-	"github.com/golang/protobuf/proto"
+	cmn "github.com/anoideaopen/robot/test/unit/common"
 	"github.com/hyperledger/fabric-protos-go/common"
 	"github.com/hyperledger/fabric-sdk-go/pkg/common/providers/fab"
 	"github.com/stretchr/testify/require"
 )
-
-var defaultPrefixes = parserdto.TxPrefixes{
-	Tx:        "batchTransactions",
-	Swap:      "swaps",
-	MultiSwap: "multi_swap",
-}
 
 type stubDataParser struct {
 	callHlp testshlp.CallHlp
@@ -37,13 +30,13 @@ func (sdp *stubDataParser) ExtractData(block *common.Block) (*collectordto.Block
 	return &collectordto.BlockData{}, nil
 }
 
-func TestCreate(t *testing.T) {
+func TestCollectorCreate(t *testing.T) {
 	ctx := context.Background()
 	dataReady := make(chan struct{}, 1)
 	events := make(chan *fab.BlockEvent)
 	prsr := &stubDataParser{}
 
-	dc, err := NewCollector(ctx, prsr, dataReady, events, 1)
+	dc, err := chcollector.NewCollector(ctx, prsr, dataReady, events, 1)
 	require.NoError(t, err)
 	require.NotNil(t, dc)
 }
@@ -54,7 +47,7 @@ func TestEmptyStartFinish(t *testing.T) {
 	events := make(chan *fab.BlockEvent)
 	prsr := &stubDataParser{}
 
-	dc, err := NewCollector(ctx, prsr, dataReady, events, 1)
+	dc, err := chcollector.NewCollector(ctx, prsr, dataReady, events, 1)
 	require.NoError(t, err)
 
 	dch := dc.GetData()
@@ -75,10 +68,10 @@ func TestCollectingTheSameBlock(t *testing.T) {
 
 	prs := parser.NewParser(l,
 		"ch1", "ch1",
-		defaultPrefixes)
+		cmn.DefaultPrefixes)
 	require.NotNil(t, prs)
 
-	bltx := getBlock(t, "../hlf/parser/test-data/blocks/block_with_preimages.block")
+	bltx := cmn.GetBlock(t, "test-data/parser/block_with_preimages.block")
 
 	const totalCountBlocks = 2
 	// add two identical blocks with transactions to the event channel
@@ -88,7 +81,7 @@ func TestCollectingTheSameBlock(t *testing.T) {
 	}
 
 	// create a collector and pass an event channel to it
-	dc, err := NewCollector(ctx, prs, dataReady, events, 1)
+	dc, err := chcollector.NewCollector(ctx, prs, dataReady, events, 1)
 	require.NoError(t, err)
 	countBlocks := 0
 
@@ -126,10 +119,10 @@ func TestCollectingTheSameBlockMultiswaps(t *testing.T) {
 
 	prs := parser.NewParser(l,
 		"ch1", "ch1",
-		defaultPrefixes)
+		cmn.DefaultPrefixes)
 	require.NotNil(t, prs)
 
-	bltx := getBlock(t, "../hlf/parser/test-data/blocks/block_with_multiswaps.block")
+	bltx := cmn.GetBlock(t, "test-data/parser/block_with_multiswaps.block")
 
 	const totalCountBlocks = 2
 	// add two identical blocks with transactions to the event channel
@@ -139,7 +132,7 @@ func TestCollectingTheSameBlockMultiswaps(t *testing.T) {
 	}
 
 	// create a collector and pass an event channel to it
-	dc, err := NewCollector(ctx, prs, dataReady, events, 1)
+	dc, err := chcollector.NewCollector(ctx, prs, dataReady, events, 1)
 	require.NoError(t, err)
 	countBlocks := 0
 
@@ -177,10 +170,10 @@ func TestCollectingTheSameBlockKeys(t *testing.T) {
 
 	prs := parser.NewParser(l,
 		"ch1", "ch1",
-		defaultPrefixes)
+		cmn.DefaultPrefixes)
 	require.NotNil(t, prs)
 
-	bltx := getBlock(t, "../hlf/parser/test-data/blocks/block_with_keys.block")
+	bltx := cmn.GetBlock(t, "test-data/parser/block_with_keys.block")
 
 	const totalCountBlocks = 2
 	// add two identical blocks with transactions to the event channel
@@ -190,7 +183,7 @@ func TestCollectingTheSameBlockKeys(t *testing.T) {
 	}
 
 	// create a collector and pass an event channel to it
-	dc, err := NewCollector(ctx, prs, dataReady, events, 1)
+	dc, err := chcollector.NewCollector(ctx, prs, dataReady, events, 1)
 	require.NoError(t, err)
 	countBlocks := 0
 
@@ -228,10 +221,10 @@ func TestCollectingTheSameBlockMultikeys(t *testing.T) {
 
 	prs := parser.NewParser(l,
 		"ch1", "ch1",
-		defaultPrefixes)
+		cmn.DefaultPrefixes)
 	require.NotNil(t, prs)
 
-	bltx := getBlock(t, "../hlf/parser/test-data/blocks/block_with_multikeys.block")
+	bltx := cmn.GetBlock(t, "test-data/parser/block_with_multikeys.block")
 
 	const totalCountBlocks = 2
 	// add two identical blocks with transactions to the event channel
@@ -241,7 +234,7 @@ func TestCollectingTheSameBlockMultikeys(t *testing.T) {
 	}
 
 	// create a collector and pass an event channel to it
-	dc, err := NewCollector(ctx, prs, dataReady, events, 1)
+	dc, err := chcollector.NewCollector(ctx, prs, dataReady, events, 1)
 	require.NoError(t, err)
 	countBlocks := 0
 
@@ -279,10 +272,10 @@ func TestCollectingTheSameBlockSwaps(t *testing.T) {
 
 	prs := parser.NewParser(l,
 		"ch1", "ch1",
-		defaultPrefixes)
+		cmn.DefaultPrefixes)
 	require.NotNil(t, prs)
 
-	bltx := getBlock(t, "../hlf/parser/test-data/blocks/block_with_swaps.block")
+	bltx := cmn.GetBlock(t, "test-data/parser/block_with_swaps.block")
 
 	const totalCountBlocks = 2
 	// add two identical blocks with transactions to the event channel
@@ -292,7 +285,7 @@ func TestCollectingTheSameBlockSwaps(t *testing.T) {
 	}
 
 	// create a collector and pass an event channel to it
-	dc, err := NewCollector(ctx, prs, dataReady, events, 1)
+	dc, err := chcollector.NewCollector(ctx, prs, dataReady, events, 1)
 	require.NoError(t, err)
 	countBlocks := 0
 
@@ -338,7 +331,7 @@ func TestSimpleWork(t *testing.T) {
 		}}
 	}
 
-	dc, err := NewCollector(ctx, prsr, dataReady, events, 1)
+	dc, err := chcollector.NewCollector(ctx, prsr, dataReady, events, 1)
 	require.NoError(t, err)
 	countBlocks := 0
 loop:
@@ -362,7 +355,7 @@ loop:
 	require.False(t, ok)
 }
 
-func TestWorkWithErrors(t *testing.T) {
+func TestCollectorWorkWithErrors(t *testing.T) {
 	ctx := context.Background()
 	dataReady := make(chan struct{}, 1)
 	prsr := &stubDataParser{}
@@ -385,7 +378,7 @@ func TestWorkWithErrors(t *testing.T) {
 		}}
 	}
 
-	dc, err := NewCollector(ctx, prsr, dataReady, events, 1)
+	dc, err := chcollector.NewCollector(ctx, prsr, dataReady, events, 1)
 	require.NoError(t, err)
 	countBlocks := 0
 loop:
@@ -409,15 +402,4 @@ loop:
 
 	_, ok := <-dc.GetData()
 	require.False(t, ok)
-}
-
-func getBlock(t *testing.T, pathToBlock string) *common.Block {
-	file, err := os.ReadFile(pathToBlock)
-	require.NoError(t, err)
-
-	fabBlock := &common.Block{}
-	err = proto.Unmarshal(file, fabBlock)
-	require.NoError(t, err)
-
-	return fabBlock
 }

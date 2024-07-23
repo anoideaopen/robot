@@ -8,7 +8,7 @@ import (
 
 type ChCollectorCreator func(ctx context.Context,
 	dataReady chan<- struct{},
-	srcChName string, startFrom uint64) (*chCollector, error)
+	srcChName string, startFrom uint64) (*ChCollector, error)
 
 func NewChCollectorCreator(
 	dstChName, connectionProfile,
@@ -30,7 +30,7 @@ func newChCollectorCreator(
 	txPrefixes parserdto.TxPrefixes,
 	bufSize uint,
 ) ChCollectorCreator {
-	return func(ctx context.Context, dataReady chan<- struct{}, srcChName string, startFrom uint64) (*chCollector, error) {
+	return func(ctx context.Context, dataReady chan<- struct{}, srcChName string, startFrom uint64) (*ChCollector, error) {
 		return createChCollector(ctx,
 			dstChName, srcChName,
 			dataReady, startFrom, bufSize,
