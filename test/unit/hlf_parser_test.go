@@ -27,7 +27,7 @@ func TestParserExtractData(t *testing.T) {
 			cmn.DefaultPrefixes)
 		require.NotNil(t, prs)
 
-		bl := cmn.GetBlock(t, "../../hlf/parser/test-data/blocks/config_block.block")
+		bl := cmn.GetBlock(t, "test-data/parser/config_block.block")
 		d, err := prs.ExtractData(bl)
 		require.NoError(t, err)
 		require.NotNil(t, d)
@@ -44,7 +44,7 @@ func TestParserExtractData(t *testing.T) {
 			cmn.DefaultPrefixes)
 		require.NotNil(t, prs)
 
-		bl := cmn.GetBlock(t, "../../hlf/parser/test-data/blocks/block_with_preimages.block")
+		bl := cmn.GetBlock(t, "test-data/parser/block_with_preimages.block")
 		d, err := prs.ExtractData(bl)
 		require.NoError(t, err)
 		require.NotNil(t, d)
@@ -61,7 +61,7 @@ func TestParserExtractData(t *testing.T) {
 			cmn.DefaultPrefixes)
 		require.NotNil(t, prs)
 
-		bl := cmn.GetBlock(t, "../../hlf/parser/test-data/blocks/block_with_keys.block")
+		bl := cmn.GetBlock(t, "test-data/parser/block_with_keys.block")
 		d, err := prs.ExtractData(bl)
 		require.NoError(t, err)
 		require.NotNil(t, d)
@@ -78,7 +78,7 @@ func TestParserExtractData(t *testing.T) {
 			cmn.DefaultPrefixes)
 		require.NotNil(t, prs)
 
-		bl := cmn.GetBlock(t, "../../hlf/parser/test-data/blocks/block_with_swaps.block")
+		bl := cmn.GetBlock(t, "test-data/parser/block_with_swaps.block")
 		d, err := prs.ExtractData(bl)
 		require.NoError(t, err)
 		require.NotNil(t, d)
@@ -95,7 +95,7 @@ func TestParserExtractData(t *testing.T) {
 			cmn.DefaultPrefixes)
 		require.NotNil(t, prs)
 
-		bl := cmn.GetBlock(t, "../../hlf/parser/test-data/blocks/block_with_multiswaps.block")
+		bl := cmn.GetBlock(t, "test-data/parser/block_with_multiswaps.block")
 		d, err := prs.ExtractData(bl)
 		require.NoError(t, err)
 		require.NotNil(t, d)
@@ -112,7 +112,7 @@ func TestParserExtractData(t *testing.T) {
 			cmn.DefaultPrefixes)
 		require.NotNil(t, prs)
 
-		bl := cmn.GetBlock(t, "../../hlf/parser/test-data/blocks/block_with_multikeys.block")
+		bl := cmn.GetBlock(t, "test-data/parser/block_with_multikeys.block")
 		d, err := prs.ExtractData(bl)
 		require.NoError(t, err)
 		require.NotNil(t, d)

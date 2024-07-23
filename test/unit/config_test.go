@@ -11,9 +11,9 @@ import (
 )
 
 const (
-	testConfigName        = "../../config/config_test.yaml"
-	testSwapConfigName    = "../../config/config_swap_test.yaml"
-	testSwapErrConfigName = "../../config/config_swap_err_test.yaml"
+	testConfigName        = "test-data/config/config_test.yaml"
+	testSwapConfigName    = "test-data/config/config_swap_test.yaml"
+	testSwapErrConfigName = "test-data/config/config_swap_err_test.yaml"
 )
 
 func TestGetConfigSimple(t *testing.T) {

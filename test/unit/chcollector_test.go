@@ -71,7 +71,7 @@ func TestCollectingTheSameBlock(t *testing.T) {
 		cmn.DefaultPrefixes)
 	require.NotNil(t, prs)
 
-	bltx := cmn.GetBlock(t, "../../hlf/parser/test-data/blocks/block_with_preimages.block")
+	bltx := cmn.GetBlock(t, "test-data/parser/block_with_preimages.block")
 
 	const totalCountBlocks = 2
 	// add two identical blocks with transactions to the event channel
@@ -122,7 +122,7 @@ func TestCollectingTheSameBlockMultiswaps(t *testing.T) {
 		cmn.DefaultPrefixes)
 	require.NotNil(t, prs)
 
-	bltx := cmn.GetBlock(t, "../../hlf/parser/test-data/blocks/block_with_multiswaps.block")
+	bltx := cmn.GetBlock(t, "test-data/parser/block_with_multiswaps.block")
 
 	const totalCountBlocks = 2
 	// add two identical blocks with transactions to the event channel
@@ -173,7 +173,7 @@ func TestCollectingTheSameBlockKeys(t *testing.T) {
 		cmn.DefaultPrefixes)
 	require.NotNil(t, prs)
 
-	bltx := cmn.GetBlock(t, "../../hlf/parser/test-data/blocks/block_with_keys.block")
+	bltx := cmn.GetBlock(t, "test-data/parser/block_with_keys.block")
 
 	const totalCountBlocks = 2
 	// add two identical blocks with transactions to the event channel
@@ -224,7 +224,7 @@ func TestCollectingTheSameBlockMultikeys(t *testing.T) {
 		cmn.DefaultPrefixes)
 	require.NotNil(t, prs)
 
-	bltx := cmn.GetBlock(t, "../../hlf/parser/test-data/blocks/block_with_multikeys.block")
+	bltx := cmn.GetBlock(t, "test-data/parser/block_with_multikeys.block")
 
 	const totalCountBlocks = 2
 	// add two identical blocks with transactions to the event channel
@@ -275,7 +275,7 @@ func TestCollectingTheSameBlockSwaps(t *testing.T) {
 		cmn.DefaultPrefixes)
 	require.NotNil(t, prs)
 
-	bltx := cmn.GetBlock(t, "../../hlf/parser/test-data/blocks/block_with_swaps.block")
+	bltx := cmn.GetBlock(t, "test-data/parser/block_with_swaps.block")
 
 	const totalCountBlocks = 2
 	// add two identical blocks with transactions to the event channel
