@@ -17,20 +17,15 @@ import (
 
 	"github.com/anoideaopen/common-component/basemetrics/baseprometheus"
 	"github.com/anoideaopen/common-component/errorshlp"
-	"github.com/anoideaopen/common-component/loggerhlp"
 	"github.com/anoideaopen/glog"
 	"github.com/anoideaopen/robot/chrobot"
-	"github.com/anoideaopen/robot/collectorbatch"
 	"github.com/anoideaopen/robot/config"
-	"github.com/anoideaopen/robot/dto/parserdto"
 	"github.com/anoideaopen/robot/helpers/nerrors"
-	"github.com/anoideaopen/robot/hlf"
 	"github.com/anoideaopen/robot/hlf/hlfprofile"
 	"github.com/anoideaopen/robot/logger"
 	"github.com/anoideaopen/robot/metrics"
 	"github.com/anoideaopen/robot/metrics/prometheus"
 	"github.com/anoideaopen/robot/server"
-	"github.com/anoideaopen/robot/storage/redis"
 )
 
 var AppInfoVer = "undefined-ver"
@@ -48,7 +43,7 @@ func main() {
 		panic(fmt.Sprintf("%+v", err))
 	}
 
-	l, err := createLogger(cfg, hlfProfile)
+	l, err := logger.New(cfg, hlfProfile, AppInfoVer)
 	if err != nil {
 		panic(fmt.Sprintf("%+v", err))
 	}
@@ -92,7 +87,7 @@ func main() {
 
 	// robots
 
-	robots, err := createRobots(ctx, cfg, hlfProfile)
+	robots, err := chrobot.CreateRobots(ctx, cfg, hlfProfile)
 	if err != nil {
 		panic(err)
 	}
@@ -121,99 +116,6 @@ func main() {
 	m.AppInitDuration().Set(dur.Seconds())
 	l.Infof("Robot started, time - %s\n", dur.String())
 	wg.Wait()
-}
-
-func createLogger(cfg *config.Config, hlfProfile *hlfprofile.HlfProfile) (glog.Logger, error) {
-	l, err := loggerhlp.CreateLogger(cfg.LogType, cfg.LogLevel)
-	if err != nil {
-		return nil, err
-	}
-
-	l = l.With(logger.Labels{
-		Version:   AppInfoVer,
-		UserName:  cfg.UserName,
-		OrgName:   hlfProfile.OrgName,
-		Component: logger.ComponentMain,
-	}.Fields()...)
-
-	return l, nil
-}
-
-func createRobots(ctx context.Context, cfg *config.Config, hlfProfile *hlfprofile.HlfProfile) ([]*chrobot.ChRobot, error) {
-	robots := make([]*chrobot.ChRobot, 0, len(cfg.Robots))
-	for _, rCfg := range cfg.Robots {
-		allSrcChannels := map[string]uint64{}
-		for _, sc := range rCfg.SrcChannels {
-			allSrcChannels[sc.ChName] = *sc.InitBlockNum
-		}
-
-		ccr := createChCollectorCreator(cfg, hlfProfile, rCfg)
-		ecr, err := createChExecutorCreator(cfg, hlfProfile, rCfg)
-		if err != nil {
-			return nil, err
-		}
-
-		stor, err := redis.NewStorage(ctx, cfg.RedisStorage.Addr, cfg.RedisStorage.Password,
-			cfg.RedisStorage.WithTLS, cfg.RedisStorage.RootCAs,
-			cfg.RedisStorage.DBPrefix, rCfg.ChName)
-		if err != nil {
-			return nil, err
-		}
-
-		bLimits := cfg.DefaultBatchLimits
-		if rCfg.BatchLimits != nil {
-			bLimits = rCfg.BatchLimits
-		}
-		if bLimits == nil {
-			return nil, fmt.Errorf("no configuration for batch limits in %s robot", rCfg.ChName)
-		}
-
-		r := chrobot.NewRobot(ctx, rCfg.ChName, rCfg.InitMinExecBlockNum,
-			allSrcChannels,
-			func(ctx context.Context, dataReady chan<- struct{}, srcChName string, startFrom uint64) (chrobot.ChCollector, error) {
-				return ccr(ctx, dataReady, srcChName, startFrom)
-			},
-			func(ctx context.Context) (chrobot.ChExecutor, error) {
-				return ecr(ctx)
-			},
-			stor,
-			collectorbatch.Limits{
-				BlocksCountLimit: bLimits.BatchBlocksCountLimit,
-				TimeoutLimit:     bLimits.BatchTimeoutLimit,
-				LenLimit:         bLimits.BatchLenLimit,
-				SizeLimit:        bLimits.BatchSizeLimit,
-			})
-
-		robots = append(robots, r)
-	}
-
-	return robots, nil
-}
-
-func createChCollectorCreator(cfg *config.Config, hlfProfile *hlfprofile.HlfProfile,
-	rCfg *config.Robot,
-) hlf.ChCollectorCreator {
-	txPrefixes := parserdto.TxPrefixes{
-		Tx:        cfg.TxPreimagePrefix,
-		Swap:      cfg.TxSwapPrefix,
-		MultiSwap: cfg.TxMultiSwapPrefix,
-	}
-	return hlf.NewChCollectorCreator(
-		rCfg.ChName, cfg.ProfilePath, cfg.UserName, hlfProfile.OrgName,
-		txPrefixes,
-		rCfg.CollectorsBufSize)
-}
-
-func createChExecutorCreator(cfg *config.Config, hlfProfile *hlfprofile.HlfProfile,
-	rCfg *config.Robot,
-) (hlf.ChExecutorCreator, error) {
-	execOpts, err := mapExecOpts(cfg, rCfg)
-	if err != nil {
-		return nil, err
-	}
-
-	return hlf.NewChExecutorCreator(rCfg.ChName, cfg.ProfilePath,
-		cfg.UserName, hlfProfile.OrgName, execOpts), nil
 }
 
 func runRobot(ctx context.Context, r *chrobot.ChRobot, delayAfterError time.Duration, lm *server.LivenessMng) {
@@ -382,15 +284,4 @@ func setInitMetricsVals(cfg *config.Config, m *prometheus.MetricsBus) {
 			}
 		}
 	}
-}
-
-func mapExecOpts(cfg *config.Config, rCfg *config.Robot) (hlf.ExecuteOptions, error) {
-	execTimeout, err := rCfg.ExecOpts.EffExecuteTimeout(cfg.DefaultRobotExecOpts)
-	if err != nil {
-		return hlf.ExecuteOptions{}, err
-	}
-
-	return hlf.ExecuteOptions{
-		ExecuteTimeout: execTimeout,
-	}, nil
 }
