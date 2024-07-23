@@ -1,5 +1,5 @@
 //nolint:unused
-package main
+package unit
 
 import (
 	"context"
@@ -21,6 +21,7 @@ import (
 	"github.com/anoideaopen/robot/helpers/ntesting"
 	"github.com/anoideaopen/robot/hlf"
 	"github.com/anoideaopen/robot/hlf/sdkwrapper/wallet"
+	"github.com/anoideaopen/robot/logger"
 	"github.com/hyperledger/fabric-sdk-go/pkg/client/ledger"
 	fsdkConfig "github.com/hyperledger/fabric-sdk-go/pkg/core/config"
 	"github.com/hyperledger/fabric-sdk-go/pkg/fabsdk"
@@ -28,6 +29,8 @@ import (
 	"golang.org/x/crypto/sha3"
 	"golang.org/x/sync/errgroup"
 )
+
+var appInfoVer = "undefined-ver"
 
 func TestGetLedgerH(t *testing.T) {
 	t.Skip("ATMCORE-6588 skipped for fast check fabric sdk changes")
@@ -80,7 +83,7 @@ func TestRobots(t *testing.T) {
 	cfg, err := createConfig(t, ciData)
 	require.NoError(t, err)
 
-	l, err := createLogger(cfg, ciData.HlfProfile)
+	l, err := logger.New(cfg, ciData.HlfProfile, appInfoVer)
 	require.NoError(t, err)
 
 	eg, ctx := errgroup.WithContext(glog.NewContext(context.Background(), l))
@@ -88,7 +91,7 @@ func TestRobots(t *testing.T) {
 	var cancel context.CancelFunc
 	ctx, cancel = context.WithCancel(ctx)
 
-	robots, err := createRobots(ctx, cfg, ciData.HlfProfile)
+	robots, err := chrobot.CreateRobots(ctx, cfg, ciData.HlfProfile)
 	require.NoError(t, err)
 	require.NotEmpty(t, robots)
 
