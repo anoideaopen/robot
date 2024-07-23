@@ -1,4 +1,4 @@
-package collectorbatch
+package unit
 
 import (
 	"fmt"
@@ -10,13 +10,13 @@ import (
 	"github.com/anoideaopen/common-component/testshlp"
 	"github.com/anoideaopen/foundation/proto"
 	"github.com/anoideaopen/glog"
+	"github.com/anoideaopen/robot/collectorbatch"
 	"github.com/anoideaopen/robot/dto/collectordto"
 	"github.com/anoideaopen/robot/dto/executordto"
 	"github.com/anoideaopen/robot/dto/parserdto"
 	"github.com/anoideaopen/robot/helpers/ntesting"
 	"github.com/anoideaopen/robot/hlf/parser"
-	gproto "github.com/golang/protobuf/proto"
-	cb "github.com/hyperledger/fabric-protos-go/common"
+	cmn "github.com/anoideaopen/robot/test/unit/common"
 	"github.com/stretchr/testify/require"
 	pb "google.golang.org/protobuf/proto"
 )
@@ -32,11 +32,11 @@ func NoTestBatchSize(t *testing.T) {
 		maxDiff := float64(0)
 		stat := make([]int, 100)
 		bCount := 0
-		var batch *CBatch
+		var batch *collectorbatch.CBatch
 
 		for _, blockData := range allBlockData {
 			if batch == nil {
-				batch = NewBatch(ctx, "fiat", Limits{
+				batch = collectorbatch.NewBatch(ctx, "fiat", collectorbatch.Limits{
 					BlocksCountLimit: uint(bsize),
 				}, calcBS)
 			}
@@ -105,7 +105,7 @@ func getBlocks(t *testing.T, log glog.Logger) []blockDataWrap {
 		})
 
 		for _, file := range files {
-			b := getBlock(t, fmt.Sprintf("test-data/%s/%s", chName, file.Name()))
+			b := cmn.GetBlock(t, fmt.Sprintf("test-data/%s/%s", chName, file.Name()))
 			bd, err := prsr.ExtractData(b)
 			if err != nil {
 				continue
@@ -125,15 +125,4 @@ func getBlocks(t *testing.T, log glog.Logger) []blockDataWrap {
 	rand.Shuffle(len(res), func(i, j int) { res[i], res[j] = res[j], res[i] })
 
 	return res
-}
-
-func getBlock(t *testing.T, pathToBlock string) *cb.Block {
-	bytes, err := os.ReadFile(pathToBlock)
-	require.NoError(t, err)
-
-	block := &cb.Block{}
-	err = gproto.Unmarshal(bytes, block)
-	require.NoError(t, err)
-
-	return block
 }

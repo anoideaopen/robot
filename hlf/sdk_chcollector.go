@@ -31,7 +31,7 @@ type realCollector interface {
 	Close()
 }
 
-type chCollector struct {
+type ChCollector struct {
 	log glog.Logger
 	m   metrics.Metrics
 
@@ -47,7 +47,7 @@ type chCollector struct {
 	cancel        context.CancelFunc
 	wgLoop        *sync.WaitGroup
 
-	createEventsSrc    func(ctx context.Context, startFrom uint64) (eventsSrc, error)
+	createEventsSrc    func(ctx context.Context, startFrom uint64) (EventsSrc, error)
 	delayAfterSrcError time.Duration
 	awaitEventsTimeout time.Duration
 }
@@ -61,16 +61,17 @@ type sdkEventsSrc struct {
 	log          glog.Logger
 }
 
-type eventsSrc interface {
-	close()
-	getEvents() <-chan *fab.BlockEvent
+// EventsSrc - event source
+type EventsSrc interface {
+	Close()
+	GetEvents() <-chan *fab.BlockEvent
 }
 
-func (ses *sdkEventsSrc) getEvents() <-chan *fab.BlockEvent {
+func (ses *sdkEventsSrc) GetEvents() <-chan *fab.BlockEvent {
 	return ses.events
 }
 
-func (ses *sdkEventsSrc) close() {
+func (ses *sdkEventsSrc) Close() {
 	if ses == nil {
 		return
 	}
@@ -119,7 +120,7 @@ func createChCollector(ctx context.Context,
 	dataReady chan<- struct{}, startFrom uint64, bufSize uint,
 	connectionProfile, userName, orgName string,
 	txPrefixes parserdto.TxPrefixes,
-) (*chCollector, error) {
+) (*ChCollector, error) {
 	log := glog.FromContext(ctx).
 		With(logger.Labels{
 			Component: logger.ComponentCollector,
@@ -141,7 +142,7 @@ func createChCollector(ctx context.Context,
 		return nil, errorshlp.WrapWithDetails(err, nerrors.ErrTypeHlf, nerrors.ComponentCollector)
 	}
 
-	return createChCollectorAdv(
+	return CreateChCollectorAdv(
 		ctx, log, m,
 		srcChName, startFrom,
 		connectionProfile, userName, orgName,
@@ -151,17 +152,18 @@ func createChCollector(ctx context.Context,
 	), nil
 }
 
-func createChCollectorAdv(ctx context.Context,
+// CreateChCollectorAdv - creates advanced channel collector
+func CreateChCollectorAdv(ctx context.Context,
 	log glog.Logger, m metrics.Metrics,
 	srcChName string, startFrom uint64,
 	connectionProfile, userName, orgName string,
 	proxyEvents chan<- *fab.BlockEvent,
 	rc realCollector,
-	createEventsSrc func(ctx context.Context, startFrom uint64) (eventsSrc, error),
+	createEventsSrc func(ctx context.Context, startFrom uint64) (EventsSrc, error),
 	delayAfterSrcError time.Duration,
 	awaitEventsTimeout time.Duration,
-) *chCollector {
-	chColl := &chCollector{
+) *ChCollector {
+	chColl := &ChCollector{
 		log:            log,
 		m:              m,
 		srcChName:      srcChName,
@@ -179,7 +181,7 @@ func createChCollectorAdv(ctx context.Context,
 	}
 
 	if chColl.createEventsSrc == nil {
-		chColl.createEventsSrc = func(ctx context.Context, startFrom uint64) (eventsSrc, error) {
+		chColl.createEventsSrc = func(ctx context.Context, startFrom uint64) (EventsSrc, error) {
 			return chColl.createSdkEventsSrc(ctx, startFrom)
 		}
 	}
@@ -193,10 +195,10 @@ func createChCollectorAdv(ctx context.Context,
 	return chColl
 }
 
-func (cc *chCollector) createSdkEventsSrc(ctx context.Context, startFrom uint64) (res *sdkEventsSrc, resErr error) {
+func (cc *ChCollector) createSdkEventsSrc(ctx context.Context, startFrom uint64) (res *sdkEventsSrc, resErr error) {
 	defer func() {
 		if resErr != nil {
-			res.close()
+			res.Close()
 			res = nil
 		}
 	}()
@@ -249,7 +251,7 @@ func (cc *chCollector) createSdkEventsSrc(ctx context.Context, startFrom uint64)
 	return
 }
 
-func (cc *chCollector) loopProxy(ctx context.Context) {
+func (cc *ChCollector) loopProxy(ctx context.Context) {
 	defer func() {
 		close(cc.proxyEvents)
 		cc.wgLoop.Done()
@@ -267,16 +269,16 @@ func (cc *chCollector) loopProxy(ctx context.Context) {
 		}
 		isFirstAttempt = false
 
-		lastPushedBlockNum := cc.loopProxyByEvents(ctx, startFrom, ses.getEvents())
+		lastPushedBlockNum := cc.loopProxyByEvents(ctx, startFrom, ses.GetEvents())
 		if lastPushedBlockNum != nil {
 			startFrom = *lastPushedBlockNum + 1
 		}
-		ses.close()
+		ses.Close()
 		delayOrCancel(ctx, cc.delayAfterSrcError)
 	}
 }
 
-func (cc *chCollector) loopProxyByEvents(ctx context.Context, startedFrom uint64, events <-chan *fab.BlockEvent) *uint64 {
+func (cc *ChCollector) loopProxyByEvents(ctx context.Context, startedFrom uint64, events <-chan *fab.BlockEvent) *uint64 {
 	var lastPushedBlockNum *uint64
 
 	expectedBlockNum := startedFrom
@@ -330,7 +332,7 @@ func (cc *chCollector) loopProxyByEvents(ctx context.Context, startedFrom uint64
 	}
 }
 
-func (cc *chCollector) sendChErrMetric(isFirstAttempt, isSrcChClosed, isTimeout bool) {
+func (cc *ChCollector) sendChErrMetric(isFirstAttempt, isSrcChClosed, isTimeout bool) {
 	cc.m.TotalSrcChErrors().Inc(
 		metrics.Labels().IsFirstAttempt.Create(strconv.FormatBool(isFirstAttempt)),
 		metrics.Labels().IsSrcChClosed.Create(strconv.FormatBool(isSrcChClosed)),
@@ -338,7 +340,7 @@ func (cc *chCollector) sendChErrMetric(isFirstAttempt, isSrcChClosed, isTimeout 
 	)
 }
 
-func (cc *chCollector) Close() {
+func (cc *ChCollector) Close() {
 	if cc.cancel != nil {
 		cc.cancel()
 	}
@@ -348,7 +350,7 @@ func (cc *chCollector) Close() {
 	cc.wgLoop.Wait()
 }
 
-func (cc *chCollector) GetData() <-chan *collectordto.BlockData {
+func (cc *ChCollector) GetData() <-chan *collectordto.BlockData {
 	return cc.realCollector.GetData()
 }
 

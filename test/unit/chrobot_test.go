@@ -1,5 +1,5 @@
 //nolint:all
-package chrobot
+package unit
 
 import (
 	"context"
@@ -12,6 +12,7 @@ import (
 	"github.com/anoideaopen/common-component/errorshlp"
 	"github.com/anoideaopen/common-component/testshlp"
 	"github.com/anoideaopen/foundation/proto"
+	"github.com/anoideaopen/robot/chrobot"
 	"github.com/anoideaopen/robot/collectorbatch"
 	"github.com/anoideaopen/robot/dto/collectordto"
 	"github.com/anoideaopen/robot/dto/executordto"
@@ -19,7 +20,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestCreate(t *testing.T) {
+func TestRobotCreate(t *testing.T) {
 	t.Parallel()
 
 	ctx, _ := testshlp.CreateCtxLogger(t)
@@ -29,11 +30,11 @@ func TestCreate(t *testing.T) {
 	chName := "mych"
 	chExecutorCr := newStubChExecutorCreator(chName)
 
-	chRobot := NewRobot(ctx, chName, 10, map[string]uint64{},
-		func(ctx context.Context, dataReady chan<- struct{}, srcChName string, startFrom uint64) (ChCollector, error) {
+	chRobot := chrobot.NewRobot(ctx, chName, 10, map[string]uint64{},
+		func(ctx context.Context, dataReady chan<- struct{}, srcChName string, startFrom uint64) (chrobot.ChCollector, error) {
 			return cr.create(ctx, dataReady, srcChName, startFrom, 1)
 		},
-		func(ctx context.Context) (ChExecutor, error) {
+		func(ctx context.Context) (chrobot.ChExecutor, error) {
 			return chExecutorCr.create(ctx)
 		}, stor, collectorbatch.Limits{LenLimit: 1, SizeLimit: 1, TimeoutLimit: time.Second})
 
@@ -50,11 +51,11 @@ func TestStartStop(t *testing.T) {
 	chName := "mych"
 	chExecutorCr := newStubChExecutorCreator(chName)
 
-	chRobot := NewRobot(ctx, chName, 10, map[string]uint64{},
-		func(ctx context.Context, dataReady chan<- struct{}, srcChName string, startFrom uint64) (ChCollector, error) {
+	chRobot := chrobot.NewRobot(ctx, chName, 10, map[string]uint64{},
+		func(ctx context.Context, dataReady chan<- struct{}, srcChName string, startFrom uint64) (chrobot.ChCollector, error) {
 			return cr.create(ctx, dataReady, srcChName, startFrom, 1)
 		},
-		func(ctx context.Context) (ChExecutor, error) {
+		func(ctx context.Context) (chrobot.ChExecutor, error) {
 			return chExecutorCr.create(ctx)
 		},
 		stor, collectorbatch.Limits{LenLimit: 1, SizeLimit: 1, TimeoutLimit: time.Second})
@@ -84,12 +85,12 @@ func TestWorkWithOwnCh(t *testing.T) {
 	}
 	chExecutorCr := newStubChExecutorCreator(chName)
 
-	chRobot := NewRobot(ctx, chName, 10,
+	chRobot := chrobot.NewRobot(ctx, chName, 10,
 		map[string]uint64{chName: 0},
-		func(ctx context.Context, dataReady chan<- struct{}, srcChName string, startFrom uint64) (ChCollector, error) {
+		func(ctx context.Context, dataReady chan<- struct{}, srcChName string, startFrom uint64) (chrobot.ChCollector, error) {
 			return cr.create(ctx, dataReady, srcChName, startFrom, 1)
 		},
-		func(ctx context.Context) (ChExecutor, error) {
+		func(ctx context.Context) (chrobot.ChExecutor, error) {
 			return chExecutorCr.create(ctx)
 		},
 		stor, collectorbatch.Limits{LenLimit: countTxOrSwaps, TimeoutLimit: time.Second})
@@ -139,12 +140,12 @@ func TestWorkWithManyCh(t *testing.T) {
 	}
 	chExecutorCr := newStubChExecutorCreator(ch1)
 
-	chRobot := NewRobot(ctx, ch1, 10,
+	chRobot := chrobot.NewRobot(ctx, ch1, 10,
 		map[string]uint64{ch1: 0, ch2: 0, ch3: 0},
-		func(ctx context.Context, dataReady chan<- struct{}, srcChName string, startFrom uint64) (ChCollector, error) {
+		func(ctx context.Context, dataReady chan<- struct{}, srcChName string, startFrom uint64) (chrobot.ChCollector, error) {
 			return cr.create(ctx, dataReady, srcChName, startFrom, 1)
 		},
-		func(ctx context.Context) (ChExecutor, error) {
+		func(ctx context.Context) (chrobot.ChExecutor, error) {
 			return chExecutorCr.create(ctx)
 		},
 		stor, collectorbatch.Limits{LenLimit: countTxOrSwaps1, TimeoutLimit: time.Second})
@@ -228,12 +229,12 @@ func TestWorkWithErrors(t *testing.T) {
 		1: addExpectedErrors("create executor error 1", nerrors.ErrTypeParsing, nerrors.ComponentBatch),
 	})
 
-	chRobot := NewRobot(ctx, ch1, 10,
+	chRobot := chrobot.NewRobot(ctx, ch1, 10,
 		map[string]uint64{ch1: 0, ch2: 0, ch3: 0},
-		func(ctx context.Context, dataReady chan<- struct{}, srcChName string, startFrom uint64) (ChCollector, error) {
+		func(ctx context.Context, dataReady chan<- struct{}, srcChName string, startFrom uint64) (chrobot.ChCollector, error) {
 			return cr.create(ctx, dataReady, srcChName, startFrom, 1)
 		},
-		func(ctx context.Context) (ChExecutor, error) {
+		func(ctx context.Context) (chrobot.ChExecutor, error) {
 			return chExecutorCr.create(ctx)
 		},
 		stor,

@@ -4,7 +4,7 @@ import (
 	"context"
 )
 
-type ChExecutorCreator = func(ctx context.Context) (*chExecutor, error)
+type ChExecutorCreator = func(ctx context.Context) (*ChExecutor, error)
 
 func NewChExecutorCreator(chName,
 	connectionProfile,
@@ -22,7 +22,7 @@ func newChExecutorCreator(chName,
 	user, org string,
 	execOpts ExecuteOptions,
 ) ChExecutorCreator {
-	return func(ctx context.Context) (*chExecutor, error) {
+	return func(ctx context.Context) (*ChExecutor, error) {
 		return createChExecutor(ctx, chName,
 			connectionProfile,
 			user, org,

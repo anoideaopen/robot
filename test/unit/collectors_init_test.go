@@ -1,9 +1,10 @@
-package chrobot
+package unit
 
 import (
 	"context"
 	"testing"
 
+	"github.com/anoideaopen/robot/chrobot"
 	"github.com/anoideaopen/robot/collectorbatch"
 	"github.com/anoideaopen/robot/dto/collectordto"
 	"github.com/anoideaopen/robot/dto/stordto"
@@ -46,7 +47,7 @@ func (cc *stubCollectorFixFrom) Close() {
 func createStubCollector(_ context.Context,
 	_ chan<- struct{},
 	srcChName string, startFrom uint64,
-) (ChCollector, error) {
+) (chrobot.ChCollector, error) {
 	return &stubCollectorFixFrom{
 		srcChName: srcChName,
 		startFrom: startFrom,
@@ -163,26 +164,26 @@ func TestCollectorsInitPositions(t *testing.T) {
 }
 
 func checkEffectiveInitPositions(t *testing.T, configData map[string]uint64, storageData map[string]uint64, expectedData map[string]uint64) {
-	r := NewRobot(context.Background(), "robotCh", 0,
+	r := chrobot.NewRobot(context.Background(), "robotCh", 0,
 		configData,
 		createStubCollector,
 		nil,
 		&stubChStorage{chps: storageData},
 		collectorbatch.Limits{})
 
-	err := r.createCollectors(context.Background())
+	err := r.CreateCollectors(context.Background())
 	require.NoError(t, err)
 
-	require.True(t, len(r.collectors) == len(expectedData))
+	require.True(t, len(r.Collectors()) == len(expectedData))
 
-	for _, c := range r.collectors {
-		ep, ok := expectedData[c.chName]
+	for _, c := range r.Collectors() {
+		ep, ok := expectedData[c.ChName()]
 		require.True(t, ok)
 
-		collector, ok := c.collector.(*stubCollectorFixFrom)
+		collector, ok := c.Collector().(*stubCollectorFixFrom)
 		require.True(t, ok)
 
-		require.Equal(t, c.chName, collector.srcChName)
+		require.Equal(t, c.ChName(), collector.srcChName)
 		require.True(t,
 			(collector.startFrom == ep) ||
 				(collector.startFrom == 0 && ep == 0))
