@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/anoideaopen/robot/dto/parserdto"
-	"github.com/golang/protobuf/proto"
+	"github.com/golang/protobuf/proto" //nolint:staticcheck
 	"github.com/hyperledger/fabric-protos-go/common"
 	"github.com/stretchr/testify/require"
 )
