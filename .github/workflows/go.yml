@@ -54,11 +54,12 @@ jobs:
           go-version: ${{ env.GO_VER }}
           cache: false
       - name: golangci-lint
-        uses: golangci/golangci-lint-action@v4
+        uses: golangci/golangci-lint-action@v6
         with:
           version: v1.59
           args: --out-format=colored-line-number
           skip-cache: true
+          problem-matchers: true
 
   go-unit-test:
     needs:
