@@ -3,19 +3,19 @@ package chrobot
 import (
 	"context"
 	"fmt"
-	"github.com/anoideaopen/robot/config"
-	"github.com/anoideaopen/robot/hlf"
-	"github.com/anoideaopen/robot/hlf/hlfprofile"
-	"github.com/anoideaopen/robot/storage/redis"
 	"time"
 
 	"github.com/anoideaopen/glog"
 	"github.com/anoideaopen/robot/collectorbatch"
+	"github.com/anoideaopen/robot/config"
 	"github.com/anoideaopen/robot/dto/collectordto"
 	"github.com/anoideaopen/robot/dto/executordto"
 	"github.com/anoideaopen/robot/dto/stordto"
+	"github.com/anoideaopen/robot/hlf"
+	"github.com/anoideaopen/robot/hlf/hlfprofile"
 	"github.com/anoideaopen/robot/logger"
 	"github.com/anoideaopen/robot/metrics"
+	"github.com/anoideaopen/robot/storage/redis"
 )
 
 type ChStorage interface {
