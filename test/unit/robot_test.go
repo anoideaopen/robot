@@ -32,6 +32,8 @@ import (
 
 var appInfoVer = "undefined-ver"
 
+// ToDo: these tests are skipped. Need to rewrite them
+
 func TestGetLedgerH(t *testing.T) {
 	t.Skip("ATMCORE-6588 skipped for fast check fabric sdk changes")
 	ciData := ntesting.CI(t)
