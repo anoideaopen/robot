@@ -1,4 +1,4 @@
-package server
+package unit
 
 import (
 	"testing"
@@ -6,6 +6,7 @@ import (
 
 	"github.com/anoideaopen/common-component/testshlp"
 	"github.com/anoideaopen/robot/helpers/ntesting"
+	"github.com/anoideaopen/robot/server"
 	"github.com/stretchr/testify/require"
 )
 
@@ -14,14 +15,14 @@ func TestStartStopServer(t *testing.T) {
 
 	ctx, _ := testshlp.CreateCtxLogger(t)
 
-	lm, serverShutdown, err := StartServer(ctx, 8080,
-		&AppInfo{
+	lm, serverShutdown, err := server.StartServer(ctx, 8080,
+		&server.AppInfo{
 			Ver:          "verX",
 			VerSdkFabric: "verFabricY",
 		},
 		[]string{"fiat", "cc"}, nil)
 	require.NoError(t, err)
-	lm.SetRobotState("fiat", RobotStarted)
+	lm.SetRobotState("fiat", server.RobotStarted)
 
 	serverShutdown()
 	<-time.After(1 * time.Second)

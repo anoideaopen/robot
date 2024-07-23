@@ -104,18 +104,19 @@ func GetConfig() (*Config, error) {
 	if !ok {
 		return nil, errors.New("config path is required - specify the -c parameter or ROBOT_CONFIG env variable")
 	}
-	cfg, err := getConfig(p)
+	cfg, err := GetConfigFromPath(p)
 	if err != nil {
 		return nil, err
 	}
 
-	if err = validateConfig(cfg); err != nil {
+	if err = ValidateConfig(cfg); err != nil {
 		return nil, err
 	}
 	return cfg, nil
 }
 
-func validateConfig(cfg *Config) error {
+// ValidateConfig validates config
+func ValidateConfig(cfg *Config) error {
 	err := validateRequiredFields(cfg)
 	if err != nil {
 		return err
@@ -234,7 +235,8 @@ func findConfigPath() (string, bool, error) {
 	return "", false, nil
 }
 
-func getConfig(cfgPath string) (*Config, error) {
+// GetConfigFromPath returns config from specified path
+func GetConfigFromPath(cfgPath string) (*Config, error) {
 	viper.AutomaticEnv()
 	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 	viper.SetTypeByDefaultValue(true)

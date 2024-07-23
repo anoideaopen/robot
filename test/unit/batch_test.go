@@ -1,4 +1,4 @@
-package collectorbatch
+package unit
 
 import (
 	"testing"
@@ -6,6 +6,7 @@ import (
 
 	"github.com/anoideaopen/common-component/testshlp"
 	pb "github.com/anoideaopen/foundation/proto"
+	"github.com/anoideaopen/robot/collectorbatch"
 	"github.com/anoideaopen/robot/dto/collectordto"
 	"github.com/anoideaopen/robot/dto/executordto"
 	"github.com/golang/protobuf/proto"
@@ -14,22 +15,22 @@ import (
 
 func TestEmpty(t *testing.T) {
 	ctx, _ := testshlp.CreateCtxLogger(t)
-	b := NewBatch(ctx, "ch1",
-		Limits{}, calcBatchSize)
+	b := collectorbatch.NewBatch(ctx, "ch1",
+		collectorbatch.Limits{}, calcBatchSize)
 	batch, bi := b.GetBatchForExec()
 	require.Empty(t, bi.Sources)
-	require.EqualValues(t, &BatchInfo{
-		Kind:        NoneLimitKind,
+	require.EqualValues(t, &collectorbatch.BatchInfo{
+		Kind:        collectorbatch.NoneLimitKind,
 		BlocksCount: 0,
-		Sources:     map[string]*SrcInfo{},
+		Sources:     map[string]*collectorbatch.SrcInfo{},
 	}, bi)
 	require.True(t, batch.IsEmpty())
 }
 
 func TestReachingLimitWithoutExceeding(t *testing.T) {
 	ctx, _ := testshlp.CreateCtxLogger(t)
-	b := NewBatch(ctx, "ch1",
-		Limits{
+	b := collectorbatch.NewBatch(ctx, "ch1",
+		collectorbatch.Limits{
 			BlocksCountLimit: 2,
 		}, func(b *executordto.Batch) (uint, error) {
 			return 0, nil
@@ -42,7 +43,7 @@ func TestReachingLimitWithoutExceeding(t *testing.T) {
 	require.True(t, ok)
 
 	_, linfo := b.GetBatchForExec()
-	require.Equal(t, NoneLimitKind, linfo.Kind)
+	require.Equal(t, collectorbatch.NoneLimitKind, linfo.Kind)
 
 	ok, err = b.AddIfInLimit("ch1", &collectordto.BlockData{
 		BlockNum: 2,
@@ -51,7 +52,7 @@ func TestReachingLimitWithoutExceeding(t *testing.T) {
 	require.True(t, ok)
 
 	_, linfo = b.GetBatchForExec()
-	require.Equal(t, BlocksCountLimitKind, linfo.Kind)
+	require.Equal(t, collectorbatch.BlocksCountLimitKind, linfo.Kind)
 
 	ok, err = b.AddIfInLimit("ch1", &collectordto.BlockData{
 		BlockNum: 3,
@@ -60,13 +61,13 @@ func TestReachingLimitWithoutExceeding(t *testing.T) {
 	require.False(t, ok)
 
 	_, linfo = b.GetBatchForExec()
-	require.Equal(t, BlocksCountLimitKind, linfo.Kind)
+	require.Equal(t, collectorbatch.BlocksCountLimitKind, linfo.Kind)
 }
 
 func TestEmptyContent(t *testing.T) {
 	ctx, _ := testshlp.CreateCtxLogger(t)
-	b := NewBatch(ctx, "ch1",
-		Limits{}, calcBatchSize)
+	b := collectorbatch.NewBatch(ctx, "ch1",
+		collectorbatch.Limits{}, calcBatchSize)
 
 	for chName, bn := range map[string]uint64{"ch1": 100, "ch2": 200, "ch3": 300} {
 		ok, err := b.AddIfInLimit(chName, &collectordto.BlockData{
@@ -77,10 +78,10 @@ func TestEmptyContent(t *testing.T) {
 	}
 
 	batch, bi := b.GetBatchForExec()
-	require.EqualValues(t, &BatchInfo{
-		Kind:        NoneLimitKind,
+	require.EqualValues(t, &collectorbatch.BatchInfo{
+		Kind:        collectorbatch.NoneLimitKind,
 		BlocksCount: 3,
-		Sources: map[string]*SrcInfo{
+		Sources: map[string]*collectorbatch.SrcInfo{
 			"ch1": {
 				LastBlockNum: 100,
 				ItemsCount:   0,
@@ -119,8 +120,8 @@ func TestBasicBehavior(t *testing.T) {
 	ch3Name, ch3StartBlockNum, ch3CountBlocks := "ch3", 500, 7
 
 	ctx, _ := testshlp.CreateCtxLogger(t)
-	b := NewBatch(ctx, ch1Name,
-		Limits{}, calcBatchSize)
+	b := collectorbatch.NewBatch(ctx, ch1Name,
+		collectorbatch.Limits{}, calcBatchSize)
 	require.NotNil(t, b)
 
 	addBlocks := func(chName string, fbn, bc int) {
@@ -150,11 +151,11 @@ func TestBasicBehavior(t *testing.T) {
 	addBlocks(ch3Name, ch3StartBlockNum, ch3CountBlocks)
 
 	batch, bi := b.GetBatchForExec()
-	require.EqualValues(t, &BatchInfo{
-		Kind:        NoneLimitKind,
+	require.EqualValues(t, &collectorbatch.BatchInfo{
+		Kind:        collectorbatch.NoneLimitKind,
 		BlocksCount: 25,
 		Len:         290,
-		Sources: map[string]*SrcInfo{
+		Sources: map[string]*collectorbatch.SrcInfo{
 			"ch1": {
 				LastBlockNum: 14,
 				ItemsCount:   10 * 2,
@@ -193,8 +194,8 @@ func TestBasicBehavior(t *testing.T) {
 func TestDeadlineBehavior(t *testing.T) {
 	ctx, _ := testshlp.CreateCtxLogger(t)
 	const timeout = time.Second * 2
-	b := NewBatch(ctx, "ch1",
-		Limits{TimeoutLimit: timeout}, calcBatchSize)
+	b := collectorbatch.NewBatch(ctx, "ch1",
+		collectorbatch.Limits{TimeoutLimit: timeout}, calcBatchSize)
 	require.NotNil(t, b)
 
 	ok, err := b.AddIfInLimit("ch1", &collectordto.BlockData{
@@ -214,11 +215,11 @@ func TestDeadlineBehavior(t *testing.T) {
 	require.False(t, ok)
 
 	_, li := b.GetBatchForExec()
-	require.EqualValues(t, &BatchInfo{
-		Kind:        TimeoutLimitKind,
+	require.EqualValues(t, &collectorbatch.BatchInfo{
+		Kind:        collectorbatch.TimeoutLimitKind,
 		BlocksCount: 1,
 		Len:         3,
-		Sources: map[string]*SrcInfo{
+		Sources: map[string]*collectorbatch.SrcInfo{
 			"ch1": {
 				LastBlockNum: 100,
 				ItemsCount:   3,
@@ -229,8 +230,8 @@ func TestDeadlineBehavior(t *testing.T) {
 
 func TestLenOverLimit(t *testing.T) {
 	ctx, _ := testshlp.CreateCtxLogger(t)
-	b := NewBatch(ctx, "ch1",
-		Limits{
+	b := collectorbatch.NewBatch(ctx, "ch1",
+		collectorbatch.Limits{
 			LenLimit: 10,
 		}, calcBatchSize)
 	require.NotNil(t, b)
@@ -257,11 +258,11 @@ func TestLenOverLimit(t *testing.T) {
 	require.False(t, ok)
 
 	_, li := b.GetBatchForExec()
-	require.EqualValues(t, &BatchInfo{
-		Kind:        LenLimitKind,
+	require.EqualValues(t, &collectorbatch.BatchInfo{
+		Kind:        collectorbatch.LenLimitKind,
 		BlocksCount: 2,
 		Len:         6,
-		Sources: map[string]*SrcInfo{
+		Sources: map[string]*collectorbatch.SrcInfo{
 			"ch1": {
 				LastBlockNum: 101,
 				ItemsCount:   3,
@@ -276,7 +277,7 @@ func TestLenOverLimit(t *testing.T) {
 
 func TestSizeOverLimit(t *testing.T) {
 	ctx, _ := testshlp.CreateCtxLogger(t)
-	b := NewBatch(ctx, "ch1", Limits{
+	b := collectorbatch.NewBatch(ctx, "ch1", collectorbatch.Limits{
 		SizeLimit: 40,
 	}, calcBatchSize)
 	require.NotNil(t, b)
@@ -303,12 +304,12 @@ func TestSizeOverLimit(t *testing.T) {
 	require.False(t, ok)
 
 	_, li := b.GetBatchForExec()
-	require.EqualValues(t, &BatchInfo{
-		Kind:        SizeLimitKind,
+	require.EqualValues(t, &collectorbatch.BatchInfo{
+		Kind:        collectorbatch.SizeLimitKind,
 		BlocksCount: 2,
 		Len:         6,
 		Size:        21,
-		Sources: map[string]*SrcInfo{
+		Sources: map[string]*collectorbatch.SrcInfo{
 			"ch1": {
 				LastBlockNum: 101,
 				ItemsCount:   3,
@@ -323,8 +324,8 @@ func TestSizeOverLimit(t *testing.T) {
 
 func TestBlocksCountOverLimit(t *testing.T) {
 	ctx, _ := testshlp.CreateCtxLogger(t)
-	b := NewBatch(ctx, "ch1",
-		Limits{
+	b := collectorbatch.NewBatch(ctx, "ch1",
+		collectorbatch.Limits{
 			BlocksCountLimit: 2,
 		}, calcBatchSize)
 	require.NotNil(t, b)
@@ -348,10 +349,10 @@ func TestBlocksCountOverLimit(t *testing.T) {
 	require.False(t, ok)
 
 	_, li := b.GetBatchForExec()
-	require.EqualValues(t, &BatchInfo{
-		Kind:        BlocksCountLimitKind,
+	require.EqualValues(t, &collectorbatch.BatchInfo{
+		Kind:        collectorbatch.BlocksCountLimitKind,
 		BlocksCount: 2,
-		Sources: map[string]*SrcInfo{
+		Sources: map[string]*collectorbatch.SrcInfo{
 			"ch1": {
 				LastBlockNum: 101,
 				ItemsCount:   0,

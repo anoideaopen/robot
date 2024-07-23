@@ -1,5 +1,5 @@
 //nolint:all
-package main
+package unit
 
 import (
 	"context"

@@ -1,5 +1,5 @@
 //nolint:unused
-package redis
+package unit
 
 import (
 	"context"
@@ -7,6 +7,7 @@ import (
 
 	"github.com/anoideaopen/robot/dto/stordto"
 	"github.com/anoideaopen/robot/helpers/ntesting"
+	"github.com/anoideaopen/robot/storage/redis"
 	"github.com/stretchr/testify/require"
 )
 
@@ -23,7 +24,7 @@ func TestStorageSaveLoadCheckPoint(t *testing.T) {
 
 	clearAll(t)
 	ctx := context.Background()
-	stor, err := NewStorage(
+	stor, err := redis.NewStorage(
 		ctx,
 		[]string{ciData.RedisAddr}, ciData.RedisPass,
 		false, nil,
@@ -58,7 +59,7 @@ func TestStorageSaveLoadCheckPoint(t *testing.T) {
 	v, err = stor.SaveCheckPoints(ctx, cp2)
 	require.Nil(t, v)
 	require.NotNil(t, err)
-	require.ErrorIs(t, err, ErrStorVersionMismatch)
+	require.ErrorIs(t, err, redis.ErrStorVersionMismatch)
 
 	// 4. Update with the same version
 	cp3 := &stordto.ChCheckPoint{
@@ -87,7 +88,7 @@ func TestStorageDifferentChannelsCheckPoints(t *testing.T) {
 	clearAll(t)
 	ctx := context.Background()
 
-	stor1, err := NewStorage(
+	stor1, err := redis.NewStorage(
 		ctx,
 		[]string{ciData.RedisAddr}, ciData.RedisPass,
 		false, nil,
@@ -95,7 +96,7 @@ func TestStorageDifferentChannelsCheckPoints(t *testing.T) {
 	require.NoError(t, err)
 	require.NotNil(t, stor1)
 
-	stor2, err := NewStorage(
+	stor2, err := redis.NewStorage(
 		ctx,
 		[]string{ciData.RedisAddr}, ciData.RedisPass,
 		false, nil,
@@ -137,7 +138,7 @@ func clearAll(t *testing.T) {
 	ciData := ntesting.CI(t)
 	ctx := context.Background()
 	for _, chName := range []string{channel1, channel2, channel3} {
-		stor, err := NewStorage(
+		stor, err := redis.NewStorage(
 			ctx,
 			[]string{ciData.RedisAddr}, ciData.RedisPass,
 			false, nil,

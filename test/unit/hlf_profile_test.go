@@ -1,13 +1,14 @@
-package hlfprofile
+package unit
 
 import (
 	"testing"
 
+	"github.com/anoideaopen/robot/hlf/hlfprofile"
 	"github.com/stretchr/testify/require"
 )
 
 func TestParseProfile(t *testing.T) {
-	hlfProfile, err := ParseProfile("connection.yaml")
+	hlfProfile, err := hlfprofile.ParseProfile("../../hlf/hlfprofile/connection.yaml")
 	require.Nil(t, err)
 	require.NotNil(t, hlfProfile)
 

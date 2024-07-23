@@ -1,9 +1,10 @@
-package chcollector
+package unit
 
 import (
 	"context"
 	"testing"
 
+	"github.com/anoideaopen/robot/chcollector"
 	"github.com/hyperledger/fabric-protos-go/common"
 	"github.com/hyperledger/fabric-sdk-go/pkg/common/providers/fab"
 	"github.com/stretchr/testify/require"
@@ -32,7 +33,7 @@ func collectNBlocks(b *testing.B, totalCountBlocks int, bufSize uint) {
 			events <- &fab.BlockEvent{Block: &common.Block{}}
 		}
 
-		dc, err := NewCollector(ctx, prsr, dataReady, events, bufSize)
+		dc, err := chcollector.NewCollector(ctx, prsr, dataReady, events, bufSize)
 		require.NoError(b, err)
 		countBlocks := 0
 	loop:

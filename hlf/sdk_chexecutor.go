@@ -27,22 +27,22 @@ const (
 	retryExecuteDelay    = 500 * time.Millisecond
 )
 
-type executor interface {
-	execute(ctx context.Context, req channel.Request) (channel.Response, error)
+type Executor interface {
+	Execute(ctx context.Context, req channel.Request) (channel.Response, error)
 }
 
-type chExecutor struct {
+type ChExecutor struct {
 	// args
-	log    glog.Logger
-	m      metrics.Metrics
-	chName string
+	Log     glog.Logger
+	Metrics metrics.Metrics
+	ChName  string
 
 	// init
 	closeSdkComps        func()
-	executor             executor
-	retryExecuteAttempts uint
-	retryExecuteMaxDelay time.Duration
-	retryExecuteDelay    time.Duration
+	Executor             Executor
+	RetryExecuteAttempts uint
+	RetryExecuteMaxDelay time.Duration
+	RetryExecuteDelay    time.Duration
 }
 
 func createChExecutor(
@@ -51,7 +51,7 @@ func createChExecutor(
 	connectionProfile string,
 	userName, orgName string,
 	execOpts ExecuteOptions,
-) (*chExecutor, error) {
+) (*ChExecutor, error) {
 	log := glog.FromContext(ctx).
 		With(logger.Labels{
 			Component: logger.ComponentExecutor,
@@ -63,13 +63,13 @@ func createChExecutor(
 		metrics.Labels().RobotChannel.Create(chName),
 	)
 
-	chExec := &chExecutor{
-		log:                  log,
-		m:                    m,
-		chName:               chName,
-		retryExecuteAttempts: retryExecuteAttempts,
-		retryExecuteMaxDelay: retryExecuteMaxDelay,
-		retryExecuteDelay:    retryExecuteDelay,
+	chExec := &ChExecutor{
+		Log:                  log,
+		Metrics:              m,
+		ChName:               chName,
+		RetryExecuteAttempts: retryExecuteAttempts,
+		RetryExecuteMaxDelay: retryExecuteMaxDelay,
+		RetryExecuteDelay:    retryExecuteDelay,
 	}
 	if err := chExec.init(ctx, connectionProfile, orgName, userName, execOpts); err != nil {
 		chExec.Close()
@@ -78,7 +78,7 @@ func createChExecutor(
 	return chExec, nil
 }
 
-func (che *chExecutor) init(ctx context.Context,
+func (che *ChExecutor) init(ctx context.Context,
 	connectionProfile, org, user string,
 	execOpts ExecuteOptions,
 ) error {
@@ -88,7 +88,7 @@ func (che *chExecutor) init(ctx context.Context,
 	}
 
 	var sdkComps *sdkComponents
-	sdkComps, err = createSdkComponents(ctx, che.chName, org, user, configBackends)
+	sdkComps, err = createSdkComponents(ctx, che.ChName, org, user, configBackends)
 	if err != nil {
 		return err
 	}
@@ -105,7 +105,7 @@ func (che *chExecutor) init(ctx context.Context,
 		return err
 	}
 
-	che.executor = &hlfExecutor{
+	che.Executor = &hlfExecutor{
 		chClient: chClient,
 		chCtx:    chCtx,
 		execOpts: execOpts,
@@ -113,17 +113,17 @@ func (che *chExecutor) init(ctx context.Context,
 	return nil
 }
 
-func (che *chExecutor) Execute(ctx context.Context, b *executordto.Batch, _ uint64) (uint64, error) {
-	execHlp := newExecWithSplitHlp(che.log, che.executeBatch,
+func (che *ChExecutor) Execute(ctx context.Context, b *executordto.Batch, _ uint64) (uint64, error) {
+	execHlp := NewExecWithSplitHlp(che.Log, che.executeBatch,
 		func(_ *executordto.Batch, num int) {
-			che.m.TotalOrderingReqSizeExceeded().Inc(
+			che.Metrics.TotalOrderingReqSizeExceeded().Inc(
 				metrics.Labels().IsFirstAttempt.Create(strconv.FormatBool(num > 0)),
 			)
 		})
-	return execHlp.execute(ctx, b)
+	return execHlp.Execute(ctx, b)
 }
 
-func (che *chExecutor) executeBatch(ctx context.Context, b *executordto.Batch) (uint64, error) {
+func (che *ChExecutor) executeBatch(ctx context.Context, b *executordto.Batch) (uint64, error) {
 	batch := &pb.Batch{
 		TxIDs:          b.Txs,
 		Swaps:          b.Swaps,
@@ -131,7 +131,7 @@ func (che *chExecutor) executeBatch(ctx context.Context, b *executordto.Batch) (
 		MultiSwapsKeys: b.MultiKeys,
 		MultiSwaps:     b.MultiSwaps,
 	}
-	che.m.BatchItemsCount().Observe(
+	che.Metrics.BatchItemsCount().Observe(
 		float64(
 			len(batch.GetTxIDs()) +
 				len(batch.GetSwaps()) +
@@ -139,17 +139,17 @@ func (che *chExecutor) executeBatch(ctx context.Context, b *executordto.Batch) (
 				len(batch.GetKeys()) +
 				len(batch.GetMultiSwapsKeys())))
 
-	logBatchContent(che.log, b)
+	LogBatchContent(che.Log, b)
 
 	now := time.Now()
 	resp, err := che.executeWithRetry(ctx, batch)
 
-	che.m.BatchExecuteInvokeTime().Observe(time.Since(now).Seconds())
-	che.m.TotalBatchExecuted().Inc(
+	che.Metrics.BatchExecuteInvokeTime().Observe(time.Since(now).Seconds())
+	che.Metrics.TotalBatchExecuted().Inc(
 		metrics.Labels().IsErr.Create(strconv.FormatBool(err != nil)))
 
 	addTotalExecutedTx := func(count int, txType string) {
-		che.m.TotalExecutedTx().Add(
+		che.Metrics.TotalExecutedTx().Add(
 			float64(count),
 			metrics.Labels().TxType.Create(txType))
 	}
@@ -159,7 +159,7 @@ func (che *chExecutor) executeBatch(ctx context.Context, b *executordto.Batch) (
 			nerrors.ErrTypeHlf, nerrors.ComponentExecutor)
 	}
 
-	logBatchResponse(che.log, b, resp)
+	logBatchResponse(che.Log, b, resp)
 
 	addTotalExecutedTx(len(batch.GetTxIDs()), metrics.TxTypeTx)
 	addTotalExecutedTx(len(batch.GetKeys()), metrics.TxTypeSwapKey)
@@ -167,11 +167,11 @@ func (che *chExecutor) executeBatch(ctx context.Context, b *executordto.Batch) (
 	addTotalExecutedTx(len(batch.GetSwaps()), metrics.TxTypeSwap)
 	addTotalExecutedTx(len(batch.GetMultiSwaps()), metrics.TxTypeMultiSwap)
 
-	che.m.HeightLedgerBlocks().Set(float64(resp.BlockNumber + 1))
+	che.Metrics.HeightLedgerBlocks().Set(float64(resp.BlockNumber + 1))
 	return resp.BlockNumber, nil
 }
 
-func (che *chExecutor) CalcBatchSize(b *executordto.Batch) (uint, error) {
+func (che *ChExecutor) CalcBatchSize(b *executordto.Batch) (uint, error) {
 	batch := &pb.Batch{
 		TxIDs:          b.Txs,
 		Swaps:          b.Swaps,
@@ -183,13 +183,13 @@ func (che *chExecutor) CalcBatchSize(b *executordto.Batch) (uint, error) {
 	return uint(proto.Size(batch)), nil
 }
 
-func (che *chExecutor) Close() {
+func (che *ChExecutor) Close() {
 	if che.closeSdkComps != nil {
 		che.closeSdkComps()
 	}
 }
 
-func (che *chExecutor) executeWithRetry(ctx context.Context, batch *pb.Batch) (channel.Response, error) {
+func (che *ChExecutor) executeWithRetry(ctx context.Context, batch *pb.Batch) (channel.Response, error) {
 	var resp channel.Response
 
 	batchBytes, err := proto.Marshal(batch)
@@ -199,22 +199,22 @@ func (che *chExecutor) executeWithRetry(ctx context.Context, batch *pb.Batch) (c
 			nerrors.ErrTypeParsing, nerrors.ComponentExecutor)
 	}
 
-	che.m.BatchSize().Observe(float64(len(batchBytes)))
-	che.m.TotalBatchSize().Add(float64(len(batchBytes)))
+	che.Metrics.BatchSize().Observe(float64(len(batchBytes)))
+	che.Metrics.TotalBatchSize().Add(float64(len(batchBytes)))
 
 	err = retry.Do(func() error {
-		r, err := che.executor.execute(ctx,
+		r, err := che.Executor.Execute(ctx,
 			channel.Request{
-				ChaincodeID: che.chName,
+				ChaincodeID: che.ChName,
 				Fcn:         "batchExecute",
 				Args:        [][]byte{batchBytes},
 			})
 		if err != nil {
-			che.m.TotalBatchExecuted().Inc(
+			che.Metrics.TotalBatchExecuted().Inc(
 				metrics.Labels().IsErr.Create("true"))
 
 			if IsEndorsementMismatchErr(err) {
-				che.log.Warningf("endorsement mismatch, err: %s", err)
+				che.Log.Warningf("endorsement mismatch, err: %s", err)
 			}
 			return err
 		}
@@ -223,13 +223,13 @@ func (che *chExecutor) executeWithRetry(ctx context.Context, batch *pb.Batch) (c
 		return nil
 	},
 		retry.LastErrorOnly(true),
-		retry.Attempts(che.retryExecuteAttempts),
-		retry.Delay(che.retryExecuteDelay),
-		retry.MaxDelay(che.retryExecuteMaxDelay),
+		retry.Attempts(che.RetryExecuteAttempts),
+		retry.Delay(che.RetryExecuteDelay),
+		retry.MaxDelay(che.RetryExecuteMaxDelay),
 		retry.RetryIf(isExecuteErrorRecoverable),
 		retry.Context(ctx),
 		retry.OnRetry(func(n uint, err error) {
-			che.log.Warningf("retrying execute, attempt: %d, err: %s, batch: %s", n, err, batch)
+			che.Log.Warningf("retrying execute, attempt: %d, err: %s, batch: %s", n, err, batch)
 		}),
 	)
 	if err != nil {
@@ -244,7 +244,7 @@ func isExecuteErrorRecoverable(e error) bool {
 	return IsEndorsementMismatchErr(e)
 }
 
-func logBatchContent(log glog.Logger, b *executordto.Batch) {
+func LogBatchContent(log glog.Logger, b *executordto.Batch) {
 	sb := strings.Builder{}
 	_, _ = sb.WriteString("batch content:\n")
 
