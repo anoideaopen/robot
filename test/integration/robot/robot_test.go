@@ -1,6 +1,8 @@
 package robot
 
 import (
+	"encoding/json"
+	"github.com/anoideaopen/foundation/core/types"
 	"os"
 	"path/filepath"
 	"syscall"
@@ -30,18 +32,27 @@ const (
 	ccACLUpper        = "ACL"
 	ccIndustrialUpper = "INDUSTRIAL"
 
-	emitAmount = "1000"
-
 	errWrongChannel      = "no channel peers configured for channel"
 	errNotValidChannel   = "channel not in configuration list"
 	errInsufficientFunds = "failed to subtract token balance: insufficient balance"
 	errIncorrectToken    = "token set incorrectly"
 
-	fnChannelTransferByAdmin    = "channelTransferByAdmin"
-	fnChannelTransferByCustomer = "channelTransferByCustomer"
+	fnEmit             = "emit"
+	fnBalanceOf        = "balanceOf"
+	fnAllowedBalanceOf = "allowedBalanceOf"
+	fnSwapBegin        = "swapBegin"
+	fnSwapGet          = "swapGet"
+	fnSwapDone         = "swapDone"
+	fnSetRate          = "setRate"
+	fnBuyToken         = "buyToken"
+
+	emitAmount      = "1000"
+	zeroAmount      = "0"
+	defaultSwapHash = "7d4e3eec80026719639ed4dba68916eb94c7a49a053e05c8f9578fe4e5a3d7ea"
+	defaultSwapKey  = "12345"
 )
 
-var _ = Describe("Robot tests", func() {
+var _ = Describe("Channel transfer HTTP tests", func() {
 	var (
 		testDir          string
 		cli              *docker.Client
@@ -84,19 +95,20 @@ var _ = Describe("Robot tests", func() {
 	})
 
 	var (
-		channels       = []string{cmn.ChannelAcl, cmn.ChannelCC, cmn.ChannelFiat, cmn.ChannelIndustrial}
-		ordererRunners []*ginkgomon.Runner
-		redisProcess   ifrit.Process
-		redisDB        *runner.RedisDB
-		networkFound   *cmn.NetworkFoundation
-		robotProc      ifrit.Process
-		skiBackend     string
-		skiRobot       string
-		peer           *nwo.Peer
-		admin          *client.UserFoundation
-		// user             *client.UserFoundation
-		feeSetter        *client.UserFoundation
-		feeAddressSetter *client.UserFoundation
+		channels            = []string{cmn.ChannelAcl, cmn.ChannelCC, cmn.ChannelFiat, cmn.ChannelIndustrial}
+		ordererRunners      []*ginkgomon.Runner
+		redisProcess        ifrit.Process
+		redisDB             *runner.RedisDB
+		networkFound        *cmn.NetworkFoundation
+		robotProc           ifrit.Process
+		channelTransferProc ifrit.Process
+		skiBackend          string
+		skiRobot            string
+		peer                *nwo.Peer
+		admin               *client.UserFoundation
+		user                *client.UserFoundation
+		feeSetter           *client.UserFoundation
+		feeAddressSetter    *client.UserFoundation
 	)
 	BeforeEach(func() {
 		By("start redis")
@@ -200,6 +212,11 @@ var _ = Describe("Robot tests", func() {
 		robotRunner := networkFound.RobotRunner()
 		robotProc = ifrit.Invoke(robotRunner)
 		Eventually(robotProc.Ready(), network.EventuallyTimeout).Should(BeClosed())
+
+		By("start channel transfer")
+		channelTransferRunner := networkFound.ChannelTransferRunner()
+		channelTransferProc = ifrit.Invoke(channelTransferRunner)
+		Eventually(channelTransferProc.Ready(), network.EventuallyTimeout).Should(BeClosed())
 	})
 	AfterEach(func() {
 		By("stop robot")
@@ -207,19 +224,163 @@ var _ = Describe("Robot tests", func() {
 			robotProc.Signal(syscall.SIGTERM)
 			Eventually(robotProc.Wait(), network.EventuallyTimeout).Should(Receive())
 		}
-	})
-
-	It("Get ledger height test", func() {
-		for _, channel := range channels {
-			height := nwo.GetLedgerHeight(network, peer, channel)
-			Expect(height).NotTo(BeZero())
+		By("stop channel transfer")
+		if channelTransferProc != nil {
+			channelTransferProc.Signal(syscall.SIGTERM)
+			Eventually(channelTransferProc.Wait(), network.EventuallyTimeout).Should(Receive())
 		}
 	})
 
-	It("Get owners test", func() {
-		for _, channel := range channels {
-			height := nwo.GetLedgerHeight(network, peer, channel)
-			Expect(height).NotTo(BeZero())
-		}
+	BeforeEach(func() {
+		By("add admin to acl")
+		client.AddUser(network, peer, network.Orderers[0], admin)
+
+		By("add user to acl")
+		var err error
+		user, err = client.NewUserFoundation(pbfound.KeyType_ed25519)
+		Expect(err).NotTo(HaveOccurred())
+
+		client.AddUser(network, peer, network.Orderers[0], user)
+
+		By("emit tokens")
+		client.TxInvokeWithSign(network, peer, network.Orderers[0],
+			cmn.ChannelFiat, cmn.ChannelFiat, admin,
+			fnEmit, "", client.NewNonceByTime().Get(), nil, user.AddressBase58Check, emitAmount)
+
+		By("emit check")
+		client.Query(network, peer, cmn.ChannelFiat, cmn.ChannelFiat,
+			fabricnetwork.CheckResult(fabricnetwork.CheckBalance(emitAmount), nil),
+			fnBalanceOf, user.AddressBase58Check)
 	})
+
+	It("swap test", func() {
+		var (
+		//buyAmount       = "1"
+		//rate            = "100000000"
+		)
+
+		By("swap from fiat to cc")
+		By("swap begin")
+		swapBeginTxID := client.TxInvokeWithSign(network, peer, network.Orderers[0],
+			cmn.ChannelFiat, cmn.ChannelFiat, user,
+			fnSwapBegin, "", client.NewNonceByTime().Get(), nil,
+			ccFiatUpper, ccCCUpper, emitAmount, defaultSwapHash)
+		Expect(swapBeginTxID).ToNot(BeEmpty())
+
+		By("swap get")
+		fGet := func(out []byte) string {
+			if len(out) == 0 {
+				return "out is empty"
+			}
+
+			return ""
+		}
+		client.Query(network, peer, cmn.ChannelCC, cmn.ChannelCC,
+			fabricnetwork.CheckResult(fGet, nil),
+			fnSwapGet, swapBeginTxID)
+
+		By("check balance 1")
+		client.Query(network, peer, cmn.ChannelFiat, cmn.ChannelFiat,
+			fabricnetwork.CheckResult(fabricnetwork.CheckBalance(zeroAmount), nil),
+			fnBalanceOf, user.AddressBase58Check)
+
+		By("check allowed balance 1")
+		client.Query(network, peer, cmn.ChannelCC, cmn.ChannelCC,
+			fabricnetwork.CheckResult(fabricnetwork.CheckBalance(zeroAmount), nil),
+			fnAllowedBalanceOf, user.AddressBase58Check, ccFiatUpper)
+
+		By("swap done")
+		client.NBTxInvoke(network, peer, network.Orderers[0], nil,
+			cmn.ChannelCC, cmn.ChannelCC,
+			fnSwapDone, swapBeginTxID, defaultSwapKey)
+
+		By("check balance 2")
+		client.Query(network, peer, cmn.ChannelFiat, cmn.ChannelFiat,
+			fabricnetwork.CheckResult(fabricnetwork.CheckBalance(zeroAmount), nil),
+			fnBalanceOf, user.AddressBase58Check)
+
+		By("check allowed balance 2")
+		client.Query(network, peer, cmn.ChannelCC, cmn.ChannelCC,
+			fabricnetwork.CheckResult(fabricnetwork.CheckBalance(emitAmount), nil),
+			fnAllowedBalanceOf, user.AddressBase58Check, ccFiatUpper)
+
+		/*
+			By("set rate")
+			client.TxInvokeWithSign(network, peer, network.Orderers[0], cmn.ChannelCC, cmn.ChannelCC, admin,
+				fnSetRate, "0", client.NewNonceByTime().Get(), nil,
+				fnBuyToken, ccFiatUpper, rate)
+
+			By("buy token")
+			client.TxInvokeWithSign(network, peer, network.Orderers[0], cmn.ChannelCC, cmn.ChannelCC, user,
+				fnBuyToken, "0", client.NewNonceByTime().Get(), nil,
+				buyAmount, ccFiatUpper)
+
+			By("check balance 3")
+			client.Query(network, peer, cmn.ChannelCC, cmn.ChannelCC,
+				fabricnetwork.CheckResult(fabricnetwork.CheckBalance(buyAmount), nil),
+				fnBalanceOf, user.AddressBase58Check)
+
+			By("check allowed balance 3")
+			client.Query(network, peer, cmn.ChannelCC, cmn.ChannelCC,
+				fabricnetwork.CheckResult(fabricnetwork.CheckBalance(zeroAmount), nil),
+				fnAllowedBalanceOf, user.AddressBase58Check, ccFiatUpper)
+		*/
+	})
+
+	It("Multiswap test", func() {
+		By("multiswap begin")
+		assets, err := json.Marshal(types.MultiSwapAssets{
+			Assets: []*types.MultiSwapAsset{
+				{
+					Group:  ccFiatUpper,
+					Amount: emitAmount,
+				},
+			},
+		})
+		Expect(err).NotTo(HaveOccurred())
+		swapBeginTxID := client.TxInvokeWithSign(network, peer, network.Orderers[0],
+			cmn.ChannelFiat, cmn.ChannelFiat, user,
+			"multiSwapBegin", "", client.NewNonceByTime().Get(), nil,
+			"FIAT", string(assets), "CC", defaultSwapHash)
+		Expect(swapBeginTxID).ToNot(BeEmpty())
+
+		By("multiswap get 1")
+		fGet := func(out []byte) string {
+			if len(out) == 0 {
+				return "out is empty"
+			}
+
+			return ""
+		}
+		client.Query(network, peer, cmn.ChannelCC, cmn.ChannelCC,
+			fabricnetwork.CheckResult(fGet, nil),
+			"multiSwapGet", swapBeginTxID)
+
+		By("check balance 1")
+		client.Query(network, peer, cmn.ChannelFiat, cmn.ChannelFiat,
+			fabricnetwork.CheckResult(fabricnetwork.CheckBalance(zeroAmount), nil),
+			"balanceOf", user.AddressBase58Check)
+
+		By("check allowed balance 1")
+		client.Query(network, peer, cmn.ChannelCC, cmn.ChannelCC,
+			fabricnetwork.CheckResult(fabricnetwork.CheckBalance(zeroAmount), nil),
+			"allowedBalanceOf", user.AddressBase58Check, ccFiatUpper)
+
+		By("multiswap done")
+		client.NBTxInvoke(network, peer, network.Orderers[0], nil,
+			cmn.ChannelCC, cmn.ChannelCC,
+			"multiSwapDone", swapBeginTxID, defaultSwapKey)
+
+		By("check balance 2")
+		client.Query(network, peer, cmn.ChannelFiat, cmn.ChannelFiat,
+			fabricnetwork.CheckResult(fabricnetwork.CheckBalance(zeroAmount), nil),
+			"balanceOf", user.AddressBase58Check)
+
+		By("check allowed balance 2")
+		client.Query(network, peer, cmn.ChannelCC, cmn.ChannelCC,
+			fabricnetwork.CheckResult(fabricnetwork.CheckBalance(emitAmount), nil),
+			"allowedBalanceOf", user.AddressBase58Check, ccFiatUpper)
+
+	})
+
 })
