@@ -10,6 +10,7 @@ import (
 	_ "github.com/anoideaopen/foundation/test/chaincode/cc"
 	_ "github.com/anoideaopen/foundation/test/chaincode/fiat"
 	_ "github.com/anoideaopen/foundation/test/chaincode/industrial"
+	_ "github.com/anoideaopen/robot"
 	_ "github.com/hyperledger/fabric/cmd/configtxgen"
 	_ "github.com/hyperledger/fabric/cmd/cryptogen"
 	_ "github.com/hyperledger/fabric/cmd/discover"

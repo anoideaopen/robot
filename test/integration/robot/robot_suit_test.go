@@ -43,5 +43,5 @@ var _ = SynchronizedAfterSuite(func() {
 })
 
 func StartPort() int {
-	return integration.RaftBasePort.StartPortForNode()
+	return integration.GatewayBasePort.StartPortForNode()
 }
