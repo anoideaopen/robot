@@ -75,4 +75,4 @@ require (
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
 
-replace github.com/hyperledger/fabric-sdk-go => github.com/anoideaopen/fabric-sdk-go v0.0.1
+replace github.com/hyperledger/fabric-sdk-go => github.com/anoideaopen/fabric-sdk-go v0.0.2
