@@ -38,8 +38,8 @@ type Config struct {
 
 	PromMetrics *PromMetrics `mapstructure:"promMetrics"`
 
-	DefaultRobotExecOpts ExecuteOptions `mapstructure:"defaultRobotExecOpts" validate:"dive"`
-	Robots               []*Robot       `mapstructure:"robots" validate:"dive"`
+	DefaultRobotExecOpts ExecuteOptions `mapstructure:"defaultRobotExecOpts"`
+	Robots               []*Robot       `mapstructure:"robots" validate:"required,dive"`
 }
 
 type PromMetrics struct {
@@ -49,10 +49,10 @@ type PromMetrics struct {
 type Robot struct {
 	ChName              string         `mapstructure:"chName" validate:"required"`
 	InitMinExecBlockNum uint64         `mapstructure:"initExecBlockNum"`
-	SrcChannels         []*SrcChannel  `mapstructure:"src" validate:"dive"`
+	SrcChannels         []*SrcChannel  `mapstructure:"src" validate:"required,dive"`
 	BatchLimits         *BatchLimits   `mapstructure:"batchLimits"`
 	CollectorsBufSize   uint           `mapstructure:"collectorsBufSize"`
-	ExecOpts            ExecuteOptions `mapstructure:"execOpts" validate:"dive"`
+	ExecOpts            ExecuteOptions `mapstructure:"execOpts"`
 }
 
 type BatchLimits struct {
@@ -193,7 +193,7 @@ func validateSwaps(robots []*Robot) error {
 }
 
 func validateRequiredFields(cfg *Config) error {
-	validate := validator.New()
+	validate := validator.New(validator.WithRequiredStructEnabled())
 	err := validate.Struct(*cfg)
 	if err != nil {
 		return fmt.Errorf("err(s): %w", err)

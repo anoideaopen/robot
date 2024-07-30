@@ -15,7 +15,7 @@ import (
 	"github.com/anoideaopen/robot/dto/stordto"
 	"github.com/anoideaopen/robot/helpers/nerrors"
 	"github.com/anoideaopen/robot/logger"
-	"github.com/go-redis/redis/v8"
+	"github.com/redis/go-redis/v9"
 )
 
 var ErrStorVersionMismatch = errors.New("error version mismatch")
