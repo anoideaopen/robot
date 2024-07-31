@@ -18,9 +18,11 @@ const (
 
 // CI returns data for integration test
 func CI(t *testing.T) CiTestData {
-	if !isIntegration {
-		t.Skip()
-	}
+	/*
+		if !isIntegration {
+			t.Skip()
+		}
+	*/
 
 	d, err := getCiData()
 	require.NoError(t, err, "error get ci test data")

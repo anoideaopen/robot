@@ -26,7 +26,7 @@ func TestChExecutorCreateWithoutChainCode(t *testing.T) {
 
 	ctx := context.Background()
 
-	che, err := createChExecutor(ctx,
+	che, err := CreateChExecutor(ctx,
 		ciData.HlfNoCcChannel,
 		ciData.HlfProfilePath,
 		ciData.HlfUserName,
@@ -109,8 +109,8 @@ func TestChExecutorExecute(t *testing.T) {
 	})
 }
 
-func newFiatChExecutor(ctx context.Context, t *testing.T, ciData ntesting.CiTestData) *chExecutor {
-	che, err := createChExecutor(ctx,
+func newFiatChExecutor(ctx context.Context, t *testing.T, ciData ntesting.CiTestData) *ChExecutor {
+	che, err := CreateChExecutor(ctx,
 		ciData.HlfFiatChannel,
 		ciData.HlfProfilePath,
 		ciData.HlfUserName,

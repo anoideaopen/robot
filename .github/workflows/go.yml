@@ -94,3 +94,29 @@ jobs:
           config: ./.testcoverage.yml
           profile: coverage.out
           local-prefix: github.com/${{ github.repository }}
+
+  go-test-integration:
+    needs:
+      - golangci-lint
+    strategy:
+      fail-fast: false
+      matrix:
+        INTEGRATION_TEST_SUITE: [ "swap","storage","hlf" ]
+    runs-on: 'ubuntu-20.04'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VER }}
+      - name: redis
+        run: docker pull redis:7.2.4
+      - name: fabric-ccenv
+        run: docker pull hyperledger/fabric-ccenv:latest
+      - name: fabric-baseos
+        run: docker pull hyperledger/fabric-baseos:latest
+      - name: install ginkgo
+        run: go install github.com/onsi/ginkgo/v2/ginkgo@v${{ env.GINKGO_VER }}
+      - name: integration test
+        working-directory: ./test/integration
+        run: |
+          ginkgo --keep-going --poll-progress-after 60s --timeout 24h ${{matrix.INTEGRATION_TEST_SUITE}}

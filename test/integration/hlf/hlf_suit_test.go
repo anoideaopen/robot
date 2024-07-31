@@ -1,4 +1,4 @@
-package robot
+package hlf
 
 import (
 	"encoding/json"
@@ -11,9 +11,9 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-func TestRobot(t *testing.T) {
+func TestHlf(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Channel Transfer HTTP suite")
+	RunSpecs(t, "Robot hlf test suite")
 }
 
 var (
@@ -43,5 +43,5 @@ var _ = SynchronizedAfterSuite(func() {
 })
 
 func StartPort() int {
-	return integration.GatewayBasePort.StartPortForNode()
+	return integration.SmartBFTBasePort.StartPortForNode()
 }
