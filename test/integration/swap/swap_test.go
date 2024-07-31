@@ -1,4 +1,4 @@
-package robot
+package swap
 
 import (
 	"encoding/json"
@@ -25,17 +25,8 @@ import (
 )
 
 const (
-	transferExecutionTimeout = 100
-
-	ccCCUpper         = "CC"
-	ccFiatUpper       = "FIAT"
-	ccACLUpper        = "ACL"
-	ccIndustrialUpper = "INDUSTRIAL"
-
-	errWrongChannel      = "no channel peers configured for channel"
-	errNotValidChannel   = "channel not in configuration list"
-	errInsufficientFunds = "failed to subtract token balance: insufficient balance"
-	errIncorrectToken    = "token set incorrectly"
+	ccCCUpper   = "CC"
+	ccFiatUpper = "FIAT"
 
 	fnEmit             = "emit"
 	fnBalanceOf        = "balanceOf"
@@ -52,7 +43,7 @@ const (
 	defaultSwapKey  = "12345"
 )
 
-var _ = Describe("Channel transfer HTTP tests", func() {
+var _ = Describe("Robot swap tests", func() {
 	var (
 		testDir          string
 		cli              *docker.Client

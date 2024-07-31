@@ -45,7 +45,8 @@ type ChExecutor struct {
 	RetryExecuteDelay    time.Duration
 }
 
-func createChExecutor(
+// CreateChExecutor creates New ChExecutor
+func CreateChExecutor(
 	ctx context.Context,
 	chName,
 	connectionProfile string,

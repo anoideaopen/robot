@@ -26,7 +26,7 @@ func newChExecutorCreator(chName,
 	execOpts ExecuteOptions,
 ) ChExecutorCreator {
 	return func(ctx context.Context) (*ChExecutor, error) {
-		return createChExecutor(ctx, chName,
+		return CreateChExecutor(ctx, chName,
 			connectionProfile,
 			user, org,
 			execOpts,
