@@ -2,22 +2,20 @@ package hlf
 
 import (
 	"context"
-	"errors"
-	"fmt"
-	"github.com/anoideaopen/robot/dto/executordto"
-	"github.com/anoideaopen/robot/hlf"
-	"github.com/anoideaopen/robot/test/unit/common"
-	"github.com/hyperledger/fabric-sdk-go/pkg/client/common/selection/fabricselection"
 	"os"
 	"path/filepath"
 	"syscall"
 	"time"
 
+	"github.com/anoideaopen/common-component/loggerhlp"
 	pbfound "github.com/anoideaopen/foundation/proto"
 	"github.com/anoideaopen/foundation/test/integration/cmn"
 	"github.com/anoideaopen/foundation/test/integration/cmn/client"
 	"github.com/anoideaopen/foundation/test/integration/cmn/fabricnetwork"
 	"github.com/anoideaopen/foundation/test/integration/cmn/runner"
+	"github.com/anoideaopen/glog"
+	"github.com/anoideaopen/robot/hlf"
+	"github.com/anoideaopen/robot/test/unit/common"
 	docker "github.com/fsouza/go-dockerclient"
 	"github.com/hyperledger/fabric/integration/nwo"
 	"github.com/hyperledger/fabric/integration/nwo/fabricconfig"
@@ -30,6 +28,8 @@ import (
 )
 
 const (
+	userName = "backend"
+
 	ccCCUpper    = "CC"
 	ccFiatUpper  = "FIAT"
 	ccEmptyUpper = "EMPTY"
@@ -94,20 +94,19 @@ var _ = Describe("Robot hlf tests", func() {
 	})
 
 	var (
-		channels            = []string{cmn.ChannelAcl, cmn.ChannelCC, cmn.ChannelFiat, cmn.ChannelIndustrial}
-		ordererRunners      []*ginkgomon.Runner
-		redisProcess        ifrit.Process
-		redisDB             *runner.RedisDB
-		networkFound        *cmn.NetworkFoundation
-		robotProc           ifrit.Process
-		channelTransferProc ifrit.Process
-		skiBackend          string
-		skiRobot            string
-		peer                *nwo.Peer
-		admin               *client.UserFoundation
-		user                *client.UserFoundation
-		feeSetter           *client.UserFoundation
-		feeAddressSetter    *client.UserFoundation
+		channels         = []string{cmn.ChannelAcl, cmn.ChannelCC, cmn.ChannelFiat, cmn.ChannelIndustrial, channelWithoutChaincode}
+		ordererRunners   []*ginkgomon.Runner
+		redisProcess     ifrit.Process
+		redisDB          *runner.RedisDB
+		networkFound     *cmn.NetworkFoundation
+		robotProc        ifrit.Process
+		skiBackend       string
+		skiRobot         string
+		peer             *nwo.Peer
+		admin            *client.UserFoundation
+		user             *client.UserFoundation
+		feeSetter        *client.UserFoundation
+		feeAddressSetter *client.UserFoundation
 	)
 	BeforeEach(func() {
 		By("start redis")
@@ -211,22 +210,12 @@ var _ = Describe("Robot hlf tests", func() {
 		robotRunner := networkFound.RobotRunner()
 		robotProc = ifrit.Invoke(robotRunner)
 		Eventually(robotProc.Ready(), network.EventuallyTimeout).Should(BeClosed())
-
-		By("start channel transfer")
-		channelTransferRunner := networkFound.ChannelTransferRunner()
-		channelTransferProc = ifrit.Invoke(channelTransferRunner)
-		Eventually(channelTransferProc.Ready(), network.EventuallyTimeout).Should(BeClosed())
 	})
 	AfterEach(func() {
 		By("stop robot")
 		if robotProc != nil {
 			robotProc.Signal(syscall.SIGTERM)
 			Eventually(robotProc.Wait(), network.EventuallyTimeout).Should(Receive())
-		}
-		By("stop channel transfer")
-		if channelTransferProc != nil {
-			channelTransferProc.Signal(syscall.SIGTERM)
-			Eventually(channelTransferProc.Wait(), network.EventuallyTimeout).Should(Receive())
 		}
 	})
 
@@ -255,13 +244,16 @@ var _ = Describe("Robot hlf tests", func() {
 	It("Channel collector create test", func() {
 		ctx := context.Background()
 
-		chCr := hlf.NewChCollectorCreator(ccFiatUpper, networkFound.ConnectionPath("User1"), "User1", "Org1", common.DefaultPrefixes, 1)
+		chCr := hlf.NewChCollectorCreator(
+			cmn.ChannelFiat,
+			networkFound.ConnectionPath("User1"),
+			userName,
+			"Org1",
+			common.DefaultPrefixes,
+			1)
 		Expect(chCr).NotTo(BeNil())
 
 		dataReady := make(chan struct{}, 1)
-
-		height := nwo.GetLedgerHeight(network, peer, ccFiatUpper)
-		fmt.Println("Channel height: ", height)
 
 		chColl, err := chCr(ctx, dataReady, ccFiatUpper, 10)
 		Expect(err).NotTo(HaveOccurred())
@@ -270,107 +262,165 @@ var _ = Describe("Robot hlf tests", func() {
 		chColl.Close()
 	})
 
-	/*
-			It("Channel collector create without chaincode test", func() {
-				ctx := context.Background()
-
-				chCr := hlf.NewChCollectorCreator(ccEmptyUpper, networkFound.ConnectionPath("User1"), "User1", "Org1", common.DefaultPrefixes, 1)
-				Expect(chCr).NotTo(BeNil())
-
-				dataReady := make(chan struct{}, 1)
-
-				height := nwo.GetLedgerHeight(network, peer, ccEmptyUpper)
-
-				chColl, err := chCr(ctx, dataReady, channelWithoutChaincode, uint64(height))
-				Expect(err).NotTo(HaveOccurred())
-				Expect(chColl).NotTo(BeNil())
-
-				blockData, ok := <-chColl.GetData()
-				Expect(ok).To(BeTrue())
-				Expect(blockData).To(Equal(0))
-			})
-
-
-		It("Get data test", func() {
-			ctx := context.Background()
-
-			chCr := hlf.NewChCollectorCreator(ccFiatUpper, networkFound.ConnectionPath("User1"), "User1", "Org1", common.DefaultPrefixes, 1)
-			Expect(chCr).NotTo(BeNil())
-
-			dataReady := make(chan struct{}, 1)
-
-			height := nwo.GetLedgerHeight(network, peer, ccFiatUpper)
-
-			chColl, err := chCr(ctx, dataReady, ccFiatUpper, uint64(height))
-			Expect(err).NotTo(HaveOccurred())
-			Expect(chColl).NotTo(BeNil())
-
-			const closeAfterNBlocks = 1
-
-			for i := 0; ; i++ {
-				select {
-				case data, ok := <-chColl.GetData():
-					if ok {
-						fmt.Println("data from block:", data.BlockNum)
-					}
-
-					if !ok && i >= closeAfterNBlocks {
-						fmt.Println("channel closed i:", i)
-						return
-					}
-
-					Expect(ok).To(BeTrue())
-					Expect(data).NotTo(BeNil())
-
-					if !data.IsEmpty() {
-						fmt.Println("data for block:", data.BlockNum,
-							" lens:", len(data.Txs), len(data.Swaps), len(data.MultiSwaps), len(data.SwapsKeys), len(data.MultiSwapsKeys))
-					}
-
-				default:
-					fmt.Println("need to wait")
-					<-dataReady
-				}
-
-				// after closeAfterNBlocks - init stop
-				if i == closeAfterNBlocks {
-					fmt.Println("schedule close")
-
-					// don't wait
-					go func() {
-						chColl.Close()
-						fmt.Println("was closed")
-					}()
-				}
-			}
-		})
-	*/
-
-	It("Channel executor without chaincode test", func() {
+	It("Channel collector create without chaincode test", func() {
 		ctx := context.Background()
 
-		che, err := hlf.CreateChExecutor(
-			ctx,
-			ccEmptyUpper,
+		chCr := hlf.NewChCollectorCreator(
+			channelWithoutChaincode,
 			networkFound.ConnectionPath("User1"),
-			"User1",
+			userName,
 			"Org1",
-			hlf.ExecuteOptions{
-				ExecuteTimeout: 0 * time.Second,
-			},
+			common.DefaultPrefixes,
+			1,
 		)
+		Expect(chCr).NotTo(BeNil())
+
+		dataReady := make(chan struct{}, 1)
+
+		chColl, err := chCr(ctx, dataReady, channelWithoutChaincode, 0)
 		Expect(err).NotTo(HaveOccurred())
-		Expect(che).NotTo(BeNil())
+		Expect(chColl).NotTo(BeNil())
 
-		_, err = che.Execute(ctx, &executordto.Batch{
-			Txs: [][]byte{
-				{1, 2, 3, 4},
-			},
-		}, 0)
-		Expect(err).To(HaveOccurred())
+		blockData, ok := <-chColl.GetData()
+		Expect(ok).To(BeTrue())
+		Expect(blockData.BlockNum).To(Equal(uint64(0)))
 
-		var dErr fabricselection.DiscoveryError
-		Expect(errors.As(err, &dErr)).To(BeTrue())
-		Expect(dErr.IsTransient()).To(BeTrue())
+		chColl.Close()
 	})
+
+	It("Get data test", func() {
+		log, err := loggerhlp.CreateLogger("std", "debug")
+		Expect(err).NotTo(HaveOccurred())
+		logCtx := glog.NewContext(context.Background(), log)
+
+		chCr := hlf.NewChCollectorCreator(
+			cmn.ChannelFiat,
+			networkFound.ConnectionPath("User1"),
+			userName,
+			"Org1",
+			common.DefaultPrefixes,
+			1,
+		)
+		Expect(chCr).NotTo(BeNil())
+
+		dataReady := make(chan struct{}, 1)
+
+		chColl, err := chCr(logCtx, dataReady, cmn.ChannelFiat, 0)
+		Expect(err).NotTo(HaveOccurred())
+		Expect(chColl).NotTo(BeNil())
+
+		const closeAfterNBlocks = 1
+
+		for i := 0; ; i++ {
+			select {
+			case data, ok := <-chColl.GetData():
+				if ok {
+					log.Info("data from block:", data.BlockNum)
+				}
+
+				if !ok && i >= closeAfterNBlocks {
+					log.Info("channel closed i:", i)
+					return
+				}
+
+				Expect(ok).To(BeTrue())
+				Expect(data).NotTo(BeNil())
+
+				if !data.IsEmpty() {
+					log.Info("data for block:", data.BlockNum,
+						" lens:", len(data.Txs), len(data.Swaps), len(data.MultiSwaps), len(data.SwapsKeys), len(data.MultiSwapsKeys))
+				}
+
+			default:
+				log.Debug("need to wait")
+				<-dataReady
+			}
+
+			// after closeAfterNBlocks - init stop
+			if i == closeAfterNBlocks {
+				log.Info("schedule close")
+
+				// don't wait
+				go func() {
+					chColl.Close()
+					log.Info("was closed")
+				}()
+			}
+		}
+	})
+
+	It("Bag SDK subscribe events test", func() {
+		log, err := loggerhlp.CreateLogger("std", "debug")
+		Expect(err).NotTo(HaveOccurred())
+		logCtx := glog.NewContext(context.Background(), log)
+
+		chCr1 := hlf.NewChCollectorCreator(
+			cmn.ChannelFiat,
+			networkFound.ConnectionPath("User1"),
+			userName,
+			"Org1",
+			common.DefaultPrefixes,
+			1,
+		)
+		Expect(chCr1).NotTo(BeNil())
+
+		dataReady := make(chan struct{}, 1)
+
+		chColl1, err := chCr1(logCtx, dataReady, cmn.ChannelFiat, 3)
+		Expect(err).NotTo(HaveOccurred())
+		Expect(chColl1).NotTo(BeNil())
+
+		data1, ok := <-chColl1.GetData()
+		Expect(ok).To(BeTrue())
+		Expect(data1.BlockNum).To(Equal(uint64(3)))
+
+		chCr2 := hlf.NewChCollectorCreator(
+			"dst-2",
+			networkFound.ConnectionPath("User1"),
+			userName,
+			"Org1",
+			common.DefaultPrefixes,
+			1,
+		)
+		Expect(chCr1).NotTo(BeNil())
+
+		dataReady2 := make(chan struct{}, 1)
+		chColl2, err := chCr2(logCtx, dataReady2, cmn.ChannelFiat, 1)
+
+		data2, ok := <-chColl2.GetData()
+		Expect(ok).To(BeTrue())
+		Expect(data2.BlockNum).To(Equal(int64(data2.BlockNum)))
+	})
+
+	/*
+		It("Channel executor without chaincode test", func() {
+			ctx := context.Background()
+
+			ccCr := hlf.NewChExecutorCreator(
+				channelWithoutChaincode,
+				networkFound.ConnectionPath("User1"),
+				userName,
+				"Org1",
+				hlf.ExecuteOptions{
+					ExecuteTimeout: 0 * time.Second,
+				},
+			)
+			Expect(ccCr).NotTo(BeNil())
+
+			chExec, err := ccCr(ctx)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(chExec).NotTo(BeNil())
+
+			_, err = chExec.Execute(ctx, &executordto.Batch{
+				Txs: [][]byte{
+					{1, 2, 3, 4},
+				},
+			}, 0)
+			Expect(err).To(HaveOccurred())
+
+			var dErr fabricselection.DiscoveryError
+			Expect(errors.As(err, &dErr)).To(BeTrue())
+			Expect(dErr.IsTransient()).To(BeTrue())
+		})
+	*/
 })

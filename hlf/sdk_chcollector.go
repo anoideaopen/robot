@@ -115,10 +115,16 @@ const (
 	defaultAwaitEventsTimeout = 60 * time.Second
 )
 
-func createChCollector(ctx context.Context,
-	dstChName, srcChName string,
-	dataReady chan<- struct{}, startFrom uint64, bufSize uint,
-	connectionProfile, userName, orgName string,
+func createChCollector(
+	ctx context.Context,
+	dstChName,
+	srcChName string,
+	dataReady chan<- struct{},
+	startFrom uint64,
+	bufSize uint,
+	connectionProfile,
+	userName,
+	orgName string,
 	txPrefixes parserdto.TxPrefixes,
 ) (*ChCollector, error) {
 	log := glog.FromContext(ctx).
@@ -132,12 +138,16 @@ func createChCollector(ctx context.Context,
 		metrics.Labels().RobotChannel.Create(dstChName),
 		metrics.Labels().Channel.Create(srcChName))
 
-	prsr := parser.NewParser(log, dstChName, srcChName, txPrefixes)
+	chParser := parser.NewParser(log, dstChName, srcChName, txPrefixes)
 
 	proxyEvents := make(chan *fab.BlockEvent)
 	rc, err := chcollector.NewCollector(
 		glog.NewContext(metrics.NewContext(ctx, m), log),
-		prsr, dataReady, proxyEvents, bufSize)
+		chParser,
+		dataReady,
+		proxyEvents,
+		bufSize,
+	)
 	if err != nil {
 		return nil, errorshlp.WrapWithDetails(err, nerrors.ErrTypeHlf, nerrors.ComponentCollector)
 	}

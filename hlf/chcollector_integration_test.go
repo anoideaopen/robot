@@ -26,8 +26,10 @@ func TestChCollectorCreate(t *testing.T) {
 	cr := NewChCollectorCreator(
 		ciData.HlfFiatChannel,
 		ciData.HlfProfilePath,
-		ciData.HlfUserName, ciData.HlfProfile.OrgName,
-		defaultPrefixes, 1)
+		ciData.HlfUserName,
+		ciData.HlfProfile.OrgName,
+		defaultPrefixes,
+		1)
 	require.NotNil(t, cr)
 
 	dataReady := make(chan struct{}, 1)
@@ -125,8 +127,11 @@ func TestBagSdkSubscrEvents(t *testing.T) {
 	cr1 := NewChCollectorCreator(
 		ciData.HlfFiatChannel,
 		ciData.HlfProfilePath,
-		ciData.HlfUserName, ciData.HlfProfile.OrgName,
-		defaultPrefixes, 10)
+		ciData.HlfUserName,
+		ciData.HlfProfile.OrgName,
+		defaultPrefixes,
+		10,
+	)
 	require.NotNil(t, cr1)
 
 	dataReady1 := make(chan struct{}, 1)
