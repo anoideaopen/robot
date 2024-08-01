@@ -18,23 +18,23 @@ type ChDataParser interface {
 	ExtractData(block *common.Block) (*collectordto.BlockData, error)
 }
 
-type chCollector struct {
-	log       glog.Logger
-	m         metrics.Metrics
-	events    <-chan *fab.BlockEvent
-	dataReady chan<- struct{}
-	outData   chan *collectordto.BlockData
-	prsr      ChDataParser
-	cancel    context.CancelFunc
-	wgLoop    *sync.WaitGroup
+type ChCollector struct {
+	Log       glog.Logger
+	Metrics   metrics.Metrics
+	Events    <-chan *fab.BlockEvent
+	DataReady chan<- struct{}
+	OutData   chan *collectordto.BlockData
+	Parser    ChDataParser
+	Cancel    context.CancelFunc
+	WgLoop    *sync.WaitGroup
 }
 
 func NewCollector(ctx context.Context,
-	prsr ChDataParser,
+	parser ChDataParser,
 	dataReady chan<- struct{},
 	events <-chan *fab.BlockEvent,
 	bufSize uint,
-) (*chCollector, error) {
+) (*ChCollector, error) {
 	log := glog.FromContext(ctx)
 
 	if bufSize == 0 {
@@ -45,27 +45,27 @@ func NewCollector(ctx context.Context,
 	}
 
 	clCtx, cancel := context.WithCancel(context.Background())
-	cl := &chCollector{
-		log:       log,
-		m:         metrics.FromContext(ctx),
-		events:    events,
-		dataReady: dataReady,
-		outData:   make(chan *collectordto.BlockData, bufSize),
-		prsr:      prsr,
-		cancel:    cancel,
-		wgLoop:    &sync.WaitGroup{},
+	cl := &ChCollector{
+		Log:       log,
+		Metrics:   metrics.FromContext(ctx),
+		Events:    events,
+		DataReady: dataReady,
+		OutData:   make(chan *collectordto.BlockData, bufSize),
+		Parser:    parser,
+		Cancel:    cancel,
+		WgLoop:    &sync.WaitGroup{},
 	}
-	cl.wgLoop.Add(1)
+	cl.WgLoop.Add(1)
 
 	go cl.loopExtract(clCtx) //nolint:contextcheck
 
 	return cl, nil
 }
 
-func (cc *chCollector) loopExtract(ctx context.Context) {
+func (cc *ChCollector) loopExtract(ctx context.Context) {
 	defer func() {
-		close(cc.outData)
-		cc.wgLoop.Done()
+		close(cc.OutData)
+		cc.WgLoop.Done()
 	}()
 
 	for ctx.Err() == nil {
@@ -73,46 +73,46 @@ func (cc *chCollector) loopExtract(ctx context.Context) {
 		select {
 		case <-ctx.Done():
 			return
-		case ev, ok := <-cc.events:
+		case ev, ok := <-cc.Events:
 			if !ok {
 				return
 			}
-			cc.log.Debugf("extract data from block: %v", ev.Block.GetHeader().GetNumber())
-			d, err := cc.prsr.ExtractData(ev.Block)
+			cc.Log.Debugf("extract data from block: %v", ev.Block.GetHeader().GetNumber())
+			d, err := cc.Parser.ExtractData(ev.Block)
 			if err != nil {
-				cc.log.Errorf("extract data error: %s", err)
+				cc.Log.Errorf("extract data error: %s", err)
 				// don't change state
 				continue
 			}
 			blockData = d
-			cc.m.BlockTxCount().Observe(float64(d.ItemsCount()))
-			cc.m.CollectorProcessBlockNum().Set(float64(d.BlockNum))
-			cc.m.TxWaitingCount().Add(float64(d.ItemsCount()))
+			cc.Metrics.BlockTxCount().Observe(float64(d.ItemsCount()))
+			cc.Metrics.CollectorProcessBlockNum().Set(float64(d.BlockNum))
+			cc.Metrics.TxWaitingCount().Add(float64(d.ItemsCount()))
 		}
 
 		select {
 		case <-ctx.Done():
 			return
-		case cc.outData <- blockData:
-			cc.raiseReadySignal()
+		case cc.OutData <- blockData:
+			cc.RaiseReadySignal()
 		}
 	}
 }
 
-func (cc *chCollector) raiseReadySignal() {
+func (cc *ChCollector) RaiseReadySignal() {
 	// raise ready event
 	select {
-	case cc.dataReady <- struct{}{}:
+	case cc.DataReady <- struct{}{}:
 	default:
 	}
 }
 
-func (cc *chCollector) Close() {
-	cc.cancel()
-	cc.wgLoop.Wait()
-	cc.raiseReadySignal()
+func (cc *ChCollector) Close() {
+	cc.Cancel()
+	cc.WgLoop.Wait()
+	cc.RaiseReadySignal()
 }
 
-func (cc *chCollector) GetData() <-chan *collectordto.BlockData {
-	return cc.outData
+func (cc *ChCollector) GetData() <-chan *collectordto.BlockData {
+	return cc.OutData
 }
