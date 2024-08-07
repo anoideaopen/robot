@@ -102,7 +102,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        INTEGRATION_TEST_SUITE: [ "swap","storage","hlf" ]
+        INTEGRATION_TEST_SUITE: [ "swap","storage","chcol1","chcol2","chcol3","chexec" ]
     runs-on: 'ubuntu-20.04'
     steps:
       - uses: actions/checkout@v4

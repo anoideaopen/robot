@@ -1,4 +1,4 @@
-package hlf
+package chexec
 
 import (
 	"encoding/json"
@@ -13,7 +13,7 @@ import (
 
 func TestHlf(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Robot hlf test suite")
+	RunSpecs(t, "Robot channel executor test suite")
 }
 
 var (
@@ -43,5 +43,5 @@ var _ = SynchronizedAfterSuite(func() {
 })
 
 func StartPort() int {
-	return integration.SmartBFTBasePort.StartPortForNode()
+	return integration.NWOBasePort.StartPortForNode()
 }
