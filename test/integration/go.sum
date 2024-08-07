@@ -662,11 +662,8 @@ github.com/anoideaopen/channel-transfer v0.0.4 h1:tAjBHLk1Ye7HAlQM5WS6rqooJQFPyH
 github.com/anoideaopen/channel-transfer v0.0.4/go.mod h1:l8Zjkx7kqPc76tLhZ+1P8RbyAwucygFqkgu3ZGeB4DQ=
 github.com/anoideaopen/common-component v0.0.6 h1:drRkPGoeIowzyUZn/YUdNa3GmD5j1ppkEkqjnSLuhDc=
 github.com/anoideaopen/common-component v0.0.6/go.mod h1:m1adEQdkVfAy4efFlY3+uqL73dAKXRSOiTsklHOzf3c=
-github.com/anoideaopen/fabric-sdk-go v0.0.1 h1:SCnrPPqqBLredJ2AbqbpPrQlrmfWVTZiUUjBLrRnIuk=
-github.com/anoideaopen/fabric-sdk-go v0.0.1/go.mod h1:L8ECPqpdBc/ObG4PDH4wHTsYLoi74UcSPgI0hLR/vHc=
+github.com/anoideaopen/fabric-sdk-go v0.0.2 h1:8Nm1jpaCxtgphFtc1GuQoQxREz6Y7TrsCmc63fYqCC0=
 github.com/anoideaopen/fabric-sdk-go v0.0.2/go.mod h1:L8ECPqpdBc/ObG4PDH4wHTsYLoi74UcSPgI0hLR/vHc=
-github.com/anoideaopen/foundation v0.0.5 h1:XGSX9uxUEcga2TGT146PkC/xBCRzwtGiyCd4P7IdJZc=
-github.com/anoideaopen/foundation v0.0.5/go.mod h1:5dkuaC4WuhkzRz2D/2067dwQ7L7XBeLmo21Ln5CDYFI=
 github.com/anoideaopen/foundation v0.0.6-0.20240806064555-f242e4c795d7 h1:1oqZQaRhwEOXvucRY8fY4QFY46eptf9TnQeJdy2Hys8=
 github.com/anoideaopen/foundation v0.0.6-0.20240806064555-f242e4c795d7/go.mod h1:5dkuaC4WuhkzRz2D/2067dwQ7L7XBeLmo21Ln5CDYFI=
 github.com/anoideaopen/foundation/test/integration v0.0.0-20240722222449-50dbeda831f0 h1:iYflo6h2aqiGgzARr+h81OacYn3xaIB2T+lQJsZZqYI=
