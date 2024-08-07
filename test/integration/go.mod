@@ -13,6 +13,7 @@ require (
 	github.com/anoideaopen/robot v0.0.2
 	github.com/fsouza/go-dockerclient v1.11.1
 	github.com/hyperledger/fabric v1.4.0-rc1.0.20240406053308-22aaf3468497
+	github.com/hyperledger/fabric-sdk-go v1.0.1-0.20210927191040-3e3a3c6aeec9
 	github.com/onsi/ginkgo/v2 v2.19.0
 	github.com/onsi/gomega v1.33.1
 	github.com/tedsuo/ifrit v0.0.0-20230516164442-7862c310ad26
@@ -90,7 +91,6 @@ require (
 	github.com/hyperledger/fabric-config v0.2.1 // indirect
 	github.com/hyperledger/fabric-lib-go v1.1.1 // indirect
 	github.com/hyperledger/fabric-protos-go v0.3.3 // indirect
-	github.com/hyperledger/fabric-sdk-go v1.0.1-0.20210927191040-3e3a3c6aeec9 // indirect
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
 	github.com/joho/godotenv v1.4.0 // indirect
 	github.com/kilic/bls12-381 v0.1.0 // indirect
