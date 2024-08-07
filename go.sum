@@ -21,8 +21,6 @@ github.com/anoideaopen/common-component v0.0.6 h1:drRkPGoeIowzyUZn/YUdNa3GmD5j1p
 github.com/anoideaopen/common-component v0.0.6/go.mod h1:m1adEQdkVfAy4efFlY3+uqL73dAKXRSOiTsklHOzf3c=
 github.com/anoideaopen/fabric-sdk-go v0.0.2 h1:8Nm1jpaCxtgphFtc1GuQoQxREz6Y7TrsCmc63fYqCC0=
 github.com/anoideaopen/fabric-sdk-go v0.0.2/go.mod h1:L8ECPqpdBc/ObG4PDH4wHTsYLoi74UcSPgI0hLR/vHc=
-github.com/anoideaopen/foundation v0.0.5 h1:XGSX9uxUEcga2TGT146PkC/xBCRzwtGiyCd4P7IdJZc=
-github.com/anoideaopen/foundation v0.0.5/go.mod h1:5dkuaC4WuhkzRz2D/2067dwQ7L7XBeLmo21Ln5CDYFI=
 github.com/anoideaopen/foundation v0.0.6-0.20240806064555-f242e4c795d7 h1:1oqZQaRhwEOXvucRY8fY4QFY46eptf9TnQeJdy2Hys8=
 github.com/anoideaopen/foundation v0.0.6-0.20240806064555-f242e4c795d7/go.mod h1:5dkuaC4WuhkzRz2D/2067dwQ7L7XBeLmo21Ln5CDYFI=
 github.com/anoideaopen/glog v0.0.3 h1:vsWM5QvHzTMbrDy3cydkNPFpfdWrxeC8ne02f//qNaA=
@@ -360,7 +358,6 @@ github.com/spf13/afero v1.11.0/go.mod h1:GH9Y3pIexgf1MTIWtNGyogA5MwRIDXGUr+hbWNo
 github.com/spf13/cast v1.6.0 h1:GEiTHELF+vaR5dhz3VqZfFSzZjYbgeKDpBxQVS4GYJ0=
 github.com/spf13/cast v1.6.0/go.mod h1:ancEpBxwJDODSW/UG4rDrAqiKolqNNh2DX3mk86cAdo=
 github.com/spf13/cobra v0.0.3/go.mod h1:1l0Ry5zgKvJasoi3XT1TypsSe7PqH0Sj9dhYf7v3XqQ=
-github.com/spf13/jwalterweatherman v1.1.0/go.mod h1:aNWZUN0dPAAO/Ljvb5BEdw96iTZ0EXowPYD95IqWIGo=
 github.com/spf13/pflag v1.0.1/go.mod h1:DYY7MBk1bdzusC3SYhjObp+wFpr4gzcvqqNjLnInEg4=
 github.com/spf13/pflag v1.0.5 h1:iy+VFUOCP1a+8yFto/drg2CJ5u0yRoB7fZw3DKv/JXA=
 github.com/spf13/pflag v1.0.5/go.mod h1:McXfInJRrz4CZXVZOBLb0bTZqETkiAhM9Iw0y3An2Bg=
