@@ -86,20 +86,19 @@ var _ = Describe("Robot swap tests", func() {
 	})
 
 	var (
-		channels            = []string{cmn.ChannelAcl, cmn.ChannelCC, cmn.ChannelFiat, cmn.ChannelIndustrial}
-		ordererRunners      []*ginkgomon.Runner
-		redisProcess        ifrit.Process
-		redisDB             *runner.RedisDB
-		networkFound        *cmn.NetworkFoundation
-		robotProc           ifrit.Process
-		channelTransferProc ifrit.Process
-		skiBackend          string
-		skiRobot            string
-		peer                *nwo.Peer
-		admin               *client.UserFoundation
-		user                *client.UserFoundation
-		feeSetter           *client.UserFoundation
-		feeAddressSetter    *client.UserFoundation
+		channels         = []string{cmn.ChannelAcl, cmn.ChannelCC, cmn.ChannelFiat, cmn.ChannelIndustrial}
+		ordererRunners   []*ginkgomon.Runner
+		redisProcess     ifrit.Process
+		redisDB          *runner.RedisDB
+		networkFound     *cmn.NetworkFoundation
+		robotProc        ifrit.Process
+		skiBackend       string
+		skiRobot         string
+		peer             *nwo.Peer
+		admin            *client.UserFoundation
+		user             *client.UserFoundation
+		feeSetter        *client.UserFoundation
+		feeAddressSetter *client.UserFoundation
 	)
 	BeforeEach(func() {
 		By("start redis")
@@ -136,7 +135,6 @@ var _ = Describe("Robot swap tests", func() {
 
 		networkFound = cmn.New(network, channels)
 		networkFound.Robot.RedisAddresses = []string{redisDB.Address()}
-		networkFound.ChannelTransfer.RedisAddresses = []string{redisDB.Address()}
 
 		networkFound.GenerateConfigTree()
 		networkFound.Bootstrap()
@@ -203,22 +201,12 @@ var _ = Describe("Robot swap tests", func() {
 		robotRunner := networkFound.RobotRunner()
 		robotProc = ifrit.Invoke(robotRunner)
 		Eventually(robotProc.Ready(), network.EventuallyTimeout).Should(BeClosed())
-
-		By("start channel transfer")
-		channelTransferRunner := networkFound.ChannelTransferRunner()
-		channelTransferProc = ifrit.Invoke(channelTransferRunner)
-		Eventually(channelTransferProc.Ready(), network.EventuallyTimeout).Should(BeClosed())
 	})
 	AfterEach(func() {
 		By("stop robot")
 		if robotProc != nil {
 			robotProc.Signal(syscall.SIGTERM)
 			Eventually(robotProc.Wait(), network.EventuallyTimeout).Should(Receive())
-		}
-		By("stop channel transfer")
-		if channelTransferProc != nil {
-			channelTransferProc.Signal(syscall.SIGTERM)
-			Eventually(channelTransferProc.Wait(), network.EventuallyTimeout).Should(Receive())
 		}
 	})
 
@@ -373,5 +361,4 @@ var _ = Describe("Robot swap tests", func() {
 			"allowedBalanceOf", user.AddressBase58Check, ccFiatUpper)
 
 	})
-
 })
