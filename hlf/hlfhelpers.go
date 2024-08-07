@@ -45,8 +45,8 @@ func createOrGetSdk(configBackends []core.ConfigBackend) (*fabsdk.FabricSDK, err
 
 func createSdkComponents(
 	_ context.Context,
-	chName,
-	orgName,
+	chName string,
+	orgName string,
 	userName string,
 	configBackends []core.ConfigBackend,
 ) (*sdkComponents, error) {

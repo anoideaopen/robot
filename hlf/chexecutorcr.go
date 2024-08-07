@@ -10,9 +10,9 @@ import (
 type ChExecutorCreator = func(ctx context.Context) (*ChExecutor, error)
 
 func NewChExecutorCreator(
-	chName,
-	connectionProfile,
-	user,
+	chName string,
+	connectionProfile string,
+	user string,
 	org string,
 	execOpts ExecuteOptions,
 ) ChExecutorCreator {

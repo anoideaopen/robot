@@ -117,13 +117,13 @@ const (
 
 func createChCollector(
 	ctx context.Context,
-	dstChName,
+	dstChName string,
 	srcChName string,
 	dataReady chan<- struct{},
 	startFrom uint64,
 	bufSize uint,
 	connectionProfile,
-	userName,
+	userName string,
 	orgName string,
 	txPrefixes parserdto.TxPrefixes,
 ) (*ChCollector, error) {

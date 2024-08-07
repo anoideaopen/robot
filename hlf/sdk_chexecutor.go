@@ -48,9 +48,10 @@ type ChExecutor struct {
 // CreateChExecutor creates New ChExecutor
 func CreateChExecutor(
 	ctx context.Context,
-	chName,
+	chName string,
 	connectionProfile string,
-	userName, orgName string,
+	userName string,
+	orgName string,
 	execOpts ExecuteOptions,
 ) (*ChExecutor, error) {
 	log := glog.FromContext(ctx).
@@ -81,8 +82,8 @@ func CreateChExecutor(
 
 func (che *ChExecutor) init(
 	ctx context.Context,
-	connectionProfile,
-	org,
+	connectionProfile string,
+	org string,
 	user string,
 	execOpts ExecuteOptions,
 ) error {

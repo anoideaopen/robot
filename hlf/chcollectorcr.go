@@ -13,9 +13,9 @@ type ChCollectorCreator func(ctx context.Context,
 	srcChName string, startFrom uint64) (*ChCollector, error)
 
 func NewChCollectorCreator(
-	dstChName,
-	connectionProfile,
-	userName,
+	dstChName string,
+	connectionProfile string,
+	userName string,
 	orgName string,
 	txPrefixes parserdto.TxPrefixes,
 	bufSize uint,
