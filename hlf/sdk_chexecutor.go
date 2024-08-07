@@ -79,8 +79,11 @@ func CreateChExecutor(
 	return chExec, nil
 }
 
-func (che *ChExecutor) init(ctx context.Context,
-	connectionProfile, org, user string,
+func (che *ChExecutor) init(
+	ctx context.Context,
+	connectionProfile,
+	org,
+	user string,
 	execOpts ExecuteOptions,
 ) error {
 	configBackends, err := config.FromFile(connectionProfile)()

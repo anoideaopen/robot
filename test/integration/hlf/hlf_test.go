@@ -2,6 +2,9 @@ package hlf
 
 import (
 	"context"
+	"encoding/hex"
+	"errors"
+	"fmt"
 	"os"
 	"path/filepath"
 	"syscall"
@@ -14,9 +17,13 @@ import (
 	"github.com/anoideaopen/foundation/test/integration/cmn/fabricnetwork"
 	"github.com/anoideaopen/foundation/test/integration/cmn/runner"
 	"github.com/anoideaopen/glog"
+	"github.com/anoideaopen/robot/dto/executordto"
+	"github.com/anoideaopen/robot/helpers/ntesting"
 	"github.com/anoideaopen/robot/hlf"
+	"github.com/anoideaopen/robot/hlf/hlfprofile"
 	"github.com/anoideaopen/robot/test/unit/common"
 	docker "github.com/fsouza/go-dockerclient"
+	"github.com/hyperledger/fabric-sdk-go/pkg/client/common/selection/fabricselection"
 	"github.com/hyperledger/fabric/integration/nwo"
 	"github.com/hyperledger/fabric/integration/nwo/fabricconfig"
 	runnerFbk "github.com/hyperledger/fabric/integration/nwo/runner"
@@ -37,16 +44,8 @@ const (
 	fnEmit             = "emit"
 	fnBalanceOf        = "balanceOf"
 	fnAllowedBalanceOf = "allowedBalanceOf"
-	fnSwapBegin        = "swapBegin"
-	fnSwapGet          = "swapGet"
-	fnSwapDone         = "swapDone"
-	fnSetRate          = "setRate"
-	fnBuyToken         = "buyToken"
 
-	emitAmount      = "1000"
-	zeroAmount      = "0"
-	defaultSwapHash = "7d4e3eec80026719639ed4dba68916eb94c7a49a053e05c8f9578fe4e5a3d7ea"
-	defaultSwapKey  = "12345"
+	emitAmount = "1"
 
 	channelWithoutChaincode = "empty"
 )
@@ -94,19 +93,21 @@ var _ = Describe("Robot hlf tests", func() {
 	})
 
 	var (
-		channels         = []string{cmn.ChannelAcl, cmn.ChannelCC, cmn.ChannelFiat, cmn.ChannelIndustrial, channelWithoutChaincode}
-		ordererRunners   []*ginkgomon.Runner
-		redisProcess     ifrit.Process
-		redisDB          *runner.RedisDB
-		networkFound     *cmn.NetworkFoundation
-		robotProc        ifrit.Process
-		skiBackend       string
-		skiRobot         string
-		peer             *nwo.Peer
-		admin            *client.UserFoundation
-		user             *client.UserFoundation
+		channels       = []string{cmn.ChannelAcl, cmn.ChannelFiat, channelWithoutChaincode}
+		ordererRunners []*ginkgomon.Runner
+		redisProcess   ifrit.Process
+		redisDB        *runner.RedisDB
+		networkFound   *cmn.NetworkFoundation
+		robotProc      ifrit.Process
+		skiBackend     string
+		// skiRobot       string
+		peer  *nwo.Peer
+		admin *client.UserFoundation
+		// user             *client.UserFoundation
 		feeSetter        *client.UserFoundation
 		feeAddressSetter *client.UserFoundation
+
+		ciData ntesting.CiTestData
 	)
 	BeforeEach(func() {
 		By("start redis")
@@ -182,9 +183,9 @@ var _ = Describe("Robot hlf tests", func() {
 		skiBackend, err = cmn.ReadSKI(pathToPrivateKeyBackend)
 		Expect(err).NotTo(HaveOccurred())
 
-		pathToPrivateKeyRobot := network.PeerUserKey(peer, "User2")
-		skiRobot, err = cmn.ReadSKI(pathToPrivateKeyRobot)
-		Expect(err).NotTo(HaveOccurred())
+		// pathToPrivateKeyRobot := network.PeerUserKey(peer, "User2")
+		// skiRobot, err = cmn.ReadSKI(pathToPrivateKeyRobot)
+		// Expect(err).NotTo(HaveOccurred())
 
 		admin, err = client.NewUserFoundation(pbfound.KeyType_ed25519)
 		Expect(err).NotTo(HaveOccurred())
@@ -198,11 +199,34 @@ var _ = Describe("Robot hlf tests", func() {
 		Expect(err).NotTo(HaveOccurred())
 		Expect(feeAddressSetter.PrivateKeyBytes).NotTo(Equal(nil))
 
+		hlfProfilePath := networkFound.ConnectionPath("User1")
+
+		hlfProfile, err := hlfprofile.ParseProfile(hlfProfilePath)
+		Expect(err).NotTo(HaveOccurred())
+
+		ciData = ntesting.CiTestData{
+			RedisAddr:             redisDB.Address(),
+			RedisPass:             "",
+			HlfProfilePath:        hlfProfilePath,
+			HlfFiatChannel:        cmn.ChannelFiat,
+			HlfCcChannel:          "",
+			HlfIndustrialChannel:  "",
+			HlfNoCcChannel:        "",
+			HlfUserName:           userName,
+			HlfCert:               pathToPrivateKeyBackend,
+			HlfFiatOwnerKey:       admin.PublicKeyBase58,
+			HlfCcOwnerKey:         "",
+			HlfIndustrialOwnerKey: "",
+			HlfSk:                 pathToPrivateKeyBackend,
+			HlfIndustrialGroup1:   "",
+			HlfIndustrialGroup2:   "",
+			HlfDoSwapTests:        false,
+			HlfDoMultiSwapTests:   false,
+			HlfProfile:            hlfProfile,
+		}
+
 		cmn.DeployACL(network, components, peer, testDir, skiBackend, admin.PublicKeyBase58, admin.KeyType)
-		cmn.DeployCC(network, components, peer, testDir, skiRobot, admin.AddressBase58Check)
-		cmn.DeployFiat(network, components, peer, testDir, skiRobot,
-			admin.AddressBase58Check, feeSetter.AddressBase58Check, feeAddressSetter.AddressBase58Check)
-		cmn.DeployIndustrial(network, components, peer, testDir, skiRobot,
+		cmn.DeployFiat(network, components, peer, testDir, skiBackend,
 			admin.AddressBase58Check, feeSetter.AddressBase58Check, feeAddressSetter.AddressBase58Check)
 	})
 	BeforeEach(func() {
@@ -219,31 +243,10 @@ var _ = Describe("Robot hlf tests", func() {
 		}
 	})
 
-	BeforeEach(func() {
-		By("add admin to acl")
-		client.AddUser(network, peer, network.Orderers[0], admin)
-
-		By("add user to acl")
-		var err error
-		user, err = client.NewUserFoundation(pbfound.KeyType_ed25519)
-		Expect(err).NotTo(HaveOccurred())
-
-		client.AddUser(network, peer, network.Orderers[0], user)
-
-		By("emit tokens")
-		client.TxInvokeWithSign(network, peer, network.Orderers[0],
-			cmn.ChannelFiat, cmn.ChannelFiat, admin,
-			fnEmit, "", client.NewNonceByTime().Get(), nil, user.AddressBase58Check, emitAmount)
-
-		By("emit check")
-		client.Query(network, peer, cmn.ChannelFiat, cmn.ChannelFiat,
-			fabricnetwork.CheckResult(fabricnetwork.CheckBalance(emitAmount), nil),
-			fnBalanceOf, user.AddressBase58Check)
-	})
-
 	It("Channel collector create test", func() {
 		ctx := context.Background()
 
+		By("Test 1 new channel collector creator")
 		chCr := hlf.NewChCollectorCreator(
 			cmn.ChannelFiat,
 			networkFound.ConnectionPath("User1"),
@@ -255,16 +258,21 @@ var _ = Describe("Robot hlf tests", func() {
 
 		dataReady := make(chan struct{}, 1)
 
-		chColl, err := chCr(ctx, dataReady, ccFiatUpper, 10)
+		By("Test 1 new channel collector")
+		chColl, err := chCr(ctx, dataReady, cmn.ChannelFiat, 10)
 		Expect(err).NotTo(HaveOccurred())
 		Expect(chColl).NotTo(BeNil())
 
+		By("Test 1 channel collector close")
 		chColl.Close()
+		close(dataReady)
 	})
 
 	It("Channel collector create without chaincode test", func() {
+		var blockNum uint64 = 0
 		ctx := context.Background()
 
+		By("Test 2 new channel collector creator")
 		chCr := hlf.NewChCollectorCreator(
 			channelWithoutChaincode,
 			networkFound.ConnectionPath("User1"),
@@ -277,22 +285,28 @@ var _ = Describe("Robot hlf tests", func() {
 
 		dataReady := make(chan struct{}, 1)
 
-		chColl, err := chCr(ctx, dataReady, channelWithoutChaincode, 0)
+		By("Test 2 new channel collector")
+		chColl, err := chCr(ctx, dataReady, channelWithoutChaincode, blockNum)
 		Expect(err).NotTo(HaveOccurred())
 		Expect(chColl).NotTo(BeNil())
 
+		By("Test 2 checking block number")
 		blockData, ok := <-chColl.GetData()
 		Expect(ok).To(BeTrue())
-		Expect(blockData.BlockNum).To(Equal(uint64(0)))
+		Expect(blockData.BlockNum).To(Equal(blockNum))
 
+		By("Test 2 channel collector close")
 		chColl.Close()
+		close(dataReady)
 	})
 
 	It("Get data test", func() {
+		By("Test 3 new logger & context")
 		log, err := loggerhlp.CreateLogger("std", "debug")
 		Expect(err).NotTo(HaveOccurred())
 		logCtx := glog.NewContext(context.Background(), log)
 
+		By("Test 3 new channel collector creator")
 		chCr := hlf.NewChCollectorCreator(
 			cmn.ChannelFiat,
 			networkFound.ConnectionPath("User1"),
@@ -305,12 +319,14 @@ var _ = Describe("Robot hlf tests", func() {
 
 		dataReady := make(chan struct{}, 1)
 
+		By("Test 3 new channel collector")
 		chColl, err := chCr(logCtx, dataReady, cmn.ChannelFiat, 0)
 		Expect(err).NotTo(HaveOccurred())
 		Expect(chColl).NotTo(BeNil())
 
 		const closeAfterNBlocks = 1
 
+		By("Test 3 getting data")
 		for i := 0; ; i++ {
 			select {
 			case data, ok := <-chColl.GetData():
@@ -343,17 +359,26 @@ var _ = Describe("Robot hlf tests", func() {
 				// don't wait
 				go func() {
 					chColl.Close()
-					log.Info("was closed")
+					close(dataReady)
+					//log.Info("was closed")
+					fmt.Println("was closed")
 				}()
 			}
 		}
 	})
 
 	It("Bag SDK subscribe events test", func() {
+		var (
+			blockNum1 uint64 = 3
+			blockNum2 uint64 = 1
+		)
+
+		By("Test 4 new logger & context")
 		log, err := loggerhlp.CreateLogger("std", "debug")
 		Expect(err).NotTo(HaveOccurred())
 		logCtx := glog.NewContext(context.Background(), log)
 
+		By("Test 4 first channel collector creator")
 		chCr1 := hlf.NewChCollectorCreator(
 			cmn.ChannelFiat,
 			networkFound.ConnectionPath("User1"),
@@ -366,14 +391,20 @@ var _ = Describe("Robot hlf tests", func() {
 
 		dataReady := make(chan struct{}, 1)
 
-		chColl1, err := chCr1(logCtx, dataReady, cmn.ChannelFiat, 3)
+		By("Test 4 first channel collector")
+		chColl1, err := chCr1(logCtx, dataReady, cmn.ChannelFiat, blockNum1)
 		Expect(err).NotTo(HaveOccurred())
 		Expect(chColl1).NotTo(BeNil())
 
+		By("Test 4 getting data from first channel collector")
 		data1, ok := <-chColl1.GetData()
 		Expect(ok).To(BeTrue())
-		Expect(data1.BlockNum).To(Equal(uint64(3)))
+		Expect(data1.BlockNum).To(Equal(blockNum1))
 
+		By("Test 4 first channel collector close")
+		chColl1.Close()
+
+		By("Test 4 second channel collector creator")
 		chCr2 := hlf.NewChCollectorCreator(
 			"dst-2",
 			networkFound.ConnectionPath("User1"),
@@ -385,42 +416,147 @@ var _ = Describe("Robot hlf tests", func() {
 		Expect(chCr1).NotTo(BeNil())
 
 		dataReady2 := make(chan struct{}, 1)
-		chColl2, err := chCr2(logCtx, dataReady2, cmn.ChannelFiat, 1)
 
+		By("Test 4 second channel collector")
+		chColl2, err := chCr2(logCtx, dataReady2, cmn.ChannelFiat, blockNum2)
+
+		By("Test 4 getting data from second channel collector")
 		data2, ok := <-chColl2.GetData()
 		Expect(ok).To(BeTrue())
-		Expect(data2.BlockNum).To(Equal(int64(data2.BlockNum)))
+		Expect(data2.BlockNum).To(Equal(blockNum2))
+
+		By("Test 4 second channel collector close")
+		chColl2.Close()
 	})
 
-	/*
-		It("Channel executor without chaincode test", func() {
-			ctx := context.Background()
+	It("Channel executor without chaincode test", func() {
+		ctx := context.Background()
 
-			ccCr := hlf.NewChExecutorCreator(
-				channelWithoutChaincode,
-				networkFound.ConnectionPath("User1"),
-				userName,
-				"Org1",
-				hlf.ExecuteOptions{
-					ExecuteTimeout: 0 * time.Second,
-				},
-			)
-			Expect(ccCr).NotTo(BeNil())
+		ccCr := hlf.NewChExecutorCreator(
+			channelWithoutChaincode,
+			networkFound.ConnectionPath("User1"),
+			userName,
+			"Org1",
+			hlf.ExecuteOptions{
+				ExecuteTimeout: 0 * time.Second,
+			},
+		)
+		Expect(ccCr).NotTo(BeNil())
 
-			chExec, err := ccCr(ctx)
+		chExec, err := ccCr(ctx)
+		Expect(err).NotTo(HaveOccurred())
+		Expect(chExec).NotTo(BeNil())
+
+		_, err = chExec.Execute(ctx, &executordto.Batch{
+			Txs: [][]byte{
+				{1, 2, 3, 4},
+			},
+		}, 0)
+		Expect(err).To(HaveOccurred())
+
+		var dErr fabricselection.DiscoveryError
+		Expect(errors.As(err, &dErr)).To(BeTrue())
+		Expect(dErr.IsTransient()).To(BeTrue())
+
+		chExec.Close()
+	})
+
+	It("Channel executor execute test", func() {
+		log, err := loggerhlp.CreateLogger("std", "debug")
+		Expect(err).NotTo(HaveOccurred())
+		logCtx := glog.NewContext(context.Background(), log)
+
+		By("send fake txs, check them committed")
+
+		ccCr := hlf.NewChExecutorCreator(
+			cmn.ChannelFiat,
+			networkFound.ConnectionPath("User1"),
+			userName,
+			"Org1",
+			hlf.ExecuteOptions{
+				ExecuteTimeout: 0 * time.Second,
+			},
+		)
+		Expect(ccCr).NotTo(BeNil())
+
+		chExec, err := ccCr(logCtx)
+		Expect(err).NotTo(HaveOccurred())
+		Expect(chExec).NotTo(BeNil())
+
+		firstBlockN, err := chExec.Execute(context.Background(), &executordto.Batch{
+			Txs:        [][]byte{[]byte("123")},
+			Swaps:      nil,
+			MultiSwaps: nil,
+			Keys:       nil,
+			MultiKeys:  nil,
+		}, 1)
+		Expect(err).NotTo(HaveOccurred())
+
+		secondBlockN, err := chExec.Execute(context.Background(), &executordto.Batch{
+			Txs:        [][]byte{[]byte("123")},
+			Swaps:      nil,
+			MultiSwaps: nil,
+			Keys:       nil,
+			MultiKeys:  nil,
+		}, firstBlockN+1)
+		Expect(err).NotTo(HaveOccurred())
+		if secondBlockN <= firstBlockN {
+			err = errors.New("second block number is less or equals to first block number")
+		}
+		Expect(err).NotTo(HaveOccurred())
+
+		/*
+			By("emit, check user balance")
+			By("add admin to acl")
+			client.AddUser(network, peer, network.Orderers[0], admin)
+
+			By("add user to acl")
+			user, err = client.NewUserFoundation(pbfound.KeyType_ed25519)
 			Expect(err).NotTo(HaveOccurred())
-			Expect(chExec).NotTo(BeNil())
 
-			_, err = chExec.Execute(ctx, &executordto.Batch{
-				Txs: [][]byte{
-					{1, 2, 3, 4},
-				},
-			}, 0)
-			Expect(err).To(HaveOccurred())
+			client.AddUser(network, peer, network.Orderers[0], user)
 
-			var dErr fabricselection.DiscoveryError
-			Expect(errors.As(err, &dErr)).To(BeTrue())
-			Expect(dErr.IsTransient()).To(BeTrue())
-		})
-	*/
+			By("emit tokens")
+			client.TxInvokeWithSign(network, peer, network.Orderers[0],
+				cmn.ChannelFiat, cmn.ChannelFiat, admin,
+				fnEmit, "", client.NewNonceByTime().Get(), nil, user.AddressBase58Check, emitAmount)
+
+			By("emit check")
+			client.Query(network, peer, cmn.ChannelFiat, cmn.ChannelFiat,
+				fabricnetwork.CheckResult(fabricnetwork.CheckBalance(emitAmount), nil),
+				fnBalanceOf, user.AddressBase58Check)
+		*/
+		user1, err := ntesting.CreateTestUser(context.Background(), ciData, "user")
+		Expect(err).NotTo(HaveOccurred())
+
+		fiatOwner, err := ntesting.GetFiatOwner(context.Background(), ciData)
+		Expect(err).NotTo(HaveOccurred())
+
+		var preimages [][]byte
+		for i := 0; i < 3; i++ {
+			txID, err := ntesting.EmitFiat(context.Background(), fiatOwner, user1, 1, ciData.HlfFiatChannel, ciData.HlfFiatChannel)
+			Expect(err).NotTo(HaveOccurred())
+
+			idBytes, err := hex.DecodeString(txID)
+			Expect(err).NotTo(HaveOccurred())
+
+			preimages = append(preimages, idBytes)
+		}
+
+		chExec1, err := ccCr(logCtx)
+		Expect(err).NotTo(HaveOccurred())
+		Expect(chExec).NotTo(BeNil())
+
+		_, err = chExec1.Execute(context.Background(), &executordto.Batch{
+			Txs:        preimages,
+			Swaps:      nil,
+			MultiSwaps: nil,
+			Keys:       nil,
+			MultiKeys:  nil,
+		}, 1)
+		Expect(err).NotTo(HaveOccurred())
+
+		// require.NoError(t, user.BalanceShouldBe(3))
+
+	})
 })

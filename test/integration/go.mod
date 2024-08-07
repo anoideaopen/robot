@@ -6,8 +6,10 @@ require (
 	github.com/IBM/idemix v0.0.2-0.20231011101252-a4feda90f3f7
 	github.com/anoideaopen/acl v0.0.4-0.20240709131543-bf642c53380c
 	github.com/anoideaopen/channel-transfer v0.0.4
-	github.com/anoideaopen/foundation v0.0.5
+	github.com/anoideaopen/common-component v0.0.6
+	github.com/anoideaopen/foundation v0.0.6-0.20240806064555-f242e4c795d7
 	github.com/anoideaopen/foundation/test/integration v0.0.0-20240722222449-50dbeda831f0
+	github.com/anoideaopen/glog v0.0.3
 	github.com/anoideaopen/robot v0.0.2
 	github.com/fsouza/go-dockerclient v1.11.1
 	github.com/hyperledger/fabric v1.4.0-rc1.0.20240406053308-22aaf3468497
@@ -29,8 +31,6 @@ require (
 	github.com/ale-linux/aries-framework-go/component/kmscrypto v0.0.0-20230817163708-4b3de6d91874 // indirect
 	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751 // indirect
 	github.com/alecthomas/units v0.0.0-20210912230133-d1bdfacee922 // indirect
-	github.com/anoideaopen/common-component v0.0.6 // indirect
-	github.com/anoideaopen/glog v0.0.3 // indirect
 	github.com/avast/retry-go/v4 v4.6.0 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/bits-and-blooms/bitset v1.13.0 // indirect
@@ -92,6 +92,7 @@ require (
 	github.com/hyperledger/fabric-protos-go v0.3.3 // indirect
 	github.com/hyperledger/fabric-sdk-go v1.0.1-0.20210927191040-3e3a3c6aeec9 // indirect
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
+	github.com/joho/godotenv v1.4.0 // indirect
 	github.com/kilic/bls12-381 v0.1.0 // indirect
 	github.com/klauspost/compress v1.17.6 // indirect
 	github.com/leodido/go-urn v1.2.1 // indirect
@@ -166,5 +167,5 @@ require (
 
 replace (
 	github.com/anoideaopen/robot => ../../
-	github.com/hyperledger/fabric-sdk-go => github.com/anoideaopen/fabric-sdk-go v0.0.1
+	github.com/hyperledger/fabric-sdk-go => github.com/anoideaopen/fabric-sdk-go v0.0.2
 )
