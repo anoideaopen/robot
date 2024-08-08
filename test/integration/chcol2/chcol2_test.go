@@ -123,7 +123,6 @@ var _ = Describe("Robot channel collector 2 tests", func() {
 
 		networkFound = cmn.New(network, channels)
 		networkFound.Robot.RedisAddresses = []string{redisDB.Address()}
-		networkFound.ChannelTransfer.RedisAddresses = []string{redisDB.Address()}
 
 		networkFound.GenerateConfigTree()
 		networkFound.Bootstrap()
