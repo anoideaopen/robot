@@ -2,12 +2,12 @@ package swap
 
 import (
 	"encoding/json"
-	"github.com/anoideaopen/foundation/core/types"
 	"os"
 	"path/filepath"
 	"syscall"
 	"time"
 
+	"github.com/anoideaopen/foundation/core/types"
 	pbfound "github.com/anoideaopen/foundation/proto"
 	"github.com/anoideaopen/foundation/test/integration/cmn"
 	"github.com/anoideaopen/foundation/test/integration/cmn/client"
@@ -34,8 +34,6 @@ const (
 	fnSwapBegin        = "swapBegin"
 	fnSwapGet          = "swapGet"
 	fnSwapDone         = "swapDone"
-	fnSetRate          = "setRate"
-	fnBuyToken         = "buyToken"
 
 	emitAmount      = "1000"
 	zeroAmount      = "0"
@@ -86,7 +84,7 @@ var _ = Describe("Robot swap tests", func() {
 	})
 
 	var (
-		channels         = []string{cmn.ChannelAcl, cmn.ChannelCC, cmn.ChannelFiat, cmn.ChannelIndustrial}
+		channels         = []string{cmn.ChannelAcl, cmn.ChannelCC, cmn.ChannelFiat}
 		ordererRunners   []*ginkgomon.Runner
 		redisProcess     ifrit.Process
 		redisDB          *runner.RedisDB
@@ -193,8 +191,6 @@ var _ = Describe("Robot swap tests", func() {
 		cmn.DeployCC(network, components, peer, testDir, skiRobot, admin.AddressBase58Check)
 		cmn.DeployFiat(network, components, peer, testDir, skiRobot,
 			admin.AddressBase58Check, feeSetter.AddressBase58Check, feeAddressSetter.AddressBase58Check)
-		cmn.DeployIndustrial(network, components, peer, testDir, skiRobot,
-			admin.AddressBase58Check, feeSetter.AddressBase58Check, feeAddressSetter.AddressBase58Check)
 	})
 	BeforeEach(func() {
 		By("start robot")
@@ -207,6 +203,11 @@ var _ = Describe("Robot swap tests", func() {
 		if robotProc != nil {
 			robotProc.Signal(syscall.SIGTERM)
 			Eventually(robotProc.Wait(), network.EventuallyTimeout).Should(Receive())
+		}
+		By("stop redis " + redisDB.Address())
+		if redisProcess != nil {
+			redisProcess.Signal(syscall.SIGTERM)
+			Eventually(redisProcess.Wait(), time.Minute).Should(Receive())
 		}
 	})
 
@@ -282,28 +283,6 @@ var _ = Describe("Robot swap tests", func() {
 		client.Query(network, peer, cmn.ChannelCC, cmn.ChannelCC,
 			fabricnetwork.CheckResult(fabricnetwork.CheckBalance(emitAmount), nil),
 			fnAllowedBalanceOf, user.AddressBase58Check, ccFiatUpper)
-
-		/*
-			By("set rate")
-			client.TxInvokeWithSign(network, peer, network.Orderers[0], cmn.ChannelCC, cmn.ChannelCC, admin,
-				fnSetRate, "0", client.NewNonceByTime().Get(), nil,
-				fnBuyToken, ccFiatUpper, rate)
-
-			By("buy token")
-			client.TxInvokeWithSign(network, peer, network.Orderers[0], cmn.ChannelCC, cmn.ChannelCC, user,
-				fnBuyToken, "0", client.NewNonceByTime().Get(), nil,
-				buyAmount, ccFiatUpper)
-
-			By("check balance 3")
-			client.Query(network, peer, cmn.ChannelCC, cmn.ChannelCC,
-				fabricnetwork.CheckResult(fabricnetwork.CheckBalance(buyAmount), nil),
-				fnBalanceOf, user.AddressBase58Check)
-
-			By("check allowed balance 3")
-			client.Query(network, peer, cmn.ChannelCC, cmn.ChannelCC,
-				fabricnetwork.CheckResult(fabricnetwork.CheckBalance(zeroAmount), nil),
-				fnAllowedBalanceOf, user.AddressBase58Check, ccFiatUpper)
-		*/
 	})
 
 	It("Multiswap test", func() {

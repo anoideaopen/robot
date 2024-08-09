@@ -2,19 +2,24 @@ package chexec
 
 import (
 	"context"
+	"encoding/hex"
 	"errors"
 	"os"
 	"path/filepath"
 	"syscall"
 	"time"
 
+	"github.com/anoideaopen/common-component/loggerhlp"
 	pbfound "github.com/anoideaopen/foundation/proto"
 	"github.com/anoideaopen/foundation/test/integration/cmn"
 	"github.com/anoideaopen/foundation/test/integration/cmn/client"
 	"github.com/anoideaopen/foundation/test/integration/cmn/fabricnetwork"
 	"github.com/anoideaopen/foundation/test/integration/cmn/runner"
+	"github.com/anoideaopen/glog"
 	"github.com/anoideaopen/robot/dto/executordto"
+	"github.com/anoideaopen/robot/helpers/ntesting"
 	"github.com/anoideaopen/robot/hlf"
+	"github.com/anoideaopen/robot/hlf/hlfprofile"
 	docker "github.com/fsouza/go-dockerclient"
 	"github.com/hyperledger/fabric-sdk-go/pkg/client/common/selection/fabricselection"
 	"github.com/hyperledger/fabric/integration/nwo"
@@ -86,6 +91,7 @@ var _ = Describe("Robot channel executor tests", func() {
 		admin            *client.UserFoundation
 		feeSetter        *client.UserFoundation
 		feeAddressSetter *client.UserFoundation
+		ciData           ntesting.CiTestData
 	)
 	BeforeEach(func() {
 		By("start redis")
@@ -172,6 +178,32 @@ var _ = Describe("Robot channel executor tests", func() {
 		Expect(err).NotTo(HaveOccurred())
 		Expect(feeAddressSetter.PrivateKeyBytes).NotTo(Equal(nil))
 
+		hlfProfilePath := networkFound.ConnectionPath("User1")
+
+		hlfProfile, err := hlfprofile.ParseProfile(hlfProfilePath)
+		Expect(err).NotTo(HaveOccurred())
+
+		ciData = ntesting.CiTestData{
+			RedisAddr:             redisDB.Address(),
+			RedisPass:             "",
+			HlfProfilePath:        hlfProfilePath,
+			HlfFiatChannel:        cmn.ChannelFiat,
+			HlfCcChannel:          "",
+			HlfIndustrialChannel:  "",
+			HlfNoCcChannel:        "",
+			HlfUserName:           userName,
+			HlfCert:               pathToPrivateKeyBackend,
+			HlfFiatOwnerKey:       admin.PublicKeyBase58,
+			HlfCcOwnerKey:         "",
+			HlfIndustrialOwnerKey: "",
+			HlfSk:                 pathToPrivateKeyBackend,
+			HlfIndustrialGroup1:   "",
+			HlfIndustrialGroup2:   "",
+			HlfDoSwapTests:        false,
+			HlfDoMultiSwapTests:   false,
+			HlfProfile:            hlfProfile,
+		}
+
 		cmn.DeployACL(network, components, peer, testDir, skiBackend, admin.PublicKeyBase58, admin.KeyType)
 		cmn.DeployFiat(network, components, peer, testDir, skiBackend,
 			admin.AddressBase58Check, feeSetter.AddressBase58Check, feeAddressSetter.AddressBase58Check)
@@ -187,6 +219,11 @@ var _ = Describe("Robot channel executor tests", func() {
 		if robotProc != nil {
 			robotProc.Signal(syscall.SIGTERM)
 			Eventually(robotProc.Wait(), network.EventuallyTimeout).Should(Receive())
+		}
+		By("stop redis " + redisDB.Address())
+		if redisProcess != nil {
+			redisProcess.Signal(syscall.SIGTERM)
+			Eventually(redisProcess.Wait(), time.Minute).Should(Receive())
 		}
 	})
 
@@ -222,83 +259,81 @@ var _ = Describe("Robot channel executor tests", func() {
 		chExec.Close()
 	})
 
-	/*
-		It("Channel executor execute test", func() {
-			log, err := loggerhlp.CreateLogger("std", "debug")
-			Expect(err).NotTo(HaveOccurred())
-			logCtx := glog.NewContext(context.Background(), log)
+	// Test was copied from original channel executor integration test, but not working
+	// ToDo - fix test
+	PIt("Channel executor execute test", func() {
+		log, err := loggerhlp.CreateLogger("std", "debug")
+		Expect(err).NotTo(HaveOccurred())
+		logCtx := glog.NewContext(context.Background(), log)
 
-			By("send fake txs, check them committed")
+		By("send fake txs, check them committed")
 
-			ccCr := hlf.NewChExecutorCreator(
-				cmn.ChannelFiat,
-				networkFound.ConnectionPath("User1"),
-				userName,
-				"Org1",
-				hlf.ExecuteOptions{
-					ExecuteTimeout: 0 * time.Second,
-				},
-			)
-			Expect(ccCr).NotTo(BeNil())
+		ccCr := hlf.NewChExecutorCreator(
+			cmn.ChannelFiat,
+			networkFound.ConnectionPath("User1"),
+			userName,
+			"Org1",
+			hlf.ExecuteOptions{
+				ExecuteTimeout: 0 * time.Second,
+			},
+		)
+		Expect(ccCr).NotTo(BeNil())
 
-			chExec, err := ccCr(logCtx)
-			Expect(err).NotTo(HaveOccurred())
-			Expect(chExec).NotTo(BeNil())
+		chExec, err := ccCr(logCtx)
+		Expect(err).NotTo(HaveOccurred())
+		Expect(chExec).NotTo(BeNil())
 
-			firstBlockN, err := chExec.Execute(context.Background(), &executordto.Batch{
-				Txs:        [][]byte{[]byte("123")},
-				Swaps:      nil,
-				MultiSwaps: nil,
-				Keys:       nil,
-				MultiKeys:  nil,
-			}, 1)
-			Expect(err).NotTo(HaveOccurred())
+		firstBlockN, err := chExec.Execute(context.Background(), &executordto.Batch{
+			Txs:        [][]byte{[]byte("123")},
+			Swaps:      nil,
+			MultiSwaps: nil,
+			Keys:       nil,
+			MultiKeys:  nil,
+		}, 1)
+		Expect(err).NotTo(HaveOccurred())
 
-			secondBlockN, err := chExec.Execute(context.Background(), &executordto.Batch{
-				Txs:        [][]byte{[]byte("123")},
-				Swaps:      nil,
-				MultiSwaps: nil,
-				Keys:       nil,
-				MultiKeys:  nil,
-			}, firstBlockN+1)
-			Expect(err).NotTo(HaveOccurred())
-			if secondBlockN <= firstBlockN {
-				err = errors.New("second block number is less or equals to first block number")
-			}
-			Expect(err).NotTo(HaveOccurred())
+		secondBlockN, err := chExec.Execute(context.Background(), &executordto.Batch{
+			Txs:        [][]byte{[]byte("123")},
+			Swaps:      nil,
+			MultiSwaps: nil,
+			Keys:       nil,
+			MultiKeys:  nil,
+		}, firstBlockN+1)
+		Expect(err).NotTo(HaveOccurred())
+		if secondBlockN <= firstBlockN {
+			err = errors.New("second block number is less or equals to first block number")
+		}
+		Expect(err).NotTo(HaveOccurred())
 
-			user1, err := ntesting.CreateTestUser(context.Background(), ciData, "user")
-			Expect(err).NotTo(HaveOccurred())
+		user1, err := ntesting.CreateTestUser(context.Background(), ciData, "user")
+		Expect(err).NotTo(HaveOccurred())
 
-			fiatOwner, err := ntesting.GetFiatOwner(context.Background(), ciData)
-			Expect(err).NotTo(HaveOccurred())
+		fiatOwner, err := ntesting.GetFiatOwner(context.Background(), ciData)
+		Expect(err).NotTo(HaveOccurred())
 
-			var preimages [][]byte
-			for i := 0; i < 3; i++ {
-				txID, err := ntesting.EmitFiat(context.Background(), fiatOwner, user1, 1, ciData.HlfFiatChannel, ciData.HlfFiatChannel)
-				Expect(err).NotTo(HaveOccurred())
-
-				idBytes, err := hex.DecodeString(txID)
-				Expect(err).NotTo(HaveOccurred())
-
-				preimages = append(preimages, idBytes)
-			}
-
-			chExec1, err := ccCr(logCtx)
-			Expect(err).NotTo(HaveOccurred())
-			Expect(chExec).NotTo(BeNil())
-
-			_, err = chExec1.Execute(context.Background(), &executordto.Batch{
-				Txs:        preimages,
-				Swaps:      nil,
-				MultiSwaps: nil,
-				Keys:       nil,
-				MultiKeys:  nil,
-			}, 1)
+		var preimages [][]byte
+		for i := 0; i < 3; i++ {
+			txID, err := ntesting.EmitFiat(context.Background(), fiatOwner, user1, 1, ciData.HlfFiatChannel, ciData.HlfFiatChannel)
 			Expect(err).NotTo(HaveOccurred())
 
-			// require.NoError(t, user.BalanceShouldBe(3))
+			idBytes, err := hex.DecodeString(txID)
+			Expect(err).NotTo(HaveOccurred())
 
-		})
-	*/
+			preimages = append(preimages, idBytes)
+		}
+
+		chExec1, err := ccCr(logCtx)
+		Expect(err).NotTo(HaveOccurred())
+		Expect(chExec).NotTo(BeNil())
+
+		_, err = chExec1.Execute(context.Background(), &executordto.Batch{
+			Txs:        preimages,
+			Swaps:      nil,
+			MultiSwaps: nil,
+			Keys:       nil,
+			MultiKeys:  nil,
+		}, 1)
+		Expect(err).NotTo(HaveOccurred())
+
+	})
 })

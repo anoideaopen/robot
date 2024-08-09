@@ -122,7 +122,7 @@ func createChCollector(
 	dataReady chan<- struct{},
 	startFrom uint64,
 	bufSize uint,
-	connectionProfile,
+	connectionProfile string,
 	userName string,
 	orgName string,
 	txPrefixes parserdto.TxPrefixes,

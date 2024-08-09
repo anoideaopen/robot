@@ -188,6 +188,11 @@ var _ = Describe("Robot hlf tests", func() {
 			robotProc.Signal(syscall.SIGTERM)
 			Eventually(robotProc.Wait(), network.EventuallyTimeout).Should(Receive())
 		}
+		By("stop redis " + redisDB.Address())
+		if redisProcess != nil {
+			redisProcess.Signal(syscall.SIGTERM)
+			Eventually(redisProcess.Wait(), time.Minute).Should(Receive())
+		}
 	})
 
 	It("Bag SDK subscribe events test", func() {

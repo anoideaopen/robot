@@ -73,17 +73,15 @@ var _ = Describe("Robot channel collector tests 1", func() {
 	})
 
 	var (
-		channels       = []string{cmn.ChannelAcl, cmn.ChannelFiat, channelWithoutChaincode}
-		ordererRunners []*ginkgomon.Runner
-		redisProcess   ifrit.Process
-		redisDB        *runner.RedisDB
-		networkFound   *cmn.NetworkFoundation
-		robotProc      ifrit.Process
-		skiBackend     string
-		// skiRobot       string
-		peer  *nwo.Peer
-		admin *client.UserFoundation
-		// user             *client.UserFoundation
+		channels         = []string{cmn.ChannelAcl, cmn.ChannelFiat, channelWithoutChaincode}
+		ordererRunners   []*ginkgomon.Runner
+		redisProcess     ifrit.Process
+		redisDB          *runner.RedisDB
+		networkFound     *cmn.NetworkFoundation
+		robotProc        ifrit.Process
+		skiBackend       string
+		peer             *nwo.Peer
+		admin            *client.UserFoundation
 		feeSetter        *client.UserFoundation
 		feeAddressSetter *client.UserFoundation
 	)
@@ -187,6 +185,11 @@ var _ = Describe("Robot channel collector tests 1", func() {
 		if robotProc != nil {
 			robotProc.Signal(syscall.SIGTERM)
 			Eventually(robotProc.Wait(), network.EventuallyTimeout).Should(Receive())
+		}
+		By("stop redis " + redisDB.Address())
+		if redisProcess != nil {
+			redisProcess.Signal(syscall.SIGTERM)
+			Eventually(redisProcess.Wait(), time.Minute).Should(Receive())
 		}
 	})
 
