@@ -9,24 +9,15 @@ import (
 
 type ChExecutorCreator = func(ctx context.Context) (*ChExecutor, error)
 
-func NewChExecutorCreator(chName,
-	connectionProfile,
-	user, org string,
-	execOpts ExecuteOptions,
-) ChExecutorCreator {
-	return newChExecutorCreator(chName,
-		connectionProfile,
-		user, org,
-		execOpts)
-}
-
-func newChExecutorCreator(chName,
-	connectionProfile,
-	user, org string,
+func NewChExecutorCreator(
+	chName string,
+	connectionProfile string,
+	user string,
+	org string,
 	execOpts ExecuteOptions,
 ) ChExecutorCreator {
 	return func(ctx context.Context) (*ChExecutor, error) {
-		return createChExecutor(ctx, chName,
+		return CreateChExecutor(ctx, chName,
 			connectionProfile,
 			user, org,
 			execOpts,
@@ -45,8 +36,10 @@ func mapExecOpts(cfg *config.Config, rCfg *config.Robot) (ExecuteOptions, error)
 	}, nil
 }
 
-// CreateChExecutorCreator - creates ChExecutorCreator specified by config
-func CreateChExecutorCreator(cfg *config.Config, hlfProfile *hlfprofile.HlfProfile,
+// CreateChExecutorCreatorFromConfig - creates ChExecutorCreator specified by robot config
+func CreateChExecutorCreatorFromConfig(
+	cfg *config.Config,
+	hlfProfile *hlfprofile.HlfProfile,
 	rCfg *config.Robot,
 ) (ChExecutorCreator, error) {
 	execOpts, err := mapExecOpts(cfg, rCfg)

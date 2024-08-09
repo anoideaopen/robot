@@ -4,7 +4,7 @@ go 1.22.5
 
 require (
 	github.com/anoideaopen/common-component v0.0.6
-	github.com/anoideaopen/foundation v0.0.5
+	github.com/anoideaopen/foundation v0.0.6-0.20240806064555-f242e4c795d7
 	github.com/anoideaopen/glog v0.0.3
 	github.com/avast/retry-go/v4 v4.6.0
 	github.com/btcsuite/btcutil v1.0.2

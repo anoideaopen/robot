@@ -369,8 +369,8 @@ func CreateRobots(ctx context.Context, cfg *config.Config, hlfProfile *hlfprofil
 			allSrcChannels[sc.ChName] = *sc.InitBlockNum
 		}
 
-		ccr := hlf.CreateChCollectorCreator(cfg, hlfProfile, rCfg)
-		ecr, err := hlf.CreateChExecutorCreator(cfg, hlfProfile, rCfg)
+		ccr := hlf.CreateChCollectorCreatorFromConfig(cfg, hlfProfile, rCfg)
+		ecr, err := hlf.CreateChExecutorCreatorFromConfig(cfg, hlfProfile, rCfg)
 		if err != nil {
 			return nil, err
 		}

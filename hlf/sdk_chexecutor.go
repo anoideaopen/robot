@@ -45,11 +45,13 @@ type ChExecutor struct {
 	RetryExecuteDelay    time.Duration
 }
 
-func createChExecutor(
+// CreateChExecutor creates New ChExecutor
+func CreateChExecutor(
 	ctx context.Context,
-	chName,
+	chName string,
 	connectionProfile string,
-	userName, orgName string,
+	userName string,
+	orgName string,
 	execOpts ExecuteOptions,
 ) (*ChExecutor, error) {
 	log := glog.FromContext(ctx).
@@ -78,8 +80,11 @@ func createChExecutor(
 	return chExec, nil
 }
 
-func (che *ChExecutor) init(ctx context.Context,
-	connectionProfile, org, user string,
+func (che *ChExecutor) init(
+	ctx context.Context,
+	connectionProfile string,
+	org string,
+	user string,
 	execOpts ExecuteOptions,
 ) error {
 	configBackends, err := config.FromFile(connectionProfile)()

@@ -13,22 +13,10 @@ type ChCollectorCreator func(ctx context.Context,
 	srcChName string, startFrom uint64) (*ChCollector, error)
 
 func NewChCollectorCreator(
-	dstChName, connectionProfile,
-	userName, orgName string,
-	txPrefixes parserdto.TxPrefixes,
-	bufSize uint,
-) ChCollectorCreator {
-	return newChCollectorCreator(dstChName,
-		connectionProfile,
-		userName, orgName,
-		txPrefixes,
-		bufSize)
-}
-
-func newChCollectorCreator(
-	dstChName,
-	connectionProfile,
-	userName, orgName string,
+	dstChName string,
+	connectionProfile string,
+	userName string,
+	orgName string,
 	txPrefixes parserdto.TxPrefixes,
 	bufSize uint,
 ) ChCollectorCreator {
@@ -41,8 +29,10 @@ func newChCollectorCreator(
 	}
 }
 
-// CreateChCollectorCreator creates ChCollectorCreator
-func CreateChCollectorCreator(cfg *config.Config, hlfProfile *hlfprofile.HlfProfile,
+// CreateChCollectorCreatorFromConfig creates ChCollectorCreator specified by robot config
+func CreateChCollectorCreatorFromConfig(
+	cfg *config.Config,
+	hlfProfile *hlfprofile.HlfProfile,
 	rCfg *config.Robot,
 ) ChCollectorCreator {
 	txPrefixes := parserdto.TxPrefixes{
