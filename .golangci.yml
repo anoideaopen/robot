@@ -1,6 +1,6 @@
 run:
   # The default concurrency value is the number of available CPU.
-  go: '1.22'
+  go: '1.23'
   concurrency: 4
   timeout: 5m
   tests: false

@@ -1,6 +1,6 @@
 module github.com/anoideaopen/robot/test/integration
 
-go 1.22.5
+go 1.23.0
 
 require (
 	github.com/IBM/idemix v0.0.2-0.20231011101252-a4feda90f3f7
