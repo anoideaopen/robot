@@ -23,7 +23,6 @@
   - [Dependencies](#dependencies)
   - [Build](#build)
     - [Go](#go)
-    - [Docker](#docker)
   - [Configuration yaml file](#configuration-yaml-file)
     - [Logger configuration](#logger-configuration)
     - [Robots' configuration](#robots-configuration)
@@ -96,19 +95,6 @@ However, it is not recommended configuring robot services that works with the sa
 ```shell
 go build -ldflags="-X 'main.AppInfoVer={Version}'"
 ```
-### Docker
-To build docker image you need to provide a `REGISTRY_NETRC` build-arg (to fetch go modules from private registry).
-You need to replace in the command below `GITHUB_USERNAME` with your github.com username and `GITHUB_API_KEY` with
-your gitlab access token, generated on [personal access tokens page](https://github.com/-/profile/personal_access_tokens)
-(token should have the `read_repository` permission).
-```shell
-docker build \
-  --platform linux/amd64 \
-  --build-arg REGISTRY_NETRC="machine github.com login GITLAB_USERNAME password GITLAB_API_KEY" \
-  .
-```
-Base build image can be overridden with `BUILDER_IMAGE` (default `golang`) and `BUILDER_VERSION` (default `1.18-alpine`). Sometimes it may be useful in
-CI environments.
 
 ------
 ## Configuration yaml file

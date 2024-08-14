@@ -1,12 +1,9 @@
 package wallet
 
 import (
-	"crypto/ecdsa"
 	"crypto/ed25519"
 	"crypto/sha256"
 	"crypto/x509"
-	"encoding/pem"
-	"errors"
 	"fmt"
 
 	"github.com/anoideaopen/robot/hlf/sdkwrapper/service"
@@ -69,57 +66,4 @@ func (k *Key) Private() bool {
 // PublicKey returns the corresponding public key part of an asymmetric public/private key pair.
 func (k *Key) PublicKey() (core.Key, error) {
 	return k, nil
-}
-
-func PEMToPrivateKey(raw []byte, pwd []byte) (interface{}, error) {
-	block, _ := pem.Decode(raw)
-	if block == nil {
-		return nil, fmt.Errorf("failed decoding PEM. Block must be different from nil [% x]", raw)
-	}
-
-	if x509.IsEncryptedPEMBlock(block) { //nolint:staticcheck
-		if len(pwd) == 0 {
-			return nil, errors.New("encrypted Key. Need a password")
-		}
-
-		decrypted, err := x509.DecryptPEMBlock(block, pwd) //nolint:staticcheck
-		if err != nil {
-			return nil, fmt.Errorf("failed PEM decryption: %w", err)
-		}
-
-		key, err := derToPrivateKey(decrypted)
-		if err != nil {
-			return nil, err
-		}
-
-		return key, err
-	}
-
-	cert, err := derToPrivateKey(block.Bytes)
-	if err != nil {
-		return nil, err
-	}
-
-	return cert, err
-}
-
-func derToPrivateKey(der []byte) (key interface{}, err error) {
-	if key, err = x509.ParsePKCS1PrivateKey(der); err == nil {
-		return key, nil
-	}
-
-	if key, err = x509.ParsePKCS8PrivateKey(der); err == nil {
-		switch key.(type) {
-		case *ecdsa.PrivateKey:
-			return
-		default:
-			return nil, errors.New("found unknown private key type in PKCS#8 wrapping")
-		}
-	}
-
-	if key, err = x509.ParseECPrivateKey(der); err == nil {
-		return key, nil
-	}
-
-	return nil, errors.New("invalid key type. The DER must contain an ecdsa.PrivateKey")
 }

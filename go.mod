@@ -1,6 +1,6 @@
 module github.com/anoideaopen/robot
 
-go 1.22.5
+go 1.23.0
 
 require (
 	github.com/anoideaopen/common-component v0.0.6
