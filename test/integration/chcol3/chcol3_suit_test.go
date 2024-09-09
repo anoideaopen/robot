@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	"github.com/anoideaopen/foundation/test/integration/cmn/runner"
-	"github.com/hyperledger/fabric/integration"
 	"github.com/hyperledger/fabric/integration/nwo"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -41,7 +40,3 @@ var _ = SynchronizedAfterSuite(func() {
 }, func() {
 	buildServer.Shutdown()
 })
-
-func StartPort() int {
-	return integration.KafkaBasePort.StartPortForNode()
-}
