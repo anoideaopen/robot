@@ -11,12 +11,10 @@ require (
 	github.com/anoideaopen/foundation/test/integration v0.0.0-20240909081609-af8e7ac3d816
 	github.com/anoideaopen/glog v0.0.3
 	github.com/anoideaopen/robot v0.0.3-0.20240730145328-bc561367aff8
-	github.com/fsouza/go-dockerclient v1.11.1
 	github.com/hyperledger/fabric v1.4.0-rc1.0.20240729123800-908b9655d423
 	github.com/hyperledger/fabric-sdk-go v1.0.1-0.20210927191040-3e3a3c6aeec9
 	github.com/onsi/ginkgo/v2 v2.19.1
 	github.com/onsi/gomega v1.34.1
-	github.com/tedsuo/ifrit v0.0.0-20230516164442-7862c310ad26
 )
 
 require (
@@ -35,10 +33,8 @@ require (
 	github.com/avast/retry-go/v4 v4.6.0 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/bits-and-blooms/bitset v1.13.0 // indirect
-	github.com/btcsuite/btcd v0.23.5-0.20231215221805-96c9fd8078fd // indirect
 	github.com/btcsuite/btcd/btcec/v2 v2.2.0 // indirect
 	github.com/btcsuite/btcd/btcutil v1.1.5 // indirect
-	github.com/btcsuite/btcd/chaincfg/chainhash v1.1.0 // indirect
 	github.com/btcsuite/btcutil v1.0.3-0.20201208143702-a53e38424cce // indirect
 	github.com/cenkalti/backoff/v4 v4.3.0 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
@@ -62,6 +58,7 @@ require (
 	github.com/felixge/httpsnoop v1.0.4 // indirect
 	github.com/flowchartsman/swaggerui v0.0.0-20221017034628-909ed4f3701b // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
+	github.com/fsouza/go-dockerclient v1.11.1 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.3 // indirect
 	github.com/go-errors/errors v1.5.1 // indirect
 	github.com/go-kit/kit v0.10.0 // indirect
@@ -71,7 +68,6 @@ require (
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/go-playground/validator/v10 v10.22.0 // indirect
-	github.com/go-redis/redis/v8 v8.11.5 // indirect
 	github.com/go-task/slim-sprig/v3 v3.0.0 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang/mock v1.6.0 // indirect
@@ -135,6 +131,7 @@ require (
 	github.com/supranational/blst v0.3.11 // indirect
 	github.com/sykesm/zap-logfmt v0.0.4 // indirect
 	github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7 // indirect
+	github.com/tedsuo/ifrit v0.0.0-20230516164442-7862c310ad26 // indirect
 	github.com/weppos/publicsuffix-go v0.5.0 // indirect
 	github.com/zmap/zcrypto v0.0.0-20190729165852-9051775e6a2e // indirect
 	github.com/zmap/zlint v0.0.0-20190806154020-fd021b4cfbeb // indirect
