@@ -1,6 +1,6 @@
 module github.com/anoideaopen/robot/test/integration
 
-go 1.23.0
+go 1.23.1
 
 require (
 	github.com/IBM/idemix v0.0.2-0.20231011101252-a4feda90f3f7
@@ -8,7 +8,7 @@ require (
 	github.com/anoideaopen/channel-transfer v0.0.5
 	github.com/anoideaopen/common-component v0.0.6
 	github.com/anoideaopen/foundation v0.0.6-0.20240809062346-4a18d95a349b
-	github.com/anoideaopen/foundation/test/integration v0.0.0-20240903083613-925228974a3c
+	github.com/anoideaopen/foundation/test/integration v0.0.0-20240909081609-af8e7ac3d816
 	github.com/anoideaopen/glog v0.0.3
 	github.com/anoideaopen/robot v0.0.3-0.20240730145328-bc561367aff8
 	github.com/fsouza/go-dockerclient v1.11.1
@@ -152,12 +152,12 @@ require (
 	go.uber.org/atomic v1.11.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	go.uber.org/zap v1.27.0 // indirect
-	golang.org/x/crypto v0.25.0 // indirect
+	golang.org/x/crypto v0.26.0 // indirect
 	golang.org/x/exp v0.0.0-20240719175910-8a7402abbf56 // indirect
-	golang.org/x/net v0.27.0 // indirect
-	golang.org/x/sync v0.7.0 // indirect
-	golang.org/x/sys v0.22.0 // indirect
-	golang.org/x/text v0.16.0 // indirect
+	golang.org/x/net v0.28.0 // indirect
+	golang.org/x/sync v0.8.0 // indirect
+	golang.org/x/sys v0.23.0 // indirect
+	golang.org/x/text v0.17.0 // indirect
 	golang.org/x/tools v0.23.0 // indirect
 	google.golang.org/genproto v0.0.0-20240213162025-012b6fc9bca9 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20240725223205-93522f1f2a9f // indirect
@@ -173,6 +173,5 @@ require (
 
 replace (
 	github.com/anoideaopen/robot => ../../
-	github.com/anoideaopen/foundation/test/integration => ../../../foundation/test/integration
 	github.com/hyperledger/fabric-sdk-go => github.com/anoideaopen/fabric-sdk-go v0.0.2
 )
