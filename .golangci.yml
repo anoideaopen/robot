@@ -17,6 +17,7 @@ linters:
     - bodyclose
     - dogsled
     - errorlint
+    - copyloopvar
     - misspell
     - nestif
     - noctx
