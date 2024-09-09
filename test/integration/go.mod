@@ -8,7 +8,7 @@ require (
 	github.com/anoideaopen/channel-transfer v0.0.5
 	github.com/anoideaopen/common-component v0.0.6
 	github.com/anoideaopen/foundation v0.0.6-0.20240809062346-4a18d95a349b
-	github.com/anoideaopen/foundation/test/integration v0.0.0-20240903083613-925228974a3c
+	github.com/anoideaopen/foundation/test/integration v0.0.0-20240909081609-af8e7ac3d816
 	github.com/anoideaopen/glog v0.0.3
 	github.com/anoideaopen/robot v0.0.3-0.20240730145328-bc561367aff8
 	github.com/fsouza/go-dockerclient v1.11.1
@@ -171,7 +171,6 @@ require (
 )
 
 replace (
-	github.com/anoideaopen/foundation/test/integration => ../../../foundation/test/integration
 	github.com/anoideaopen/robot => ../../
 	github.com/hyperledger/fabric-sdk-go => github.com/anoideaopen/fabric-sdk-go v0.0.2
 )

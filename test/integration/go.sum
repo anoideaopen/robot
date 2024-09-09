@@ -673,6 +673,7 @@ github.com/anoideaopen/foundation/test/integration v0.0.0-20240722222449-50dbeda
 github.com/anoideaopen/foundation/test/integration v0.0.0-20240722222449-50dbeda831f0/go.mod h1:Yihi/qu7+UZ1PgVUuv340NiJBSfkuzsDvl8yn4gnNdk=
 github.com/anoideaopen/foundation/test/integration v0.0.0-20240903083613-925228974a3c h1:keB7W+f36SicWwdVFLZPoYPiDq8uXQIWvMsXG3oNH6Q=
 github.com/anoideaopen/foundation/test/integration v0.0.0-20240903083613-925228974a3c/go.mod h1:d5lDv+K24jP2flzQ+foSW5AMWegWgbqnt80P8Viw+CI=
+github.com/anoideaopen/foundation/test/integration v0.0.0-20240909081609-af8e7ac3d816/go.mod h1:/fdDnOw52YjraodgrBY+euSV3IYT0ojg4nCAv1XntWs=
 github.com/anoideaopen/glog v0.0.3 h1:vsWM5QvHzTMbrDy3cydkNPFpfdWrxeC8ne02f//qNaA=
 github.com/anoideaopen/glog v0.0.3/go.mod h1:8J4509ClNmF/kvvPA8XFKZ7OX+860JaFH3+nXVD+R3k=
 github.com/antihax/optional v1.0.0/go.mod h1:uupD/76wgC+ih3iEmQUL+0Ugr19nfwCT1kdvxnR2qWY=
