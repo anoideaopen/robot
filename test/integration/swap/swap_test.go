@@ -2,7 +2,9 @@ package swap
 
 import (
 	"encoding/json"
+
 	"github.com/anoideaopen/foundation/core/types"
+	"github.com/anoideaopen/foundation/mocks"
 	pbfound "github.com/anoideaopen/foundation/proto"
 	"github.com/anoideaopen/foundation/test/integration/cmn"
 	"github.com/anoideaopen/foundation/test/integration/cmn/client"
@@ -40,8 +42,8 @@ var _ = Describe("Robot swap tests", func() {
 	})
 
 	var (
-		channels = []string{cmn.ChannelAcl, cmn.ChannelCC, cmn.ChannelFiat}
-		user     *client.UserFoundation
+		channels = []string{cmn.ChannelACL, cmn.ChannelCC, cmn.ChannelFiat}
+		user     *mocks.UserFoundation
 	)
 	BeforeEach(func() {
 		By("start redis")
@@ -68,7 +70,7 @@ var _ = Describe("Robot swap tests", func() {
 
 		By("add user to acl")
 		var err error
-		user, err = client.NewUserFoundation(pbfound.KeyType_ed25519)
+		user, err = mocks.NewUserFoundation(pbfound.KeyType_ed25519)
 		Expect(err).NotTo(HaveOccurred())
 
 		ts.AddUser(user)
@@ -96,8 +98,8 @@ var _ = Describe("Robot swap tests", func() {
 
 	It("swap test", func() {
 		var (
-		//buyAmount       = "1"
-		//rate            = "100000000"
+		// buyAmount       = "1"
+		// rate            = "100000000"
 		)
 
 		By("swap from fiat to cc")
