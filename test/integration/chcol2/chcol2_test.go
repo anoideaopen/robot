@@ -2,6 +2,7 @@ package chcol2
 
 import (
 	"context"
+
 	"github.com/anoideaopen/common-component/loggerhlp"
 	"github.com/anoideaopen/foundation/test/integration/cmn"
 	"github.com/anoideaopen/foundation/test/integration/cmn/client"
@@ -20,8 +21,8 @@ const (
 
 var _ = Describe("Robot channel collector 2 tests", func() {
 	var (
-		channels = []string{cmn.ChannelAcl, cmn.ChannelFiat, channelWithoutChaincode}
-		ts       client.TestSuite
+		channels = []string{cmn.ChannelACL, cmn.ChannelFiat, channelWithoutChaincode}
+		ts       *client.FoundationTestSuite
 
 		networkFound *cmn.NetworkFoundation
 	)
@@ -44,7 +45,7 @@ var _ = Describe("Robot channel collector 2 tests", func() {
 		By("start robot")
 		ts.StartRobot()
 
-		networkFound = ts.NetworkFound()
+		networkFound = ts.NetworkFound
 	})
 	AfterEach(func() {
 		By("stop robot")

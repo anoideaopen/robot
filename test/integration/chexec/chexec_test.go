@@ -4,8 +4,6 @@ import (
 	"context"
 	"encoding/hex"
 	"errors"
-	"github.com/anoideaopen/robot/hlf/hlfprofile"
-	"github.com/hyperledger/fabric/integration"
 	"time"
 
 	"github.com/anoideaopen/common-component/loggerhlp"
@@ -15,7 +13,9 @@ import (
 	"github.com/anoideaopen/robot/dto/executordto"
 	"github.com/anoideaopen/robot/helpers/ntesting"
 	"github.com/anoideaopen/robot/hlf"
+	"github.com/anoideaopen/robot/hlf/hlfprofile"
 	"github.com/hyperledger/fabric-sdk-go/pkg/client/common/selection/fabricselection"
+	"github.com/hyperledger/fabric/integration"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
@@ -27,7 +27,7 @@ const (
 
 var _ = Describe("Robot channel executor tests", func() {
 	var (
-		ts client.TestSuite
+		ts *client.FoundationTestSuite
 	)
 
 	BeforeEach(func() {
@@ -38,7 +38,7 @@ var _ = Describe("Robot channel executor tests", func() {
 	})
 
 	var (
-		channels = []string{cmn.ChannelAcl, cmn.ChannelFiat, channelWithoutChaincode}
+		channels = []string{cmn.ChannelACL, cmn.ChannelFiat, channelWithoutChaincode}
 	)
 	BeforeEach(func() {
 		By("start redis")
@@ -64,7 +64,7 @@ var _ = Describe("Robot channel executor tests", func() {
 
 		ccCr := hlf.NewChExecutorCreator(
 			channelWithoutChaincode,
-			ts.NetworkFound().ConnectionPath("User1"),
+			ts.NetworkFound.ConnectionPath("User1"),
 			userName,
 			"Org1",
 			hlf.ExecuteOptions{
@@ -105,7 +105,7 @@ var _ = Describe("Robot channel executor tests", func() {
 
 		ccCr := hlf.NewChExecutorCreator(
 			cmn.ChannelFiat,
-			ts.NetworkFound().ConnectionPath("User1"),
+			ts.NetworkFound.ConnectionPath("User1"),
 			userName,
 			"Org1",
 			hlf.ExecuteOptions{

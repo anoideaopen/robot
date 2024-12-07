@@ -2,6 +2,7 @@ package storage
 
 import (
 	"context"
+
 	"github.com/anoideaopen/foundation/test/integration/cmn"
 	"github.com/anoideaopen/foundation/test/integration/cmn/client"
 	"github.com/anoideaopen/robot/dto/stordto"
@@ -19,7 +20,7 @@ const (
 
 var _ = Describe("Robot storage tests", func() {
 	var (
-		ts client.TestSuite
+		ts *client.FoundationTestSuite
 	)
 
 	BeforeEach(func() {
@@ -30,7 +31,7 @@ var _ = Describe("Robot storage tests", func() {
 	})
 
 	var (
-		channels = []string{cmn.ChannelAcl, cmn.ChannelCC, cmn.ChannelFiat, cmn.ChannelIndustrial}
+		channels = []string{cmn.ChannelACL, cmn.ChannelCC, cmn.ChannelFiat, cmn.ChannelIndustrial}
 	)
 	BeforeEach(func() {
 		By("start redis")
@@ -54,7 +55,7 @@ var _ = Describe("Robot storage tests", func() {
 	It("Save Load checkpoint test", func() {
 		ctx := context.Background()
 
-		redisDbAddress := ts.NetworkFound().Robot.RedisAddresses[0]
+		redisDbAddress := ts.NetworkFound.Robot.RedisAddresses[0]
 
 		stor1, err := redis.NewStorage(
 			ctx,
@@ -113,7 +114,7 @@ var _ = Describe("Robot storage tests", func() {
 	It("Different channels checkpoints", func() {
 		ctx := context.Background()
 
-		redisDbAddress := ts.NetworkFound().Robot.RedisAddresses[0]
+		redisDbAddress := ts.NetworkFound.Robot.RedisAddresses[0]
 
 		stor1, err := redis.NewStorage(
 			ctx,
