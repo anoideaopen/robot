@@ -7,7 +7,7 @@ on:
       - 'v*'
 
 env:
-  GO_VER: 1.23.4
+  GO_VER: 1.23.5
   UBUNTU_VER: 20.04
   APP_VER: ${{ github.ref_name }}
 
