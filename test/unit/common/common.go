@@ -5,9 +5,9 @@ import (
 	"testing"
 
 	"github.com/anoideaopen/robot/dto/parserdto"
-	"github.com/golang/protobuf/proto" //nolint:staticcheck
-	"github.com/hyperledger/fabric-protos-go/common"
+	"github.com/hyperledger/fabric-protos-go-apiv2/common"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/protobuf/proto"
 )
 
 // DefaultPrefixes is a struct of default test prefixes

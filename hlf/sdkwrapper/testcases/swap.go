@@ -9,7 +9,7 @@ import (
 
 	"github.com/anoideaopen/robot/hlf/sdkwrapper/chaincode-api/basetoken"
 	"github.com/anoideaopen/robot/hlf/sdkwrapper/logger"
-	"github.com/hyperledger/fabric-protos-go/peer"
+	"github.com/hyperledger/fabric-protos-go-apiv2/peer"
 	"github.com/hyperledger/fabric-sdk-go/pkg/client/channel"
 	"go.uber.org/zap"
 	"golang.org/x/crypto/sha3"

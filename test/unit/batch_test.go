@@ -9,8 +9,8 @@ import (
 	"github.com/anoideaopen/robot/collectorbatch"
 	"github.com/anoideaopen/robot/dto/collectordto"
 	"github.com/anoideaopen/robot/dto/executordto"
-	"github.com/golang/protobuf/proto"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/protobuf/proto"
 )
 
 func TestEmpty(t *testing.T) {
