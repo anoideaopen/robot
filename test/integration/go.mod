@@ -4,12 +4,12 @@ go 1.23.5
 
 require (
 	github.com/IBM/idemix v0.0.2-0.20240913182345-72941a5f41cd
-	github.com/anoideaopen/acl v0.0.10-0.20250204124308-bf4d4024ba8e
+	github.com/anoideaopen/acl v0.0.10-0.20250205160856-971f8b18bd5c
 	github.com/anoideaopen/common-component v0.0.6
-	github.com/anoideaopen/foundation v0.0.11-0.20250204151201-2b4e0521de52
-	github.com/anoideaopen/foundation/test/integration v0.0.0-20250204151201-2b4e0521de52
+	github.com/anoideaopen/foundation v0.0.11-0.20250205160831-835209200134
+	github.com/anoideaopen/foundation/test/integration v0.0.0-20250205160831-835209200134
 	github.com/anoideaopen/glog v0.0.3
-	github.com/anoideaopen/robot v0.0.4-0.20241207173807-5302dd6333e0
+	github.com/anoideaopen/robot v0.0.5-0.20250205160911-ea69adc0dc3f
 	github.com/hyperledger/fabric v1.4.0-rc1.0.20250127203739-7ba002411a0a
 	github.com/hyperledger/fabric-sdk-go v1.0.1-0.20210927191040-3e3a3c6aeec9
 	github.com/onsi/ginkgo/v2 v2.22.0
