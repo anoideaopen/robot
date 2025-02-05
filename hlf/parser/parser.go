@@ -12,8 +12,8 @@ import (
 	"github.com/anoideaopen/robot/dto/parserdto"
 	"github.com/anoideaopen/robot/helpers/nerrors"
 	"github.com/anoideaopen/robot/logger"
-	protoSer "github.com/golang/protobuf/proto" //nolint:staticcheck
-	"github.com/hyperledger/fabric-protos-go/common"
+	"github.com/hyperledger/fabric-protos-go-apiv2/common"
+	protoSer "google.golang.org/protobuf/proto"
 )
 
 const (

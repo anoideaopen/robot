@@ -16,9 +16,9 @@ import (
 	"github.com/anoideaopen/robot/logger"
 	"github.com/anoideaopen/robot/metrics"
 	"github.com/avast/retry-go/v4"
-	"github.com/golang/protobuf/proto" //nolint:staticcheck
 	"github.com/hyperledger/fabric-sdk-go/pkg/client/channel"
 	"github.com/hyperledger/fabric-sdk-go/pkg/core/config"
+	"google.golang.org/protobuf/proto"
 )
 
 const (

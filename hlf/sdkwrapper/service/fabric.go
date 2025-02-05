@@ -13,9 +13,8 @@ import (
 	"github.com/anoideaopen/foundation/core/multiswap"
 	"github.com/anoideaopen/foundation/proto"
 	"github.com/anoideaopen/robot/hlf/sdkwrapper/logger"
-	pb "github.com/golang/protobuf/proto" //nolint:staticcheck
-	"github.com/hyperledger/fabric-protos-go/common"
-	"github.com/hyperledger/fabric-protos-go/peer"
+	"github.com/hyperledger/fabric-protos-go-apiv2/common"
+	"github.com/hyperledger/fabric-protos-go-apiv2/peer"
 	"github.com/hyperledger/fabric-sdk-go/pkg/client/channel"
 	"github.com/hyperledger/fabric-sdk-go/pkg/client/ledger"
 	"github.com/hyperledger/fabric-sdk-go/pkg/client/resmgmt"
@@ -25,6 +24,7 @@ import (
 	"github.com/hyperledger/fabric-sdk-go/pkg/common/providers/fab"
 	"github.com/hyperledger/fabric-sdk-go/pkg/fabsdk"
 	"go.uber.org/zap"
+	pb "google.golang.org/protobuf/proto"
 )
 
 type HLFClient struct {

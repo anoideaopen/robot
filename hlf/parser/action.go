@@ -3,14 +3,14 @@ package parser
 import (
 	"fmt"
 
-	"github.com/golang/protobuf/proto" //nolint:staticcheck
-	"github.com/hyperledger/fabric-protos-go/ledger/rwset"
-	"github.com/hyperledger/fabric-protos-go/ledger/rwset/kvrwset"
-	"github.com/hyperledger/fabric-protos-go/peer"
+	"github.com/hyperledger/fabric-protos-go-apiv2/ledger/rwset"
+	"github.com/hyperledger/fabric-protos-go-apiv2/ledger/rwset/kvrwset"
+	"github.com/hyperledger/fabric-protos-go-apiv2/peer"
+	"google.golang.org/protobuf/proto"
 )
 
 type prsRwSet struct {
-	kvRWSet kvrwset.KVRWSet
+	kvRWSet *kvrwset.KVRWSet
 }
 
 type prsAction struct {
@@ -69,7 +69,8 @@ func (a *prsAction) rwSets() ([]prsRwSet, error) {
 
 	result := make([]prsRwSet, len(txReadWriteSet.GetNsRwset()))
 	for i, rwSet := range txReadWriteSet.GetNsRwset() {
-		if err = proto.Unmarshal(rwSet.GetRwset(), &result[i].kvRWSet); err != nil {
+		result[i].kvRWSet = &kvrwset.KVRWSet{}
+		if err = proto.Unmarshal(rwSet.GetRwset(), result[i].kvRWSet); err != nil {
 			return nil, fmt.Errorf("unmarshal kv read-write set error: %w", err)
 		}
 	}

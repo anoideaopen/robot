@@ -19,7 +19,6 @@ import (
 	"github.com/anoideaopen/robot/hlf/sdkwrapper/logger"
 	"github.com/anoideaopen/robot/hlf/sdkwrapper/service"
 	"github.com/btcsuite/btcutil/base58"
-	pb "github.com/golang/protobuf/proto" //nolint:staticcheck
 	"github.com/hyperledger/fabric-sdk-go/pkg/common/errors/status"
 	"github.com/hyperledger/fabric-sdk-go/pkg/common/providers/core"
 	"github.com/hyperledger/fabric-sdk-go/pkg/common/providers/fab"
@@ -28,6 +27,7 @@ import (
 	"go.uber.org/zap"
 	"golang.org/x/crypto/ed25519"
 	"golang.org/x/crypto/sha3"
+	pb "google.golang.org/protobuf/proto"
 )
 
 const (

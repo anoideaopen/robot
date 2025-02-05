@@ -3,9 +3,9 @@ package parser
 import (
 	"fmt"
 
-	"github.com/golang/protobuf/proto" //nolint:staticcheck
-	"github.com/hyperledger/fabric-protos-go/common"
-	"github.com/hyperledger/fabric-protos-go/peer"
+	"github.com/hyperledger/fabric-protos-go-apiv2/common"
+	"github.com/hyperledger/fabric-protos-go-apiv2/peer"
+	"google.golang.org/protobuf/proto"
 )
 
 // prsBlock contains all the necessary information about the blockchain block
@@ -49,7 +49,7 @@ func fromFabricBlock(block *common.Block) (*prsBlock, error) {
 		data:      block.GetData().GetData(),
 		number:    block.GetHeader().GetNumber(),
 		txsFilter: filter,
-		isConfig:  common.HeaderType(hdr.GetType()) == common.HeaderType_CONFIG || common.HeaderType(hdr.GetType()) == common.HeaderType_ORDERER_TRANSACTION,
+		isConfig:  common.HeaderType(hdr.GetType()) == common.HeaderType_CONFIG || common.HeaderType(hdr.GetType()) == common.HeaderType_ORDERER_TRANSACTION, //nolint:staticcheck
 	}, nil
 }
 
