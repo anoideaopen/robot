@@ -3,7 +3,7 @@
 ###############################################################################
 
 ARG UBUNTU_VER
-FROM ubuntu:${UBUNTU_VER:-20.04} AS builder
+FROM ubuntu:${UBUNTU_VER:-22.04} AS builder
 
 ARG TARGETARCH
 ARG TARGETOS
@@ -28,7 +28,7 @@ RUN CGO_ENABLED=0 go build -v -ldflags="-X 'main.AppInfoVer=$APP_VER'" -o /go/bi
 ###############################################################################
 
 ARG UBUNTU_VER
-FROM ubuntu:${UBUNTU_VER:-20.04}
+FROM ubuntu:${UBUNTU_VER:-22.04}
 
 ARG APP_VER
 

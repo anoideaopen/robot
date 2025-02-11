@@ -7,8 +7,13 @@ on:
       - 'v*'
 
 env:
+<<<<<<< HEAD
   GO_VER: 1.23.5
   UBUNTU_VER: 20.04
+=======
+  GO_VER: 1.23.6
+  UBUNTU_VER: 22.04
+>>>>>>> 4ccca92 (bump ubuntu-22.04 (#43))
   APP_VER: ${{ github.ref_name }}
 
 permissions:
@@ -17,7 +22,7 @@ permissions:
 jobs:
   build-and-push-docker-images:
     name: Build and Push
-    runs-on: 'ubuntu-20.04'
+    runs-on: 'ubuntu-22.04'
 
     permissions:
       contents: read
