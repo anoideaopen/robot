@@ -2,7 +2,9 @@ package wallet
 
 import (
 	"bytes"
+	"crypto/ed25519"
 	"crypto/rand"
+	"crypto/sha3"
 	"encoding/hex"
 	"encoding/json"
 	"errors"
@@ -25,8 +27,6 @@ import (
 	"github.com/hyperledger/fabric-sdk-go/pkg/core/config"
 	"github.com/hyperledger/fabric-sdk-go/pkg/gateway"
 	"go.uber.org/zap"
-	"golang.org/x/crypto/ed25519"
-	"golang.org/x/crypto/sha3"
 	pb "google.golang.org/protobuf/proto"
 )
 

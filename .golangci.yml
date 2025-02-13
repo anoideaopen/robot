@@ -1,6 +1,6 @@
 run:
   # The default concurrency value is the number of available CPU.
-  go: '1.23'
+  go: '1.24'
   concurrency: 4
   timeout: 5m
   tests: false
@@ -42,7 +42,6 @@ linters:
     - whitespace
     - revive
     - usestdlibvars
-    - tenv
     - promlinter
     - nosprintfhostport
     - nilnil
@@ -90,6 +89,7 @@ linters:
     - dupl
     - funlen
     - interfacebloat
+    - tenv
 linters-settings:
   gosec:
     excludes:

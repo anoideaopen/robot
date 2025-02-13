@@ -8,8 +8,8 @@ on:
   workflow_dispatch:
 
 env:
-  GO_VER: 1.23.6
-  GINKGO_VER: 2.22.0
+  GO_VER: 1.24.0
+  GINKGO_VER: 2.22.2
 
 jobs:
   check-cyrillic-comments:
@@ -56,7 +56,7 @@ jobs:
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v6
         with:
-          version: v1.62
+          version: v1.64
           args: --out-format=colored-line-number
           skip-cache: true
           problem-matchers: true

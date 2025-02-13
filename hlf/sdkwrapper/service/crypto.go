@@ -1,7 +1,9 @@
 package service
 
 import (
+	"crypto/ed25519"
 	"crypto/rand"
+	"crypto/sha3"
 	"encoding/hex"
 	"errors"
 	"strings"
@@ -9,8 +11,6 @@ import (
 	"github.com/anoideaopen/robot/hlf/sdkwrapper/logger"
 	"github.com/btcsuite/btcutil/base58"
 	"go.uber.org/zap"
-	"golang.org/x/crypto/ed25519"
-	"golang.org/x/crypto/sha3"
 )
 
 func SignMessage(signerInfo SignerInfo, result []string) ([]byte, [32]byte, error) {
