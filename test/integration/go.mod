@@ -2,9 +2,22 @@ module github.com/anoideaopen/robot/test/integration
 
 go 1.24.0
 
+tool (
+	github.com/IBM/idemix/tools/idemixgen
+	github.com/anoideaopen/acl
+	github.com/anoideaopen/foundation/test/chaincode/cc
+	github.com/anoideaopen/foundation/test/chaincode/fiat
+	github.com/anoideaopen/foundation/test/chaincode/industrial
+	github.com/anoideaopen/robot
+	github.com/hyperledger/fabric/cmd/configtxgen
+	github.com/hyperledger/fabric/cmd/cryptogen
+	github.com/hyperledger/fabric/cmd/discover
+	github.com/hyperledger/fabric/cmd/orderer
+	github.com/hyperledger/fabric/cmd/osnadmin
+	github.com/hyperledger/fabric/cmd/peer
+)
+
 require (
-	github.com/IBM/idemix v0.0.2-0.20240913182345-72941a5f41cd
-	github.com/anoideaopen/acl v0.1.0
 	github.com/anoideaopen/common-component v0.0.6
 	github.com/anoideaopen/foundation v0.1.0
 	github.com/anoideaopen/foundation/test/integration v0.0.0-20250211192057-8e29e841037e
@@ -19,6 +32,7 @@ require (
 require (
 	code.cloudfoundry.org/clock v1.15.0 // indirect
 	github.com/Azure/go-ansiterm v0.0.0-20210617225240-d185dfc1b5a1 // indirect
+	github.com/IBM/idemix v0.0.2-0.20240913182345-72941a5f41cd // indirect
 	github.com/IBM/idemix/bccsp/schemes/aries v0.0.0-20240913182345-72941a5f41cd // indirect
 	github.com/IBM/idemix/bccsp/schemes/weak-bb v0.0.0-20240913182345-72941a5f41cd // indirect
 	github.com/IBM/idemix/bccsp/types v0.0.0-20240913182345-72941a5f41cd // indirect
@@ -29,6 +43,7 @@ require (
 	github.com/alecthomas/kingpin/v2 v2.4.0 // indirect
 	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751 // indirect
 	github.com/alecthomas/units v0.0.0-20240626203959-61d1e3462e30 // indirect
+	github.com/anoideaopen/acl v0.1.0 // indirect
 	github.com/avast/retry-go/v4 v4.6.0 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/bits-and-blooms/bitset v1.14.3 // indirect
