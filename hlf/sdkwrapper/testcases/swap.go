@@ -2,6 +2,7 @@ package testcases
 
 import (
 	"context"
+	"crypto/sha3"
 	"encoding/hex"
 	"fmt"
 	"strconv"
@@ -12,7 +13,6 @@ import (
 	"github.com/hyperledger/fabric-protos-go-apiv2/peer"
 	"github.com/hyperledger/fabric-sdk-go/pkg/client/channel"
 	"go.uber.org/zap"
-	"golang.org/x/crypto/sha3"
 )
 
 // Swap user token from one cc to another cc

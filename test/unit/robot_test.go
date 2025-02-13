@@ -3,6 +3,7 @@ package unit
 
 import (
 	"context"
+	"crypto/sha3"
 	"encoding/hex"
 	"encoding/json"
 	"errors"
@@ -26,7 +27,6 @@ import (
 	fsdkConfig "github.com/hyperledger/fabric-sdk-go/pkg/core/config"
 	"github.com/hyperledger/fabric-sdk-go/pkg/fabsdk"
 	"github.com/stretchr/testify/require"
-	"golang.org/x/crypto/sha3"
 	"golang.org/x/sync/errgroup"
 )
 
