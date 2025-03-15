@@ -2,6 +2,8 @@ module github.com/anoideaopen/robot/test/integration
 
 go 1.24.0
 
+toolchain go1.24.1
+
 tool (
 	github.com/IBM/idemix/tools/idemixgen
 	github.com/anoideaopen/acl
@@ -160,7 +162,7 @@ require (
 	go.uber.org/zap v1.27.0 // indirect
 	golang.org/x/crypto v0.35.0 // indirect
 	golang.org/x/exp v0.0.0-20240904232852-e7e105dedf7e // indirect
-	golang.org/x/net v0.34.0 // indirect
+	golang.org/x/net v0.36.0 // indirect
 	golang.org/x/sync v0.11.0 // indirect
 	golang.org/x/sys v0.30.0 // indirect
 	golang.org/x/text v0.22.0 // indirect
