@@ -1,111 +1,106 @@
+version: "2"
 run:
-  # The default concurrency value is the number of available CPU.
-  go: '1.24'
   concurrency: 4
-  timeout: 5m
+  go: "1.24"
   tests: false
 linters:
+  default: none
   enable:
-    - errcheck
-    - gosimple
-    - govet
-    - ineffassign
-    - staticcheck
-    - typecheck
-    - unused
     - asciicheck
     - bodyclose
-    - dogsled
-    - errorlint
+    - contextcheck
     - copyloopvar
-    - misspell
-    - nestif
-    - noctx
-    - nolintlint
-    - prealloc
-    - stylecheck
-    - gci
+    - decorder
+    - dogsled
+    - dupword
+    - durationcheck
+    - errname
+    - errorlint
+    - fatcontext
+    - forcetypeassert
+    - gocheckcompilerdirectives
     - gocognit
     - goconst
     - gocritic
     - gocyclo
-    - gofmt
-    - gofumpt
     - goheader
-    - goimports
     - gomodguard
     - goprintffuncname
     - gosec
+    - grouper
+    - iface
+    - interfacebloat
+    - intrange
+    - loggercheck
+    - misspell
+    - nestif
+    - nilerr
+    - nilnil
+    - noctx
+    - nolintlint
+    - nosprintfhostport
+    - perfsprint
+    - prealloc
+    - promlinter
+    - protogetter
+    - reassign
+    - recvcheck
+    - revive
+    - sloglint
+    - spancheck
+    - staticcheck
+    - testableexamples
+    - testifylint
     - tparallel
     - unconvert
     - unparam
-    - whitespace
-    - revive
     - usestdlibvars
-    - promlinter
-    - nosprintfhostport
-    - nilnil
-    - loggercheck
-    - grouper
-    - errname
-    - decorder
-    - durationcheck
-    - nilerr
-    - forcetypeassert
-    - contextcheck
-    - loggercheck
-    - reassign
-    - testableexamples
-    - dupword
-    - gocheckcompilerdirectives
-    - perfsprint
-    - testifylint
-    - sloglint
-    - protogetter
-    - fatcontext
-    - spancheck
-    - intrange
-    - copyloopvar
-    - recvcheck
-    - iface
-  disable:
-    - godot
-    - wsl
-    - lll
-    - paralleltest
-    - godox
-    - testpackage
-    - nlreturn
-    - rowserrcheck
-    - sqlclosecheck
-    - ireturn
-    - wastedassign
-    - depguard
-    - tagliatelle
-    - gosmopolitan
-    - mirror
-    - tagalign
-    - zerologlint
-    - dupl
-    - funlen
-    - interfacebloat
-    - tenv
-linters-settings:
-  gosec:
-    excludes:
-      - 'G107'
-      - 'G402'
-      - 'G404'
-      - 'G115'
-  revive:
-    ignore-generated-header: true
-    rules:
-      - name: dot-imports
-        severity: warning
-        disabled: false
-        arguments:
-          - allowedPackages: ["github.com/onsi/gomega", "github.com/onsi/ginkgo/v2"]
-  stylecheck:
-    dot-import-whitelist:
-      - github.com/onsi/gomega
-      - github.com/onsi/ginkgo/v2
+    - whitespace
+  settings:
+    gosec:
+      excludes:
+        - G107
+        - G402
+        - G404
+        - G115
+    revive:
+      rules:
+        - name: dot-imports
+          arguments:
+            - allowedPackages:
+                - github.com/onsi/gomega
+                - github.com/onsi/ginkgo/v2
+          severity: warning
+          disabled: false
+    staticcheck:
+      dot-import-whitelist:
+        - github.com/onsi/gomega
+        - github.com/onsi/ginkgo/v2
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
+formatters:
+  enable:
+    - gci
+    - gofmt
+    - gofumpt
+    - goimports
+  exclusions:
+    generated: lax
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
+output:
+  formats:
+    text:
+      path: stdout
+      colors: true

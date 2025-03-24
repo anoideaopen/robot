@@ -19,7 +19,7 @@ type KeyPair struct {
 	PublicKey  ed25519.PublicKey
 }
 
-type BaseTokenInterface interface {
+type BaseTokenInterface interface { //nolint:interfacebloat
 	SetRate(dealType dealType, currency string, rate uint64) (*channel.Response, error)
 	DeleteRate(dealType dealType, currency string, rate uint64) (*channel.Response, error)
 	Metadata() (*channel.Response, error)

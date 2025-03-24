@@ -26,9 +26,7 @@ const (
 )
 
 var _ = Describe("Robot channel executor tests", func() {
-	var (
-		ts *client.FoundationTestSuite
-	)
+	var ts *client.FoundationTestSuite
 
 	BeforeEach(func() {
 		ts = client.NewTestSuite(components)
@@ -37,9 +35,7 @@ var _ = Describe("Robot channel executor tests", func() {
 		ts.ShutdownNetwork()
 	})
 
-	var (
-		channels = []string{cmn.ChannelACL, cmn.ChannelFiat, channelWithoutChaincode}
-	)
+	channels := []string{cmn.ChannelACL, cmn.ChannelFiat, channelWithoutChaincode}
 	BeforeEach(func() {
 		By("start redis")
 		ts.StartRedis()
