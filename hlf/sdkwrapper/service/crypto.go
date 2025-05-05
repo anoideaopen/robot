@@ -9,7 +9,7 @@ import (
 	"strings"
 
 	"github.com/anoideaopen/robot/hlf/sdkwrapper/logger"
-	"github.com/btcsuite/btcutil/base58"
+	"github.com/btcsuite/btcd/btcutil/base58"
 	"go.uber.org/zap"
 )
 
