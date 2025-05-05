@@ -20,7 +20,7 @@ import (
 	"github.com/anoideaopen/foundation/proto"
 	"github.com/anoideaopen/robot/hlf/sdkwrapper/logger"
 	"github.com/anoideaopen/robot/hlf/sdkwrapper/service"
-	"github.com/btcsuite/btcutil/base58"
+	"github.com/btcsuite/btcd/btcutil/base58"
 	"github.com/hyperledger/fabric-sdk-go/pkg/common/errors/status"
 	"github.com/hyperledger/fabric-sdk-go/pkg/common/providers/core"
 	"github.com/hyperledger/fabric-sdk-go/pkg/common/providers/fab"
