@@ -1,10 +1,10 @@
 module github.com/anoideaopen/robot
 
-go 1.24.2
+go 1.24.4
 
 require (
 	github.com/anoideaopen/common-component v0.0.6
-	github.com/anoideaopen/foundation v0.1.2-0.20250505123125-7b3e829dbe12
+	github.com/anoideaopen/foundation v0.1.2-0.20250612204904-44ff92d89759
 	github.com/anoideaopen/glog v0.0.3
 	github.com/avast/retry-go/v4 v4.6.0
 	github.com/btcsuite/btcd/btcutil v1.1.6
