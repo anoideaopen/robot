@@ -36,7 +36,7 @@ require (
 	github.com/go-logfmt/logfmt v0.5.1 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
-	github.com/go-viper/mapstructure/v2 v2.2.1 // indirect
+	github.com/go-viper/mapstructure/v2 v2.4.0 // indirect
 	github.com/golang/mock v1.5.0 // indirect
 	github.com/google/certificate-transparency-go v1.0.21 // indirect
 	github.com/hyperledger/fabric-chaincode-go/v2 v2.3.0 // indirect
