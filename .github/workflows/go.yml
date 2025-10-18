@@ -15,7 +15,7 @@ jobs:
   check-cyrillic-comments:
     runs-on: 'ubuntu-22.04'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: check cyrillic comments
         run: |
           grep --exclude-dir=".github" -I -r --color -n -E "[А-Яа-яЁё]+" . && exit 1 || exit 0
@@ -25,10 +25,10 @@ jobs:
       - check-cyrillic-comments
     runs-on: 'ubuntu-22.04'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: setup go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v6
         with:
           go-version: ${{ env.GO_VER }}
 
@@ -47,9 +47,9 @@ jobs:
       - validate-go
     runs-on: 'ubuntu-22.04'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: setup go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v6
         with:
           go-version: ${{ env.GO_VER }}
           cache: false
@@ -65,8 +65,8 @@ jobs:
       - golangci-lint
     runs-on: 'ubuntu-22.04'
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
+      - uses: actions/checkout@v5
+      - uses: actions/setup-go@v6
         with:
           go-version: ${{ env.GO_VER }}
 
@@ -79,8 +79,8 @@ jobs:
       - golangci-lint
     runs-on: 'ubuntu-22.04'
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
+      - uses: actions/checkout@v5
+      - uses: actions/setup-go@v6
         with:
           go-version: ${{ env.GO_VER }}
 
@@ -104,8 +104,8 @@ jobs:
         INTEGRATION_TEST_SUITE: [ "swap","storage","chcol1","chcol2","chcol3","chexec" ]
     runs-on: 'ubuntu-22.04'
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
+      - uses: actions/checkout@v5
+      - uses: actions/setup-go@v6
         with:
           go-version: ${{ env.GO_VER }}
       - name: redis
