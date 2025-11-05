@@ -8,8 +8,8 @@ on:
   workflow_dispatch:
 
 env:
-  GO_VER: 1.25.1
-  GINKGO_VER: 2.22.2
+  GO_VER: 1.25.3
+  GINKGO_VER: 2.27.2
 
 jobs:
   check-cyrillic-comments:
