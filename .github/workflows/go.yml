@@ -9,7 +9,7 @@ on:
 
 env:
   GO_VER: 1.25.5
-  GINKGO_VER: 2.27.2
+  GINKGO_VER: 2.27.3
 
 jobs:
   check-cyrillic-comments:
