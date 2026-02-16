@@ -41,7 +41,7 @@ func NoTestPutPreimages(t *testing.T) {
 		amountEmit = 1
 	)
 	totalB := oldFiatB
-	for i := 0; i < countEmits; i++ {
+	for i := range countEmits {
 		_, err = ntesting.EmitFiat(ctx, fiatOwner, fiatOwner, amountEmit, ciData.HlfFiatChannel, ciData.HlfFiatChannel)
 		if err != nil {
 			l.Infof("emit error: %s", err)

@@ -274,7 +274,7 @@ func TestWorkWithErrors(t *testing.T) {
 //nolint:unparam
 func createSrcData(dst, src string, startBlock, countBlocks, countTxOrSwaps, emptyBlockEveryN int) []*collectordto.BlockData {
 	var res []*collectordto.BlockData
-	for i := 0; i < countBlocks; i++ {
+	for i := range countBlocks {
 		d := &collectordto.BlockData{
 			BlockNum: uint64(startBlock + i),
 			Size:     0,
@@ -283,13 +283,13 @@ func createSrcData(dst, src string, startBlock, countBlocks, countTxOrSwaps, emp
 			continue
 		}
 		if dst == src {
-			for j := 0; j < countTxOrSwaps; j++ {
+			for j := range countTxOrSwaps {
 				tx := make([]byte, 4)
 				binary.LittleEndian.PutUint32(tx, uint32(i*countTxOrSwaps+j))
 				d.Txs = append(d.Txs, tx)
 			}
 		} else {
-			for j := 0; j < countTxOrSwaps; j++ {
+			for range countTxOrSwaps {
 				d.Swaps = append(d.Swaps, &proto.Swap{
 					Owner:  nil,
 					Token:  "zxcv",

@@ -3,6 +3,7 @@ package chrobot
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/anoideaopen/glog"
@@ -352,12 +353,13 @@ func batchExecInfoMsg(chName string, bfe *executordto.Batch, batchInfo *collecto
 }
 
 func storedCheckpointsMsg(checkPoints *stordto.ChCheckPoint) string {
-	msg := "saved checkpoints:\n"
+	var msg strings.Builder
+	msg.WriteString("saved checkpoints:\n")
 	for ch, n := range checkPoints.SrcCollectFromBlockNums {
-		msg += fmt.Sprintf("collect from %d block for channel %s\n", n, ch)
+		msg.WriteString(fmt.Sprintf("collect from %d block for channel %s\n", n, ch))
 	}
-	msg += fmt.Sprintf("exec on peers with minimum blocknum in ledger %d\n", checkPoints.MinExecBlockNum)
-	return msg
+	msg.WriteString(fmt.Sprintf("exec on peers with minimum blocknum in ledger %d\n", checkPoints.MinExecBlockNum))
+	return msg.String()
 }
 
 // CreateRobots - creates robots specified by config

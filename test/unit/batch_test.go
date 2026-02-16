@@ -125,7 +125,7 @@ func TestBasicBehavior(t *testing.T) {
 	require.NotNil(t, b)
 
 	addBlocks := func(chName string, fbn, bc int) {
-		for i := 0; i < bc; i++ {
+		for i := range bc {
 			if chName == ch1Name {
 				ok, err := b.AddIfInLimit(chName, &collectordto.BlockData{
 					BlockNum: uint64(i + fbn),

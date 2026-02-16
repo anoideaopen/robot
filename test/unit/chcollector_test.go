@@ -76,7 +76,7 @@ func TestCollectingTheSameBlock(t *testing.T) {
 	const totalCountBlocks = 2
 	// add two identical blocks with transactions to the event channel
 	events := make(chan *fab.BlockEvent, totalCountBlocks)
-	for i := 0; i < totalCountBlocks; i++ {
+	for range totalCountBlocks {
 		events <- &fab.BlockEvent{Block: bltx}
 	}
 
@@ -127,7 +127,7 @@ func TestCollectingTheSameBlockMultiswaps(t *testing.T) {
 	const totalCountBlocks = 2
 	// add two identical blocks with transactions to the event channel
 	events := make(chan *fab.BlockEvent, totalCountBlocks)
-	for i := 0; i < totalCountBlocks; i++ {
+	for range totalCountBlocks {
 		events <- &fab.BlockEvent{Block: bltx}
 	}
 
@@ -178,7 +178,7 @@ func TestCollectingTheSameBlockKeys(t *testing.T) {
 	const totalCountBlocks = 2
 	// add two identical blocks with transactions to the event channel
 	events := make(chan *fab.BlockEvent, totalCountBlocks)
-	for i := 0; i < totalCountBlocks; i++ {
+	for range totalCountBlocks {
 		events <- &fab.BlockEvent{Block: bltx}
 	}
 
@@ -229,7 +229,7 @@ func TestCollectingTheSameBlockMultikeys(t *testing.T) {
 	const totalCountBlocks = 2
 	// add two identical blocks with transactions to the event channel
 	events := make(chan *fab.BlockEvent, totalCountBlocks)
-	for i := 0; i < totalCountBlocks; i++ {
+	for range totalCountBlocks {
 		events <- &fab.BlockEvent{Block: bltx}
 	}
 
@@ -280,7 +280,7 @@ func TestCollectingTheSameBlockSwaps(t *testing.T) {
 	const totalCountBlocks = 2
 	// add two identical blocks with transactions to the event channel
 	events := make(chan *fab.BlockEvent, totalCountBlocks)
-	for i := 0; i < totalCountBlocks; i++ {
+	for range totalCountBlocks {
 		events <- &fab.BlockEvent{Block: bltx}
 	}
 
@@ -323,7 +323,7 @@ func TestSimpleWork(t *testing.T) {
 
 	const totalCountBlocks = 100
 	events := make(chan *fab.BlockEvent, totalCountBlocks)
-	for i := 0; i < totalCountBlocks; i++ {
+	for i := range totalCountBlocks {
 		events <- &fab.BlockEvent{Block: &common.Block{
 			Header: &common.BlockHeader{
 				Number: uint64(i),
@@ -370,7 +370,7 @@ func TestCollectorWorkWithErrors(t *testing.T) {
 	prsr.callHlp.AddErrMap(prsr.ExtractData, prsrErrors)
 
 	events := make(chan *fab.BlockEvent, totalCountBlocks)
-	for i := 0; i < totalCountBlocks; i++ {
+	for i := range totalCountBlocks {
 		events <- &fab.BlockEvent{Block: &common.Block{
 			Header: &common.BlockHeader{
 				Number: uint64(i),

@@ -218,7 +218,7 @@ func (hlf *HLFClient) Invoke(channelID string, chaincodeName string, methodName 
 
 	client := channelConnection.channelClient
 
-	var beforeInvokeData interface{}
+	var beforeInvokeData any
 	if hlf.beforeInvokeHandler != nil {
 		beforeInvokeData, err = hlf.beforeInvokeHandler(channelID, chaincodeName, methodName, methodArgs, noBatch, peers...)
 		if err != nil {
@@ -247,8 +247,8 @@ func (hlf *HLFClient) Invoke(channelID string, chaincodeName string, methodName 
 }
 
 type (
-	HlfBeforeInvokeHandler func(channelID string, chaincodeName string, methodName string, methodArgs []string, noBatch bool, peers ...string) (interface{}, error)
-	HlfAfterInvokeHandler  func(beforeInvokeData interface{}, r *channel.Response, invokeErr error, channelID string, chaincodeName string, methodName string, methodArgs []string, noBatch bool, peers ...string) error
+	HlfBeforeInvokeHandler func(channelID string, chaincodeName string, methodName string, methodArgs []string, noBatch bool, peers ...string) (any, error)
+	HlfAfterInvokeHandler  func(beforeInvokeData any, r *channel.Response, invokeErr error, channelID string, chaincodeName string, methodName string, methodArgs []string, noBatch bool, peers ...string) error
 )
 
 func (hlf *HLFClient) Request(
@@ -270,11 +270,9 @@ func (hlf *HLFClient) Request(
 			return nil, err
 		}
 
-		batchWaiter.Add(1)
-		go func() {
-			defer batchWaiter.Done()
+		batchWaiter.Go(func() {
 			waitBatchAndPrintContents(notifier)
-		}()
+		})
 	}
 
 	printInvokeArgs(methodArgs, chaincodeName, methodName)

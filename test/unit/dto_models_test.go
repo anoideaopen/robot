@@ -50,7 +50,7 @@ func BenchmarkProtoMarshalVsSize(b *testing.B) {
 
 func generateBatches() []*proto.Batch {
 	var res []*proto.Batch
-	for i := 0; i < 1000; i++ {
+	for range 1000 {
 		b := &proto.Batch{
 			TxIDs:          generateTxses(),
 			Swaps:          generateSwaps(),
@@ -67,7 +67,7 @@ func generateBatches() []*proto.Batch {
 func generateTxses() [][]byte {
 	var res [][]byte
 	count := rnd.Intn(100)
-	for i := 0; i < count; i++ {
+	for range count {
 		res = append(res, generateBytes())
 	}
 	return res
@@ -76,7 +76,7 @@ func generateTxses() [][]byte {
 func generateSwaps() []*proto.Swap {
 	var res []*proto.Swap
 	count := rnd.Intn(100)
-	for i := 0; i < count; i++ {
+	for range count {
 		s := &proto.Swap{
 			Id:      generateBytes(),
 			Creator: generateBytes(),
@@ -96,7 +96,7 @@ func generateSwaps() []*proto.Swap {
 func generateMultiSwaps() []*proto.MultiSwap {
 	var res []*proto.MultiSwap
 	count := rnd.Intn(100)
-	for i := 0; i < count; i++ {
+	for range count {
 		s := &proto.MultiSwap{
 			Id:      generateBytes(),
 			Creator: generateBytes(),
@@ -116,7 +116,7 @@ func generateMultiSwaps() []*proto.MultiSwap {
 func generateSwapKeys() []*proto.SwapKey {
 	var res []*proto.SwapKey
 	count := rnd.Intn(100)
-	for i := 0; i < count; i++ {
+	for range count {
 		s := &proto.SwapKey{
 			Id:  generateBytes(),
 			Key: generateString(),
@@ -129,7 +129,7 @@ func generateSwapKeys() []*proto.SwapKey {
 func generateBytes() []byte {
 	var res []byte
 	count := rnd.Intn(100)
-	for i := 0; i < count; i++ {
+	for range count {
 		res = append(res, 0)
 	}
 	return res
@@ -142,7 +142,7 @@ func generateString() string {
 func generateAssets() []*proto.Asset {
 	var res []*proto.Asset
 	count := rnd.Intn(100)
-	for i := 0; i < count; i++ {
+	for range count {
 		s := &proto.Asset{
 			Group:  generateString(),
 			Amount: generateBytes(),
