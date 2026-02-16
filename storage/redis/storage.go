@@ -161,7 +161,7 @@ func (stor *Storage) RemoveAllData(ctx context.Context) error {
 	return res.Err()
 }
 
-func encodeData(data interface{}) ([]byte, error) {
+func encodeData(data any) ([]byte, error) {
 	var bytebuffer bytes.Buffer
 	e := gob.NewEncoder(&bytebuffer)
 	if err := e.Encode(data); err != nil {
@@ -173,7 +173,7 @@ func encodeData(data interface{}) ([]byte, error) {
 	return bytebuffer.Bytes(), nil
 }
 
-func decodeData(data []byte, res interface{}) error {
+func decodeData(data []byte, res any) error {
 	bytebuffer := bytes.NewBuffer(data)
 	d := gob.NewDecoder(bytebuffer)
 	if err := d.Decode(res); err != nil {

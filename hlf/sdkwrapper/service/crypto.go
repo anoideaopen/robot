@@ -184,7 +184,8 @@ func SignACL(signerInfoArray []SignerInfo, methodName string, address string, re
 	nonce := GetNonce()
 	// 1. update to change any transactions
 	// 2.
-	result := []string{methodName, address, reason, reasonID, newPkey, nonce}
+	result := make([]string, 0, len(signerInfoArray)+6)
+	result = append(result, methodName, address, reason, reasonID, newPkey, nonce)
 	for _, signerInfo := range signerInfoArray {
 		result = append(result, ConvertPublicKeyToBase58(signerInfo.PublicKey))
 	}

@@ -29,7 +29,7 @@ func collectNBlocks(b *testing.B, totalCountBlocks int, bufSize uint) {
 
 	for i := 0; i < b.N; i++ {
 		events := make(chan *fab.BlockEvent, totalCountBlocks)
-		for i := 0; i < totalCountBlocks; i++ {
+		for range totalCountBlocks {
 			events <- &fab.BlockEvent{Block: &common.Block{}}
 		}
 

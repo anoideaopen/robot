@@ -3,6 +3,7 @@ package unit
 import (
 	"context"
 	"fmt"
+	"maps"
 	"sync"
 
 	"github.com/anoideaopen/common-component/testshlp"
@@ -58,9 +59,7 @@ func cloneChCheckPoints(cp *stordto.ChCheckPoint) *stordto.ChCheckPoint {
 		MinExecBlockNum:         cp.MinExecBlockNum,
 	}
 
-	for k, v := range cp.SrcCollectFromBlockNums {
-		res.SrcCollectFromBlockNums[k] = v
-	}
+	maps.Copy(res.SrcCollectFromBlockNums, cp.SrcCollectFromBlockNums)
 
 	return res
 }
