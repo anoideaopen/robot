@@ -26,7 +26,7 @@ require (
 	github.com/hyperledger/fabric v1.4.0-rc1.0.20251208210416-356f2b40280f
 	github.com/hyperledger/fabric-sdk-go v1.0.1-0.20210927191040-3e3a3c6aeec9
 	github.com/onsi/ginkgo/v2 v2.28.1
-	github.com/onsi/gomega v1.39.0
+	github.com/onsi/gomega v1.39.1
 )
 
 require (
