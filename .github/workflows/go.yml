@@ -15,7 +15,7 @@ jobs:
   check-cyrillic-comments:
     runs-on: 'ubuntu-22.04'
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: check cyrillic comments
         run: |
           grep --exclude-dir=".github" -I -r --color -n -E "[А-Яа-яЁё]+" . && exit 1 || exit 0
@@ -25,7 +25,7 @@ jobs:
       - check-cyrillic-comments
     runs-on: 'ubuntu-22.04'
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: setup go
         uses: actions/setup-go@v6
@@ -47,7 +47,7 @@ jobs:
       - validate-go
     runs-on: 'ubuntu-22.04'
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: setup go
         uses: actions/setup-go@v6
         with:
@@ -65,7 +65,7 @@ jobs:
       - golangci-lint
     runs-on: 'ubuntu-22.04'
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: actions/setup-go@v6
         with:
           go-version: ${{ env.GO_VER }}
@@ -79,7 +79,7 @@ jobs:
       - golangci-lint
     runs-on: 'ubuntu-22.04'
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: actions/setup-go@v6
         with:
           go-version: ${{ env.GO_VER }}
@@ -89,7 +89,7 @@ jobs:
           go test ./... -coverprofile=./coverage.out
 
       # https://github.com/vladopajic/go-test-coverage
-      - uses: vladopajic/go-test-coverage@v2.10.0
+      - uses: vladopajic/go-test-coverage@v2.18.3
         with:
           config: ./.testcoverage.yml
           profile: coverage.out
@@ -104,7 +104,7 @@ jobs:
         INTEGRATION_TEST_SUITE: [ "swap","storage","chcol1","chcol2","chcol3","chexec" ]
     runs-on: 'ubuntu-22.04'
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: actions/setup-go@v6
         with:
           go-version: ${{ env.GO_VER }}
