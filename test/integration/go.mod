@@ -19,7 +19,7 @@ tool (
 
 require (
 	github.com/anoideaopen/common-component v0.0.7
-	github.com/anoideaopen/foundation v0.1.7-0.20260219060046-2c1935dce5a4
+	github.com/anoideaopen/foundation v0.1.7
 	github.com/anoideaopen/foundation/test/integration v0.0.0-20260219060046-2c1935dce5a4
 	github.com/anoideaopen/glog v0.0.4
 	github.com/anoideaopen/robot v0.1.1
