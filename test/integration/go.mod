@@ -1,6 +1,6 @@
 module github.com/anoideaopen/robot/test/integration
 
-go 1.26.0
+go 1.26.1
 
 tool (
 	github.com/IBM/idemix/tools/idemixgen
