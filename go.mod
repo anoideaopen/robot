@@ -7,7 +7,7 @@ require (
 	github.com/anoideaopen/foundation v0.1.7
 	github.com/anoideaopen/glog v0.0.4
 	github.com/avast/retry-go/v4 v4.7.0
-	github.com/btcsuite/btcd/btcutil v1.1.6
+	github.com/btcsuite/btcd/btcutil v1.2.0
 	github.com/go-playground/validator/v10 v10.30.2
 	github.com/google/uuid v1.6.0
 	github.com/hyperledger/fabric-protos-go-apiv2 v0.3.7
