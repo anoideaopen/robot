@@ -89,7 +89,7 @@ jobs:
           go test ./... -coverprofile=./coverage.out
 
       # https://github.com/vladopajic/go-test-coverage
-      - uses: vladopajic/go-test-coverage@v2.18.4
+      - uses: vladopajic/go-test-coverage@v2.18.8
         with:
           config: ./.testcoverage.yml
           profile: coverage.out
