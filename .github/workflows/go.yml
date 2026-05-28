@@ -8,12 +8,12 @@ on:
   workflow_dispatch:
 
 env:
-  GO_VER: 1.26.2
-  GINKGO_VER: 2.28.1
+  GO_VER: 1.26.3
+  GINKGO_VER: 2.29.0
 
 jobs:
   check-cyrillic-comments:
-    runs-on: 'ubuntu-22.04'
+    runs-on: 'ubuntu-24.04'
     steps:
       - uses: actions/checkout@v6
       - name: check cyrillic comments
@@ -23,7 +23,7 @@ jobs:
   validate-go:
     needs:
       - check-cyrillic-comments
-    runs-on: 'ubuntu-22.04'
+    runs-on: 'ubuntu-24.04'
     steps:
       - uses: actions/checkout@v6
 
@@ -45,7 +45,7 @@ jobs:
   golangci-lint:
     needs:
       - validate-go
-    runs-on: 'ubuntu-22.04'
+    runs-on: 'ubuntu-24.04'
     steps:
       - uses: actions/checkout@v6
       - name: setup go
@@ -63,7 +63,7 @@ jobs:
   go-unit-test:
     needs:
       - golangci-lint
-    runs-on: 'ubuntu-22.04'
+    runs-on: 'ubuntu-24.04'
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-go@v6
@@ -77,7 +77,7 @@ jobs:
   go-test-coverage:
     needs:
       - golangci-lint
-    runs-on: 'ubuntu-22.04'
+    runs-on: 'ubuntu-24.04'
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-go@v6
@@ -89,7 +89,7 @@ jobs:
           go test ./... -coverprofile=./coverage.out
 
       # https://github.com/vladopajic/go-test-coverage
-      - uses: vladopajic/go-test-coverage@v2.18.4
+      - uses: vladopajic/go-test-coverage@v2.18.8
         with:
           config: ./.testcoverage.yml
           profile: coverage.out
@@ -102,7 +102,7 @@ jobs:
       fail-fast: false
       matrix:
         INTEGRATION_TEST_SUITE: [ "swap","storage","chcol1","chcol2","chcol3","chexec" ]
-    runs-on: 'ubuntu-22.04'
+    runs-on: 'ubuntu-24.04'
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-go@v6
