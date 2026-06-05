@@ -1,6 +1,6 @@
 module github.com/anoideaopen/robot
 
-go 1.26.3
+go 1.26.4
 
 require (
 	github.com/anoideaopen/common-component v0.0.7
@@ -8,7 +8,7 @@ require (
 	github.com/anoideaopen/glog v0.0.4
 	github.com/avast/retry-go/v4 v4.7.0
 	github.com/btcsuite/btcd/btcutil v1.2.0
-	github.com/go-playground/validator/v10 v10.30.2
+	github.com/go-playground/validator/v10 v10.30.3
 	github.com/google/uuid v1.6.0
 	github.com/hyperledger/fabric-protos-go-apiv2 v0.3.7
 	github.com/hyperledger/fabric-sdk-go v1.0.0
