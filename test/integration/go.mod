@@ -25,7 +25,7 @@ require (
 	github.com/anoideaopen/robot v0.1.1
 	github.com/hyperledger/fabric v1.4.0-rc1.0.20260527094612-dd0d56d5b081
 	github.com/hyperledger/fabric-sdk-go v1.0.1-0.20210927191040-3e3a3c6aeec9
-	github.com/onsi/ginkgo/v2 v2.29.0
+	github.com/onsi/ginkgo/v2 v2.30.0
 	github.com/onsi/gomega v1.41.0
 )
 
