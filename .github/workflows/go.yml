@@ -7,10 +7,6 @@ on:
     branches: ["**"]
   workflow_dispatch:
 
-env:
-  GO_VER: 1.26.4
-  GINKGO_VER: 2.31.0
-
 jobs:
   check-cyrillic-comments:
     runs-on: 'ubuntu-24.04'
@@ -18,7 +14,7 @@ jobs:
       - uses: actions/checkout@v7
       - name: check cyrillic comments
         run: |
-          grep --exclude-dir=".github" -I -r --color -n -E "[А-Яа-яЁё]+" . && exit 1 || exit 0
+          ! LC_ALL=en_US.UTF-8 grep --exclude-dir=.git --exclude-dir=.github --exclude-dir=.idea -I -r --color -n -E "[А-Яа-яЁё]+" .
 
   validate-go:
     needs:
@@ -30,7 +26,7 @@ jobs:
       - name: setup go
         uses: actions/setup-go@v6
         with:
-          go-version: ${{ env.GO_VER }}
+          go-version-file: go.mod
 
       - name: check go.mod
         run: |
@@ -51,7 +47,7 @@ jobs:
       - name: setup go
         uses: actions/setup-go@v6
         with:
-          go-version: ${{ env.GO_VER }}
+          go-version-file: go.mod
           cache: false
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v9
@@ -68,7 +64,7 @@ jobs:
       - uses: actions/checkout@v7
       - uses: actions/setup-go@v6
         with:
-          go-version: ${{ env.GO_VER }}
+          go-version-file: go.mod
 
       - name: unit test
         run: |
@@ -82,7 +78,7 @@ jobs:
       - uses: actions/checkout@v7
       - uses: actions/setup-go@v6
         with:
-          go-version: ${{ env.GO_VER }}
+          go-version-file: go.mod
 
       - name: generate test coverage
         run: |
@@ -107,16 +103,14 @@ jobs:
       - uses: actions/checkout@v7
       - uses: actions/setup-go@v6
         with:
-          go-version: ${{ env.GO_VER }}
+          go-version-file: go.mod
       - name: redis
         run: docker pull redis:7.2.4
       - name: fabric-ccenv
         run: docker pull hyperledger/fabric-ccenv:latest
       - name: fabric-baseos
         run: docker pull hyperledger/fabric-baseos:latest
-      - name: install ginkgo
-        run: go install github.com/onsi/ginkgo/v2/ginkgo@v${{ env.GINKGO_VER }}
       - name: integration test
         working-directory: ./test/integration
         run: |
-          ginkgo --keep-going --poll-progress-after 60s --timeout 24h ${{matrix.INTEGRATION_TEST_SUITE}}
+          go run github.com/onsi/ginkgo/v2/ginkgo --keep-going --poll-progress-after 60s --timeout 24h ${{matrix.INTEGRATION_TEST_SUITE}}
