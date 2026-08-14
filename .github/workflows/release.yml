@@ -38,7 +38,7 @@ jobs:
         run: echo "GO_VER=$(awk '/^go /{print $2}' go.mod)" >> "$GITHUB_ENV"
 
       - name: Login to the docker.com Container Registry
-        uses: docker/login-action@v4.5.2
+        uses: docker/login-action@v4.6.0
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
@@ -100,7 +100,7 @@ jobs:
           merge-multiple: true
 
       - name: Login to the docker.com Container Registry
-        uses: docker/login-action@v4.5.2
+        uses: docker/login-action@v4.6.0
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
