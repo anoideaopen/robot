@@ -55,7 +55,7 @@ func TestGetLedgerH(t *testing.T) {
 		}
 		h, err := getLedgerH(ciData, ch)
 		require.NoError(t, err)
-		require.True(t, h > 0)
+		require.Positive(t, h)
 		fmt.Println("h for", ch, h)
 	}
 }
@@ -268,7 +268,7 @@ func getLedgerH(ciData ntesting.CiTestData, ch string) (uint64, error) {
 		return 0, err
 	}
 
-	return resp.BCI.Height, nil
+	return resp.BCI.GetHeight(), nil
 }
 
 // checkRobots checks that the robot has completed swap, multiswap, batches.

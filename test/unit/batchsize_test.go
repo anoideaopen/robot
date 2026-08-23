@@ -96,7 +96,7 @@ func getBlocks(t *testing.T, log glog.Logger) []blockDataWrap {
 	dirs := []string{"fiat", "cc"}
 	var res []blockDataWrap
 	for _, chName := range dirs {
-		files, err := os.ReadDir(fmt.Sprintf("test-data/%s", chName))
+		files, err := os.ReadDir("test-data/" + chName)
 		require.NoError(t, err)
 		prsr := parser.NewParser(log, "fiat", chName, parserdto.TxPrefixes{
 			Tx:        "batchTransactions",

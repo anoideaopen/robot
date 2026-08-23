@@ -1,7 +1,6 @@
 package unit
 
 import (
-	"fmt"
 	"os"
 	"testing"
 	"time"
@@ -25,44 +24,44 @@ func TestGetConfigSimple(t *testing.T) {
 
 	require.Len(t, c.Robots, 4)
 
-	require.Equal(t, c.Robots[0].ChName, "ch1")
+	require.Equal(t, "ch1", c.Robots[0].ChName)
 	require.Len(t, c.Robots[0].SrcChannels, 3)
-	require.Equal(t, c.Robots[0].SrcChannels[0].ChName, "ch1")
-	require.Equal(t, *c.Robots[0].SrcChannels[0].InitBlockNum, uint64(111))
-	require.Equal(t, c.Robots[0].SrcChannels[1].ChName, "sch1")
-	require.Equal(t, *c.Robots[0].SrcChannels[1].InitBlockNum, uint64(222))
-	require.Equal(t, c.Robots[0].SrcChannels[2].ChName, "sch2")
-	require.Equal(t, *c.Robots[0].SrcChannels[2].InitBlockNum, uint64(444))
+	require.Equal(t, "ch1", c.Robots[0].SrcChannels[0].ChName)
+	require.Equal(t, uint64(111), *c.Robots[0].SrcChannels[0].InitBlockNum)
+	require.Equal(t, "sch1", c.Robots[0].SrcChannels[1].ChName)
+	require.Equal(t, uint64(222), *c.Robots[0].SrcChannels[1].InitBlockNum)
+	require.Equal(t, "sch2", c.Robots[0].SrcChannels[2].ChName)
+	require.Equal(t, uint64(444), *c.Robots[0].SrcChannels[2].InitBlockNum)
 
-	require.Equal(t, c.Robots[1].ChName, "sch1")
+	require.Equal(t, "sch1", c.Robots[1].ChName)
 	require.Len(t, c.Robots[1].SrcChannels, 3)
-	require.Equal(t, c.Robots[1].SrcChannels[0].ChName, "ch1")
-	require.Equal(t, *c.Robots[1].SrcChannels[0].InitBlockNum, uint64(111))
-	require.Equal(t, c.Robots[1].SrcChannels[1].ChName, "sch1")
-	require.Equal(t, *c.Robots[1].SrcChannels[1].InitBlockNum, uint64(222))
-	require.Equal(t, c.Robots[1].SrcChannels[2].ChName, "sch2")
-	require.Equal(t, *c.Robots[1].SrcChannels[2].InitBlockNum, uint64(444))
+	require.Equal(t, "ch1", c.Robots[1].SrcChannels[0].ChName)
+	require.Equal(t, uint64(111), *c.Robots[1].SrcChannels[0].InitBlockNum)
+	require.Equal(t, "sch1", c.Robots[1].SrcChannels[1].ChName)
+	require.Equal(t, uint64(222), *c.Robots[1].SrcChannels[1].InitBlockNum)
+	require.Equal(t, "sch2", c.Robots[1].SrcChannels[2].ChName)
+	require.Equal(t, uint64(444), *c.Robots[1].SrcChannels[2].InitBlockNum)
 
-	require.Equal(t, c.Robots[2].ChName, "sch2")
+	require.Equal(t, "sch2", c.Robots[2].ChName)
 	require.Len(t, c.Robots[2].SrcChannels, 3)
-	require.Equal(t, c.Robots[2].SrcChannels[0].ChName, "ch1")
-	require.Equal(t, *c.Robots[2].SrcChannels[0].InitBlockNum, uint64(111))
-	require.Equal(t, c.Robots[2].SrcChannels[1].ChName, "sch1")
-	require.Equal(t, *c.Robots[2].SrcChannels[1].InitBlockNum, uint64(222))
-	require.Equal(t, c.Robots[2].SrcChannels[2].ChName, "sch2")
-	require.Equal(t, *c.Robots[2].SrcChannels[2].InitBlockNum, uint64(444))
+	require.Equal(t, "ch1", c.Robots[2].SrcChannels[0].ChName)
+	require.Equal(t, uint64(111), *c.Robots[2].SrcChannels[0].InitBlockNum)
+	require.Equal(t, "sch1", c.Robots[2].SrcChannels[1].ChName)
+	require.Equal(t, uint64(222), *c.Robots[2].SrcChannels[1].InitBlockNum)
+	require.Equal(t, "sch2", c.Robots[2].SrcChannels[2].ChName)
+	require.Equal(t, uint64(444), *c.Robots[2].SrcChannels[2].InitBlockNum)
 
-	require.Equal(t, c.Robots[3].ChName, "ch2")
+	require.Equal(t, "ch2", c.Robots[3].ChName)
 	require.Len(t, c.Robots[3].SrcChannels, 1)
-	require.Equal(t, *c.Robots[3].SrcChannels[0].InitBlockNum, uint64(222))
+	require.Equal(t, uint64(222), *c.Robots[3].SrcChannels[0].InitBlockNum)
 
-	require.Equal(t, c.TxSwapPrefix, "swaps")
-	require.Equal(t, c.TxMultiSwapPrefix, "multi_swap")
-	require.Equal(t, c.TxPreimagePrefix, "batchTransactions")
+	require.Equal(t, "swaps", c.TxSwapPrefix)
+	require.Equal(t, "multi_swap", c.TxMultiSwapPrefix)
+	require.Equal(t, "batchTransactions", c.TxPreimagePrefix)
 }
 
 func TestGetConfigOverrideEnv(t *testing.T) {
-	err := os.Setenv(fmt.Sprintf("%s_LOGLEVEL", config.EnvPrefix), "myval")
+	err := os.Setenv(config.EnvPrefix+"_LOGLEVEL", "myval")
 	require.NoError(t, err)
 
 	// now does not work
@@ -108,15 +107,15 @@ func TestExecuteOptions(t *testing.T) {
 	}
 
 	et, err := fullExecOptions.EffExecuteTimeout(defOpts)
-	require.EqualValues(t, *fullExecOptions.ExecuteTimeout, et)
+	require.Equal(t, *fullExecOptions.ExecuteTimeout, et)
 	require.NoError(t, err)
 
 	// 2. empty ExecOptions
 	emptyExecOptions := config.ExecuteOptions{}
 	et, err = emptyExecOptions.EffExecuteTimeout(defOpts)
-	require.EqualValues(t, *defOpts.ExecuteTimeout, et)
+	require.Equal(t, *defOpts.ExecuteTimeout, et)
 	require.NoError(t, err)
 
 	// 4. check that we don't override default values occasionally
-	require.EqualValues(t, defExecuteTimeout, *defOpts.ExecuteTimeout)
+	require.Equal(t, defExecuteTimeout, *defOpts.ExecuteTimeout)
 }

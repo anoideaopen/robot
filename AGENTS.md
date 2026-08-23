@@ -21,7 +21,7 @@ Runs on every push/PR. Order matters:
 
 1. check-cyrillic-comments — no Cyrillic in source files
 2. validate-go — `go mod tidy && go fmt ./...` (fails on dirty diff)
-3. golangci-lint — `golangci/golangci-lint-action@v9`, config in `.golangci.yml` (59+ linters, v2 format, Go 1.26)
+3. golangci-lint — `golangci/golangci-lint-action@v9`, config in `.golangci.yml` (59+ linters, v2 format, Go 1.27)
 4. unit test — `go test -count 1 ./...`
 5. coverage — `vladopajic/go-test-coverage@v2.8.1` with `.testcoverage.yml` (thresholds all 0, excludes `*.pb.go`)
 6. integration test — ginkgo matrix across 6 suites (`swap`, `storage`, `chcol1`, `chcol2`, `chcol3`, `chexec`)
@@ -81,3 +81,32 @@ Pushed to Docker Hub as `scientificideas/robot` (multi-arch `linux/amd64`, `linu
 - **License:** LICENSE file says MIT; README badge claims Apache-2.0 (MIT is the correct one).
 - **SDK gap:** ChCollector handles an off-by-one block subscription gap (SDK issue #89) — logic in `hlf/sdk_chcollector.go`.
 - **Large batches:** `hlf/sdk_execwithsplit.go` splits batches when ordering request size is exceeded.
+
+## Coding Principles (Karpathy Skills)
+
+Behavioral guidelines to reduce common LLM coding mistakes. These bias toward caution over speed; for trivial tasks, use judgment.
+
+1. **Think Before Coding** — Don't assume. Don't hide confusion. Surface tradeoffs.
+- State assumptions explicitly; ask if uncertain.
+- Present multiple interpretations rather than picking silently.
+- If a simpler approach exists or something is unclear, say so and ask.
+
+2. **Simplicity First** — Minimum code that solves the problem. Nothing speculative.
+- No features beyond what was asked.
+- No abstractions for single-use code.
+- No "flexibility" or "configurability" that wasn't requested.
+- No error handling for impossible scenarios.
+- If 200 lines could be 50, rewrite it.
+
+3. **Surgical Changes** — Touch only what you must. Clean up only your own mess.
+- Don't "improve" adjacent code, comments, or formatting.
+- Don't refactor things that aren't broken. Match existing style.
+- If you notice unrelated dead code, mention it — don't delete it.
+- Remove only what YOUR changes made unused.
+- Every changed line should trace directly to the request.
+
+4. **Goal-Driven Execution** — Define success criteria. Loop until verified.
+- "Add validation" → "Write tests for invalid inputs, then make them pass".
+- "Fix the bug" → "Write a test that reproduces it, then make it pass".
+- "Refactor X" → "Ensure tests pass before and after".
+- For multi-step tasks, state a brief plan with `verify:` checks per step.

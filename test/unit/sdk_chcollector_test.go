@@ -98,7 +98,7 @@ func (r *stubRealCollector) collectLoop(ctx context.Context) {
 			select {
 			case <-ctx.Done():
 				return
-			case r.blockData <- &collectordto.BlockData{BlockNum: e.Block.Header.Number}:
+			case r.blockData <- &collectordto.BlockData{BlockNum: e.Block.GetHeader().GetNumber()}:
 			}
 		}
 	}
@@ -151,7 +151,7 @@ func (r *stubEventsSrcCreator) CreateEventsSrc(_ context.Context, startFrom uint
 	atomic.AddUint32(r.createdCount, 1)
 
 	events := make(chan *fab.BlockEvent, r.chunkLen)
-	for i := 0; i < r.chunkLen; i++ {
+	for i := range r.chunkLen {
 		events <- &fab.BlockEvent{
 			Block: &common.Block{Header: &common.BlockHeader{Number: startFrom + uint64(i)}},
 		}

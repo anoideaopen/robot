@@ -356,9 +356,9 @@ func storedCheckpointsMsg(checkPoints *stordto.ChCheckPoint) string {
 	var msg strings.Builder
 	msg.WriteString("saved checkpoints:\n")
 	for ch, n := range checkPoints.SrcCollectFromBlockNums {
-		msg.WriteString(fmt.Sprintf("collect from %d block for channel %s\n", n, ch))
+		fmt.Fprintf(&msg, "collect from %d block for channel %s\n", n, ch)
 	}
-	msg.WriteString(fmt.Sprintf("exec on peers with minimum blocknum in ledger %d\n", checkPoints.MinExecBlockNum))
+	fmt.Fprintf(&msg, "exec on peers with minimum blocknum in ledger %d\n", checkPoints.MinExecBlockNum)
 	return msg.String()
 }
 
