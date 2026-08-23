@@ -19,7 +19,7 @@ func TestEmpty(t *testing.T) {
 		collectorbatch.Limits{}, calcBatchSize)
 	batch, bi := b.GetBatchForExec()
 	require.Empty(t, bi.Sources)
-	require.EqualValues(t, &collectorbatch.BatchInfo{
+	require.Equal(t, &collectorbatch.BatchInfo{
 		Kind:        collectorbatch.NoneLimitKind,
 		BlocksCount: 0,
 		Sources:     map[string]*collectorbatch.SrcInfo{},
@@ -78,7 +78,7 @@ func TestEmptyContent(t *testing.T) {
 	}
 
 	batch, bi := b.GetBatchForExec()
-	require.EqualValues(t, &collectorbatch.BatchInfo{
+	require.Equal(t, &collectorbatch.BatchInfo{
 		Kind:        collectorbatch.NoneLimitKind,
 		BlocksCount: 3,
 		Sources: map[string]*collectorbatch.SrcInfo{
@@ -151,7 +151,7 @@ func TestBasicBehavior(t *testing.T) {
 	addBlocks(ch3Name, ch3StartBlockNum, ch3CountBlocks)
 
 	batch, bi := b.GetBatchForExec()
-	require.EqualValues(t, &collectorbatch.BatchInfo{
+	require.Equal(t, &collectorbatch.BatchInfo{
 		Kind:        collectorbatch.NoneLimitKind,
 		BlocksCount: 25,
 		Len:         290,
@@ -215,7 +215,7 @@ func TestDeadlineBehavior(t *testing.T) {
 	require.False(t, ok)
 
 	_, li := b.GetBatchForExec()
-	require.EqualValues(t, &collectorbatch.BatchInfo{
+	require.Equal(t, &collectorbatch.BatchInfo{
 		Kind:        collectorbatch.TimeoutLimitKind,
 		BlocksCount: 1,
 		Len:         3,
@@ -258,7 +258,7 @@ func TestLenOverLimit(t *testing.T) {
 	require.False(t, ok)
 
 	_, li := b.GetBatchForExec()
-	require.EqualValues(t, &collectorbatch.BatchInfo{
+	require.Equal(t, &collectorbatch.BatchInfo{
 		Kind:        collectorbatch.LenLimitKind,
 		BlocksCount: 2,
 		Len:         6,
@@ -304,7 +304,7 @@ func TestSizeOverLimit(t *testing.T) {
 	require.False(t, ok)
 
 	_, li := b.GetBatchForExec()
-	require.EqualValues(t, &collectorbatch.BatchInfo{
+	require.Equal(t, &collectorbatch.BatchInfo{
 		Kind:        collectorbatch.SizeLimitKind,
 		BlocksCount: 2,
 		Len:         6,
@@ -349,7 +349,7 @@ func TestBlocksCountOverLimit(t *testing.T) {
 	require.False(t, ok)
 
 	_, li := b.GetBatchForExec()
-	require.EqualValues(t, &collectorbatch.BatchInfo{
+	require.Equal(t, &collectorbatch.BatchInfo{
 		Kind:        collectorbatch.BlocksCountLimitKind,
 		BlocksCount: 2,
 		Sources: map[string]*collectorbatch.SrcInfo{

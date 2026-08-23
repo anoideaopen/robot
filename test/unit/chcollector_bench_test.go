@@ -27,7 +27,7 @@ func collectNBlocks(b *testing.B, totalCountBlocks int, bufSize uint) {
 	dataReady := make(chan struct{}, 1)
 	prsr := &stubDataParser{}
 
-	for i := 0; i < b.N; i++ {
+	for range b.N {
 		events := make(chan *fab.BlockEvent, totalCountBlocks)
 		for range totalCountBlocks {
 			events <- &fab.BlockEvent{Block: &common.Block{}}

@@ -142,7 +142,7 @@ var _ = Describe("Robot channel executor tests", func() {
 		fiatOwner, err := ntesting.GetFiatOwner(context.Background(), ciData)
 		Expect(err).NotTo(HaveOccurred())
 
-		var preimages [][]byte
+		preimages := make([][]byte, 0, 3)
 		for range 3 {
 			txID, err := ntesting.EmitFiat(context.Background(), fiatOwner, user1, 1, ciData.HlfFiatChannel, ciData.HlfFiatChannel)
 			Expect(err).NotTo(HaveOccurred())

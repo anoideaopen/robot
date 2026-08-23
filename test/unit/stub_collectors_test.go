@@ -37,7 +37,7 @@ func (cr *stubCollectorCr) create(_ context.Context,
 	}
 
 	cl.wgLoop.Add(1)
-	go cl.run(ctx)
+	go cl.run(ctx) //nolint:contextcheck
 
 	return cl, nil
 }

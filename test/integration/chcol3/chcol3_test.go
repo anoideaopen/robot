@@ -106,6 +106,7 @@ var _ = Describe("Robot hlf tests", func() {
 
 		By("Test 4 second channel collector")
 		chColl2, err := chCr2(logCtx, dataReady2, cmn.ChannelFiat, blockNum2)
+		Expect(err).NotTo(HaveOccurred())
 
 		By("Test 4 getting data from second channel collector")
 		data2, ok := <-chColl2.GetData()

@@ -25,7 +25,7 @@ func TestSplitBatchForExec(t *testing.T) {
 
 	checkBatch := func(b *executordto.Batch, expectedTxs []int) {
 		require.NotNil(t, b)
-		require.Equal(t, len(expectedTxs), len(b.Txs))
+		require.Len(t, b.Txs, len(expectedTxs))
 
 		lb1 := getBlockForTx(b.Txs[len(b.Txs)-1])
 		lb2 := b.TxIndToBlocks[uint(b.Txs[len(b.Txs)-1][0])] // ToDo to see if that's right?
@@ -373,7 +373,7 @@ type executorStub struct {
 }
 
 func checkExecAttempts(t *testing.T, ex *executorStub, expectedAttempts []execAttempt) {
-	require.Equal(t, len(expectedAttempts), len(ex.attempts))
+	require.Len(t, ex.attempts, len(expectedAttempts))
 	for i, exp := range expectedAttempts {
 		require.Equal(t, exp, ex.attempts[i])
 	}

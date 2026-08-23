@@ -174,7 +174,7 @@ func checkEffectiveInitPositions(t *testing.T, configData map[string]uint64, sto
 	err := r.CreateCollectors(context.Background())
 	require.NoError(t, err)
 
-	require.True(t, len(r.Collectors()) == len(expectedData))
+	require.Len(t, r.Collectors(), len(expectedData))
 
 	for _, c := range r.Collectors() {
 		ep, ok := expectedData[c.ChName()]

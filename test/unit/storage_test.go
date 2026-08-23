@@ -37,7 +37,7 @@ func TestStorageSaveLoadCheckPoint(t *testing.T) {
 	v, ok, err := stor.LoadCheckPoints(ctx)
 	require.Nil(t, v)
 	require.False(t, ok)
-	require.Nil(t, err)
+	require.NoError(t, err)
 
 	// 2. Save into empty storage
 	cp1 := &stordto.ChCheckPoint{
@@ -47,8 +47,8 @@ func TestStorageSaveLoadCheckPoint(t *testing.T) {
 	}
 	v, err = stor.SaveCheckPoints(ctx, cp1)
 	require.NotNil(t, v)
-	require.Nil(t, err)
-	require.EqualValues(t, cp1.Ver, v.Ver)
+	require.NoError(t, err)
+	require.Equal(t, cp1.Ver, v.Ver)
 
 	// 3. Trying update with the other version
 	cp2 := &stordto.ChCheckPoint{
@@ -58,7 +58,7 @@ func TestStorageSaveLoadCheckPoint(t *testing.T) {
 	}
 	v, err = stor.SaveCheckPoints(ctx, cp2)
 	require.Nil(t, v)
-	require.NotNil(t, err)
+	require.Error(t, err)
 	require.ErrorIs(t, err, redis.ErrStorVersionMismatch)
 
 	// 4. Update with the same version
@@ -69,16 +69,16 @@ func TestStorageSaveLoadCheckPoint(t *testing.T) {
 	}
 	v, err = stor.SaveCheckPoints(ctx, cp3)
 	require.NotNil(t, v)
-	require.Nil(t, err)
+	require.NoError(t, err)
 	require.Greater(t, v.Ver, cp1.Ver)
 
 	// 5. Load existed value
 	v, ok, err = stor.LoadCheckPoints(ctx)
 	require.NotNil(t, v)
 	require.True(t, ok)
-	require.Nil(t, err)
-	require.EqualValues(t, v.SrcCollectFromBlockNums, cp3.SrcCollectFromBlockNums)
-	require.EqualValues(t, v.MinExecBlockNum, cp3.MinExecBlockNum)
+	require.NoError(t, err)
+	require.Equal(t, v.SrcCollectFromBlockNums, cp3.SrcCollectFromBlockNums)
+	require.Equal(t, v.MinExecBlockNum, cp3.MinExecBlockNum)
 }
 
 func TestStorageDifferentChannelsCheckPoints(t *testing.T) {

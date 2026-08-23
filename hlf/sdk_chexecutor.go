@@ -253,31 +253,31 @@ func LogBatchContent(log glog.Logger, b *executordto.Batch) {
 	sb := strings.Builder{}
 	_, _ = sb.WriteString("batch content:\n")
 
-	_, _ = sb.WriteString(fmt.Sprintf("txs (%v):\n", len(b.Txs)))
+	_, _ = fmt.Fprintf(&sb, "txs (%v):\n", len(b.Txs))
 	for _, tx := range b.Txs {
 		_, _ = sb.WriteString(hex.EncodeToString(tx))
 		_, _ = sb.WriteString("\n")
 	}
 
-	_, _ = sb.WriteString(fmt.Sprintf("swaps (%v):\n", len(b.Swaps)))
+	_, _ = fmt.Fprintf(&sb, "swaps (%v):\n", len(b.Swaps))
 	for _, swap := range b.Swaps {
 		_, _ = sb.WriteString(hex.EncodeToString(swap.GetId()))
 		_, _ = sb.WriteString("\n")
 	}
 
-	_, _ = sb.WriteString(fmt.Sprintf("mswaps (%v):\n", len(b.MultiSwaps)))
+	_, _ = fmt.Fprintf(&sb, "mswaps (%v):\n", len(b.MultiSwaps))
 	for _, mswap := range b.MultiSwaps {
 		_, _ = sb.WriteString(hex.EncodeToString(mswap.GetId()))
 		_, _ = sb.WriteString("\n")
 	}
 
-	_, _ = sb.WriteString(fmt.Sprintf("swaps-keys (%v):\n", len(b.Keys)))
+	_, _ = fmt.Fprintf(&sb, "swaps-keys (%v):\n", len(b.Keys))
 	for _, k := range b.Keys {
 		_, _ = sb.WriteString(hex.EncodeToString(k.GetId()))
 		_, _ = sb.WriteString("\n")
 	}
 
-	_, _ = sb.WriteString(fmt.Sprintf("mswaps-keys (%v):\n", len(b.MultiKeys)))
+	_, _ = fmt.Fprintf(&sb, "mswaps-keys (%v):\n", len(b.MultiKeys))
 	for _, k := range b.MultiKeys {
 		_, _ = sb.WriteString(hex.EncodeToString(k.GetId()))
 		_, _ = sb.WriteString("\n")

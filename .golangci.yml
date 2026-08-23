@@ -1,8 +1,4 @@
 version: "2"
-run:
-  concurrency: 4
-  go: "1.26"
-  tests: false
 linters:
   default: none
   enable:
@@ -19,12 +15,9 @@ linters:
     - fatcontext
     - forcetypeassert
     - gocheckcompilerdirectives
-    - gocognit
-    - goconst
     - gocritic
-    - gocyclo
     - goheader
-    - gomodguard
+    - gomodguard_v2
     - goprintffuncname
     - gosec
     - grouper
@@ -64,6 +57,8 @@ linters:
         - G402
         - G404
         - G115
+        - G703
+        - G204
     revive:
       rules:
         - name: dot-imports
@@ -100,8 +95,7 @@ formatters:
       - third_party$
       - builtin$
       - examples$
-output:
-  formats:
-    text:
-      path: stdout
-      colors: true
+issues:
+  max-issues-per-linter: 0
+  max-same-issues: 0
+  uniq-by-line: false

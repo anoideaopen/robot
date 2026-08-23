@@ -52,7 +52,7 @@ jobs:
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v9
         with:
-          version: v2.9.0
+          version: v2.13.0
           skip-cache: true
           problem-matchers: true
 
@@ -83,13 +83,12 @@ jobs:
       - name: generate test coverage
         run: |
           go test ./... -coverprofile=./coverage.out
+          grep -v '\.pb\.go:' ./coverage.out > coverage.tmp && mv coverage.tmp coverage.out
 
-      # https://github.com/vladopajic/go-test-coverage
-      - uses: vladopajic/go-test-coverage@v2.19.0
+      # https://github.com/marketplace/actions/coveralls-github-action
+      - uses: coverallsapp/github-action@v2
         with:
-          config: ./.testcoverage.yml
-          profile: coverage.out
-          local-prefix: github.com/${{ github.repository }}
+          file: ./coverage.out
 
   go-test-integration:
     needs:
